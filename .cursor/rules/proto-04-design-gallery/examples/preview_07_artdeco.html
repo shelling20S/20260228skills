@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>案07: Art Deco — MO-GI GATSBY BALLROOM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Shippori+Mincho:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #060d08;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 39px,
+        rgba(212,175,55,0.03) 39px,
+        rgba(212,175,55,0.03) 40px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent,
+        transparent 39px,
+        rgba(212,175,55,0.03) 39px,
+        rgba(212,175,55,0.03) 40px
+      );
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Shippori Mincho', serif;
+  }
+
+  /* Phone frame */
+  .phone-frame {
+    width: 375px;
+    height: 812px;
+    background: #0b1a0e;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    border: 2px solid #d4af37;
+    box-shadow:
+      0 0 0 1px #0b1a0e,
+      0 0 0 3px rgba(212,175,55,0.3),
+      0 0 60px rgba(212,175,55,0.08),
+      inset 0 0 80px rgba(0,0,0,0.4);
+  }
+
+  /* Scrollbar */
+  .phone-frame::-webkit-scrollbar { width: 3px; }
+  .phone-frame::-webkit-scrollbar-track { background: #0b1a0e; }
+  .phone-frame::-webkit-scrollbar-thumb { background: #d4af3744; border-radius: 2px; }
+
+  /* Art deco top fan pattern overlay */
+  .phone-frame::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 200px;
+    background:
+      radial-gradient(ellipse 120% 100% at 50% 0%, rgba(212,175,55,0.06) 0%, transparent 60%),
+      repeating-conic-gradient(from 0deg at 50% 0%, transparent 0deg, transparent 8deg, rgba(212,175,55,0.02) 8deg, rgba(212,175,55,0.02) 10deg);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .container {
+    padding: 40px 28px 32px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ===== Shimmer animation ===== */
+  @keyframes shimmer {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.75; }
+  }
+  @keyframes goldShine {
+    0% { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes subtleGlow {
+    0%, 100% { box-shadow: 0 0 8px rgba(212,175,55,0.2); }
+    50% { box-shadow: 0 0 16px rgba(212,175,55,0.35); }
+  }
+
+  /* ===== Decorative divider ===== */
+  .deco-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    margin: 24px 0;
+  }
+  .deco-divider .line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #d4af37, transparent);
+  }
+  .deco-divider .diamond {
+    width: 8px;
+    height: 8px;
+    background: #d4af37;
+    transform: rotate(45deg);
+    animation: shimmer 3s ease-in-out infinite;
+  }
+
+  /* ===== Section divider with fan ===== */
+  .fan-divider {
+    text-align: center;
+    margin: 28px 0 20px;
+    position: relative;
+  }
+  .fan-divider::before {
+    content: '';
+    display: block;
+    width: 120px;
+    height: 60px;
+    margin: 0 auto;
+    background:
+      repeating-conic-gradient(
+        from -90deg at 50% 100%,
+        transparent 0deg,
+        transparent 8deg,
+        rgba(212,175,55,0.12) 8deg,
+        rgba(212,175,55,0.12) 10deg
+      );
+    border-radius: 60px 60px 0 0;
+    mask-image: linear-gradient(to bottom, black 60%, transparent);
+    -webkit-mask-image: linear-gradient(to bottom, black 60%, transparent);
+  }
+  .fan-divider .label {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 9px;
+    color: #d4af37;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-top: -8px;
+  }
+
+  /* ===== Title area ===== */
+  .title-area {
+    text-align: center;
+    margin-bottom: 4px;
+  }
+
+  /* Sunburst behind title */
+  .title-sunburst {
+    position: relative;
+    display: inline-block;
+    padding: 20px 0;
+  }
+  .title-sunburst::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 220px;
+    height: 220px;
+    background:
+      repeating-conic-gradient(
+        from 0deg at 50% 50%,
+        transparent 0deg,
+        transparent 4deg,
+        rgba(212,175,55,0.04) 4deg,
+        rgba(212,175,55,0.04) 5deg
+      );
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  .title {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: #d4af37;
+    letter-spacing: 6px;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-shadow: 0 0 30px rgba(212,175,55,0.3);
+  }
+  .title .lucide {
+    width: 20px;
+    height: 20px;
+    color: #d4af37;
+    animation: shimmer 2.5s ease-in-out infinite;
+  }
+
+  .subtitle {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 8px;
+    font-weight: 400;
+    color: #d4af3799;
+    letter-spacing: 5px;
+    margin-top: 10px;
+    text-transform: uppercase;
+  }
+
+  /* ===== Catchcopy ===== */
+  .catchcopy {
+    text-align: center;
+    font-size: 15px;
+    font-weight: 600;
+    color: #f5e6c8;
+    letter-spacing: 2px;
+    line-height: 1.8;
+    margin-bottom: 8px;
+  }
+
+  /* ===== Characters ===== */
+  .characters-section {
+    margin-bottom: 8px;
+  }
+  .characters {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .char-item {
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+  }
+
+  /* Art deco circular frame */
+  .char-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: #0b1a0e;
+    border: 2px solid #d4af37;
+    transition: all 0.3s ease;
+  }
+  /* Outer deco ring */
+  .char-icon::before {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    border-radius: 50%;
+    border: 1px solid rgba(212,175,55,0.3);
+  }
+  /* Corner accents (chevron marks) */
+  .char-icon::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 1px dashed rgba(212,175,55,0.15);
+  }
+
+  .char-icon .lucide {
+    width: 22px;
+    height: 22px;
+    transition: all 0.3s ease;
+  }
+  .char-icon.moe .lucide { color: #FF8FAB; filter: drop-shadow(0 0 6px rgba(255,143,171,0.4)); }
+  .char-icon.tech .lucide { color: #64B5F6; filter: drop-shadow(0 0 6px rgba(100,181,246,0.4)); }
+  .char-icon.guard .lucide { color: #81C784; filter: drop-shadow(0 0 6px rgba(129,199,132,0.4)); }
+  .char-icon.chair .lucide { color: #FFD54F; filter: drop-shadow(0 0 6px rgba(255,213,79,0.4)); }
+  .char-icon.gal .lucide { color: #FF8A65; filter: drop-shadow(0 0 6px rgba(255,138,101,0.4)); }
+
+  .char-icon.moe { box-shadow: inset 0 0 12px rgba(255,143,171,0.15); }
+  .char-icon.tech { box-shadow: inset 0 0 12px rgba(100,181,246,0.15); }
+  .char-icon.guard { box-shadow: inset 0 0 12px rgba(129,199,132,0.15); }
+  .char-icon.chair { box-shadow: inset 0 0 12px rgba(255,213,79,0.15); }
+  .char-icon.gal { box-shadow: inset 0 0 12px rgba(255,138,101,0.15); }
+
+  .char-item:hover .char-icon {
+    border-color: #f5e6c8;
+    transform: scale(1.08);
+  }
+
+  .char-name {
+    font-family: 'Shippori Mincho', serif;
+    font-size: 10px;
+    color: #f5e6c8;
+    margin-top: 8px;
+    letter-spacing: 1px;
+    opacity: 0.8;
+  }
+
+  /* Tooltip */
+  .char-item .tooltip {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0f2414;
+    border: 1px solid #d4af3755;
+    color: #f5e6c8;
+    font-size: 11px;
+    padding: 6px 12px;
+    white-space: nowrap;
+    margin-bottom: 10px;
+    z-index: 10;
+    letter-spacing: 0.5px;
+  }
+  .char-item .tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: #d4af3755;
+  }
+  .char-item:hover .tooltip { display: block; }
+
+  /* ===== Scenario cards ===== */
+  .scenario-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 8px;
+  }
+
+  .scenario-card {
+    background: linear-gradient(135deg, #0f2414 0%, #0b1a0e 100%);
+    border: 1px solid #d4af3744;
+    padding: 18px 20px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    opacity: 0;
+    transform: translateY(16px);
+    animation: fadeInUp 0.6s ease forwards;
+  }
+  .scenario-card:nth-child(1) { animation-delay: 0.2s; }
+  .scenario-card:nth-child(2) { animation-delay: 0.4s; }
+  .scenario-card:nth-child(3) { animation-delay: 0.6s; }
+
+  /* Art deco corner ornaments */
+  .scenario-card::before,
+  .scenario-card::after {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    border-color: #d4af37;
+    border-style: solid;
+    transition: all 0.3s ease;
+  }
+  .scenario-card::before {
+    top: 4px; left: 4px;
+    border-width: 2px 0 0 2px;
+  }
+  .scenario-card::after {
+    bottom: 4px; right: 4px;
+    border-width: 0 2px 2px 0;
+  }
+
+  .scenario-card:hover {
+    border-color: #d4af3788;
+    box-shadow: 0 0 24px rgba(212,175,55,0.1);
+    background: linear-gradient(135deg, #132a18 0%, #0e1f12 100%);
+  }
+  .scenario-card:hover::before,
+  .scenario-card:hover::after {
+    width: 22px;
+    height: 22px;
+  }
+  .scenario-card:active {
+    transform: scale(0.98);
+  }
+
+  .scenario-number {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 9px;
+    color: #d4af37;
+    margin-bottom: 6px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+  }
+  .scenario-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #f5e6c8;
+    line-height: 1.6;
+    letter-spacing: 1px;
+    padding-right: 24px;
+  }
+
+  .scenario-arrow {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #d4af37;
+    opacity: 0.4;
+    transition: all 0.3s ease;
+  }
+  .scenario-arrow .lucide {
+    width: 16px;
+    height: 16px;
+  }
+  .scenario-card:hover .scenario-arrow {
+    opacity: 1;
+    right: 16px;
+  }
+
+  /* ===== Footer ===== */
+  .footer {
+    text-align: center;
+    margin-top: 32px;
+  }
+  .footer-line {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #d4af3744, transparent);
+    margin-bottom: 16px;
+  }
+  .footer-text {
+    font-family: 'Cinzel Decorative', serif;
+    font-size: 9px;
+    color: #d4af3755;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    animation: shimmer 4s ease-in-out infinite;
+  }
+
+  /* ===== Gold shimmer text utility ===== */
+  .gold-shimmer {
+    background: linear-gradient(
+      90deg,
+      #d4af37 0%,
+      #f5e6c8 25%,
+      #d4af37 50%,
+      #f5e6c8 75%,
+      #d4af37 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: goldShine 6s linear infinite;
+  }
+
+  /* ===== Chevron border pattern ===== */
+  .chevron-border {
+    height: 12px;
+    background:
+      linear-gradient(135deg, #d4af3711 25%, transparent 25%) -10px 0,
+      linear-gradient(225deg, #d4af3711 25%, transparent 25%) -10px 0,
+      linear-gradient(315deg, #d4af3711 25%, transparent 25%),
+      linear-gradient(45deg, #d4af3711 25%, transparent 25%);
+    background-size: 20px 12px;
+    background-color: transparent;
+    margin: 0 -28px;
+  }
+</style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="container">
+
+      <!-- Title -->
+      <div class="title-area">
+        <div class="title-sunburst">
+          <div class="title gold-shimmer">
+            <i data-lucide="play"></i>
+            萌GI SYSTEM
+          </div>
+        </div>
+        <div class="subtitle">MO-GI Decision Making System</div>
+      </div>
+
+      <!-- Divider -->
+      <div class="deco-divider">
+        <div class="line"></div>
+        <div class="diamond"></div>
+        <div class="line"></div>
+      </div>
+
+      <!-- Catchcopy -->
+      <div class="catchcopy">「GALが5人で会議したら<br>こうなる。」</div>
+
+      <!-- Chevron pattern -->
+      <div class="chevron-border"></div>
+
+      <!-- Scenarios section -->
+      <div class="fan-divider">
+        <div class="label">Scenarios</div>
+      </div>
+
+      <div class="scenario-list">
+        <div class="scenario-card" onclick="alert('→ 会話パートへ遷移')">
+          <div class="scenario-number">Scenario I</div>
+          <div class="scenario-title">副業でAIサービスを始めるべき？</div>
+          <div class="scenario-arrow"><i data-lucide="chevron-right"></i></div>
+        </div>
+        <div class="scenario-card" onclick="alert('→ 会話パートへ遷移')">
+          <div class="scenario-number">Scenario II</div>
+          <div class="scenario-title">社内データをClaude APIに渡していい？</div>
+          <div class="scenario-arrow"><i data-lucide="chevron-right"></i></div>
+        </div>
+        <div class="scenario-card" onclick="alert('→ 会話パートへ遷移')">
+          <div class="scenario-number">Scenario III</div>
+          <div class="scenario-title">勉強会をYouTubeで公開配信すべき？</div>
+          <div class="scenario-arrow"><i data-lucide="chevron-right"></i></div>
+        </div>
+      </div>
+
+      <!-- Chevron pattern -->
+      <div class="chevron-border"></div>
+
+      <!-- Characters section -->
+      <div class="fan-divider">
+        <div class="label">Council</div>
+      </div>
+
+      <div class="characters-section">
+        <div class="characters">
+          <div class="char-item">
+            <div class="tooltip">共感翻訳 / 萌コア</div>
+            <div class="char-icon moe"><i data-lucide="heart"></i></div>
+            <div class="char-name">モカ</div>
+          </div>
+          <div class="char-item">
+            <div class="tooltip">ファクト警察 / 技コア</div>
+            <div class="char-icon tech"><i data-lucide="flask-conical"></i></div>
+            <div class="char-name">リツ</div>
+          </div>
+          <div class="char-item">
+            <div class="tooltip">炎上予防装置 / 守コア</div>
+            <div class="char-icon guard"><i data-lucide="shield"></i></div>
+            <div class="char-name">カノン</div>
+          </div>
+          <div class="char-item">
+            <div class="tooltip">結論製造機 / 統括</div>
+            <div class="char-icon chair"><i data-lucide="crown"></i></div>
+            <div class="char-name">レイカ</div>
+          </div>
+          <div class="char-item">
+            <div class="tooltip">バズ製造姫 / ギャル</div>
+            <div class="char-icon gal"><i data-lucide="sparkles"></i></div>
+            <div class="char-name">ルナ</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <div class="deco-divider">
+          <div class="line"></div>
+          <div class="diamond"></div>
+          <div class="line"></div>
+        </div>
+        <div class="footer-text">MO-GI v1.0</div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>lucide.createIcons();</script>
+</body>
+</html>

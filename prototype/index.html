@@ -1,0 +1,2116 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Multi-Artist Tracker Prototype</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-body: radial-gradient(circle at top, #22263a 0%, #05060a 55%, #000000 100%);
+      --bg-frame: #05060a;
+      --bg-card: #111320;
+      --bg-card-soft: #171a2a;
+      --bg-tab: rgba(10, 12, 24, 0.9);
+      --text-primary: #f9fafb;
+      --text-secondary: #9ca3af;
+      --accent: #a855f7;
+      --accent-soft: rgba(168, 85, 247, 0.25);
+      --accent-strong: #e11d48;
+      --border-subtle: rgba(148, 163, 184, 0.18);
+      --shadow-frame: 0 24px 60px rgba(15, 23, 42, 0.8);
+      --shadow-card: 0 18px 40px rgba(15, 23, 42, 0.7);
+      --radius-lg: 28px;
+      --radius-md: 18px;
+      --radius-sm: 999px;
+      --transition-fast: 0.15s ease;
+      --transition-normal: 0.25s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px 0;
+      font-family: "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: var(--bg-body);
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: radial-gradient(circle at top, #111827 0%, #020617 50%, #000000 100%);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-frame);
+      overflow: hidden;
+      position: relative;
+      border: 1px solid rgba(148, 163, 184, 0.25);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .phone-inner {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .status-bar {
+      height: 24px;
+      padding: 4px 16px;
+      font-size: 11px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      opacity: 0.7;
+    }
+
+    .screen {
+      position: absolute;
+      inset: 24px 0 0;
+      padding: 16px 16px 20px;
+      display: none;
+      flex-direction: column;
+    }
+
+    .screen.active {
+      display: flex;
+      animation: fadeInUp 0.35s ease both;
+    }
+
+    .app-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .app-title {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .app-title-main {
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .app-title-sub {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .avatar-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 10px 4px 4px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      cursor: pointer;
+      transition: background var(--transition-fast), transform var(--transition-fast);
+    }
+
+    .avatar-pill:hover {
+      background: rgba(15, 23, 42, 1);
+      transform: translateY(-1px);
+    }
+
+    .avatar {
+      width: 26px;
+      height: 26px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 0%, #f9a8d4 0%, #a855f7 35%, #22d3ee 100%);
+      box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .avatar-text {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .pill-username {
+      font-size: 12px;
+    }
+
+    .pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #22c55e;
+    }
+
+    .main-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding-top: 4px;
+      padding-bottom: 4px;
+    }
+
+    .hero-card {
+      background: radial-gradient(circle at top left, rgba(168, 85, 247, 0.12), transparent 55%), radial-gradient(circle at bottom right, rgba(8, 47, 73, 0.9), #020617 70%);
+      border-radius: 22px;
+      padding: 14px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      box-shadow: var(--shadow-card);
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .hero-art {
+      width: 80px;
+      height: 80px;
+      border-radius: 18px;
+      background: conic-gradient(from 200deg, #22d3ee, #a855f7, #f97316, #22d3ee);
+      padding: 3px;
+      position: relative;
+    }
+
+    .hero-art-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 15px;
+      background: radial-gradient(circle at top, #020617 0%, #0b1120 60%, #020617 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #e5e7eb;
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .hero-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .hero-names {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .hero-name-ja {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .hero-name-en {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .hero-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      color: var(--text-secondary);
+      background: rgba(15, 23, 42, 0.7);
+    }
+
+    .hero-links {
+      display: flex;
+      gap: 8px;
+    }
+
+    .icon-button {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.85);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      color: var(--text-secondary);
+      transition: background var(--transition-fast), transform var(--transition-fast), border-color var(--transition-fast);
+    }
+
+    .icon-button:hover {
+      background: rgba(15, 23, 42, 1);
+      transform: translateY(-1px);
+      border-color: var(--accent);
+    }
+
+    .chips-row {
+      display: flex;
+      gap: 8px;
+      margin: 2px 0 8px;
+      align-items: center;
+    }
+
+    .chip {
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid rgba(148, 163, 184, 0.45);
+      color: var(--text-secondary);
+    }
+
+    .chip-accent {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(88, 28, 135, 0.35);
+    }
+
+    .tab-bar {
+      display: flex;
+      padding: 6px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      margin-bottom: 8px;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
+
+    .tab-button {
+      flex: 1;
+      border-radius: 999px;
+      padding: 6px 4px;
+      font-size: 12px;
+      border: none;
+      background: transparent;
+      color: var(--text-secondary);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      cursor: pointer;
+      transition: background var(--transition-normal), color var(--transition-normal), transform var(--transition-fast);
+      font-weight: 500;
+      box-shadow: none;
+    }
+
+    .tab-button span.en {
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 10px;
+    }
+
+    .tab-button.active {
+      background: linear-gradient(135deg, var(--accent) 0%, #22d3ee 100%);
+      color: #0b1120;
+      box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.6), 0 16px 30px rgba(59, 130, 246, 0.4);
+      transform: translateY(-1px);
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin: 10px 2px 6px;
+    }
+
+    .section-title span.jp {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-right: 4px;
+    }
+
+    .cards-column {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .event-card-large,
+    .event-card,
+    .release-card {
+      border-radius: 18px;
+      border: 1px solid var(--border-subtle);
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.9) 0%, #020617 55%, #020617 100%);
+      padding: 10px 10px 9px;
+      display: flex;
+      gap: 10px;
+      cursor: pointer;
+      transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast), background var(--transition-fast);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .event-card-large::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(168, 85, 247, 0.22), transparent 55%);
+      opacity: 1;
+      pointer-events: none;
+    }
+
+    .event-card-large:hover,
+    .event-card:hover,
+    .release-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 20px 35px rgba(15, 23, 42, 0.9);
+      border-color: rgba(148, 163, 184, 0.75);
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.96) 0%, #020617 55%, #020617 100%);
+    }
+
+    .event-date-pill {
+      min-width: 60px;
+      align-self: flex-start;
+      border-radius: 14px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      padding: 6px 6px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+    }
+
+    .event-date-month {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+    }
+
+    .event-date-day {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .event-date-week {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .event-main {
+      flex: 1;
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .badge {
+      padding: 2px 8px;
+      font-size: 11px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      color: var(--text-secondary);
+      background: rgba(15, 23, 42, 0.8);
+    }
+
+    .badge-type-live {
+      border-color: rgba(248, 113, 113, 0.9);
+      color: #fecaca;
+      background: rgba(127, 29, 29, 0.7);
+    }
+
+    .badge-type-tour {
+      border-color: rgba(52, 211, 153, 0.9);
+      color: #bbf7d0;
+      background: rgba(6, 95, 70, 0.7);
+    }
+
+    .badge-type-popup {
+      border-color: rgba(251, 191, 36, 0.9);
+      color: #fef3c7;
+      background: rgba(113, 63, 18, 0.7);
+    }
+
+    .badge-type-exhibition {
+      border-color: rgba(129, 140, 248, 0.9);
+      color: #e0e7ff;
+      background: rgba(30, 64, 175, 0.7);
+    }
+
+    .event-title-ja {
+      font-size: 15px;
+      font-weight: 500;
+    }
+
+    .event-title-en {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .event-meta {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .event-meta strong {
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+
+    .event-more {
+      font-size: 11px;
+      color: var(--accent);
+      margin-top: 2px;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .grid-releases {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .release-cover {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      border-radius: 14px;
+      background: conic-gradient(from 160deg, #22d3ee, #a855f7, #f97316, #22d3ee);
+      padding: 3px;
+      margin-bottom: 6px;
+    }
+
+    .release-cover-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 11px;
+      background: radial-gradient(circle at top, #020617 0%, #0b1120 60%, #020617 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .release-title {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 2px;
+    }
+
+    .release-meta {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .btn-primary,
+    .btn-secondary,
+    .btn-ghost,
+    .btn-icon {
+      border-radius: 999px;
+      border: none;
+      font-size: 13px;
+      padding: 9px 14px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background var(--transition-fast), transform var(--transition-fast), box-shadow var(--transition-fast), color var(--transition-fast);
+      white-space: nowrap;
+      box-shadow: none;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent) 0%, #22d3ee 100%);
+      color: #020617;
+      font-weight: 600;
+      box-shadow: 0 14px 35px rgba(34, 211, 238, 0.55);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 18px 40px rgba(34, 211, 238, 0.7);
+    }
+
+    .btn-secondary {
+      background: rgba(15, 23, 42, 0.95);
+      color: var(--text-primary);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(15, 23, 42, 1);
+      transform: translateY(-1px);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-secondary);
+    }
+
+    .btn-icon {
+      padding-inline: 10px;
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-secondary);
+      border: 1px solid rgba(148, 163, 184, 0.45);
+    }
+
+    .btn-icon:hover {
+      background: rgba(15, 23, 42, 1);
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-full {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .toast {
+      position: absolute;
+      left: 50%;
+      bottom: 84px;
+      transform: translateX(-50%);
+      background: rgba(15, 23, 42, 0.96);
+      border-radius: 999px;
+      padding: 8px 16px;
+      font-size: 12px;
+      color: var(--text-primary);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 14px 28px rgba(15, 23, 42, 0.9);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, -6px);
+    }
+
+    .toast-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+    }
+
+    .empty-state {
+      padding: 12px 10px;
+      border-radius: 16px;
+      border: 1px dashed rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.65);
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+
+    .empty-state strong {
+      color: var(--text-primary);
+    }
+
+    .badge-small {
+      padding: 2px 7px;
+      font-size: 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      color: var(--text-secondary);
+    }
+
+    .settings-group {
+      border-radius: 18px;
+      border: 1px solid var(--border-subtle);
+      background: radial-gradient(circle at top, rgba(15, 23, 42, 0.9) 0%, #020617 50%, #020617 100%);
+      padding: 10px 12px;
+      margin-bottom: 12px;
+    }
+
+    .settings-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin: 4px 0;
+    }
+
+    .settings-label {
+      font-size: 13px;
+    }
+
+    .settings-desc {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    .toggle {
+      width: 44px;
+      height: 24px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.7);
+      position: relative;
+      cursor: pointer;
+      transition: background var(--transition-fast), border-color var(--transition-fast);
+    }
+
+    .toggle-knob {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      transition: transform var(--transition-fast), background var(--transition-fast), box-shadow var(--transition-fast);
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.6);
+    }
+
+    .toggle.on {
+      background: linear-gradient(135deg, var(--accent) 0%, #22d3ee 100%);
+      border-color: #22d3ee;
+    }
+
+    .toggle.on .toggle-knob {
+      transform: translateX(18px);
+      background: #0b1120;
+    }
+
+    .field-label {
+      font-size: 11px;
+      color: var(--text-secondary);
+      margin-bottom: 3px;
+    }
+
+    .field {
+      width: 100%;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.9);
+      padding: 8px 10px;
+      font-size: 12px;
+      color: var(--text-secondary);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .field input {
+      width: 100%;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--text-primary);
+      font-size: 13px;
+    }
+
+    .field input::placeholder {
+      color: rgba(148, 163, 184, 0.75);
+    }
+
+    .search-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 8px;
+      align-items: center;
+    }
+
+    .search-input {
+      flex: 1;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      background: rgba(15, 23, 42, 0.9);
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .search-input input {
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--text-primary);
+      font-size: 13px;
+      width: 100%;
+    }
+
+    .search-input input::placeholder {
+      color: rgba(148, 163, 184, 0.75);
+    }
+
+    .text-small {
+      font-size: 11px;
+      color: var(--text-secondary);
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="phone-inner">
+      <div class="status-bar">
+        <span id="status-time">9:41</span>
+        <span>LTE ▴▴▴ ◼︎</span>
+      </div>
+
+      <!-- Login Screen -->
+      <div class="screen active" id="screen-login">
+        <div class="main-scroll">
+          <div style="margin-top:40px; margin-bottom:24px; text-align:center;">
+            <div style="display:inline-flex; padding:4px 10px; border-radius:999px; border:1px solid rgba(148,163,184,0.5); font-size:11px; color:var(--text-secondary); margin-bottom:10px;">
+              <span style="margin-right:6px;">MULTI-ARTIST</span>
+              <span>TRACKER</span>
+            </div>
+            <div style="font-size:22px; font-weight:700; margin-bottom:6px;">推しの予定、ぜんぶ一緒に</div>
+            <div style="font-size:13px; color:var(--text-secondary); line-height:1.6;">
+              複数アーティストのライブや展示、リリース情報を<br>
+              1つのカレンダー感覚でまとめて追いかけられます。
+            </div>
+          </div>
+
+          <div style="border-radius:22px; background: radial-gradient(circle at top, rgba(248, 250, 252,0.06) 0%, rgba(15,23,42,0.95) 55%, #020617 100%); border:1px solid rgba(148,163,184,0.5); padding:14px; box-shadow: var(--shadow-card); margin-bottom:20px;">
+            <div style="display:flex; gap:12px; align-items:flex-start; margin-bottom:10px;">
+              <div class="avatar" style="width:34px; height:34px; font-size:16px;">MT</div>
+              <div style="flex:1;">
+                <div style="font-size:14px; margin-bottom:4px;"><strong>Before</strong> → <strong>After</strong></div>
+                <div class="text-small">
+                  Before: スプレッドシートとカレンダーを行き来して、<br>
+                  情報源もバラバラ。<br>
+                  After: 推し数組の予定とリリースを、1つの画面で俯瞰。
+                </div>
+              </div>
+            </div>
+            <div class="text-small">
+              例えば「今年のライブ予定が月に何本あるか」「新譜前後のイベントだけ」を、ぱっと眺められるようにします。
+            </div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap:8px;">
+            <button id="btn-login-google" class="btn-primary btn-full" type="button">
+              <span style="font-size:16px;">G</span>
+              <span>Googleでログイン</span>
+            </button>
+            <div id="login-progress" class="text-small" style="text-align:center; opacity:0; margin-top:4px;">
+              ログイン中... / Signing in...
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Home Screen -->
+      <div class="screen" id="screen-home">
+        <div class="app-header">
+          <div class="app-title">
+            <div class="app-title-main">Multi-Artist</div>
+            <div class="app-title-sub">追っているアーティストをまとめて管理</div>
+          </div>
+          <div id="home-user-pill" class="avatar-pill">
+            <div class="avatar" id="home-user-initial">U</div>
+            <div>
+              <div class="pill-username" id="home-user-name">User</div>
+              <div class="avatar-text">タップで設定</div>
+            </div>
+            <div class="pill-dot"></div>
+          </div>
+        </div>
+
+        <div class="main-scroll">
+          <div class="section-title">
+            <span class="jp">フォロー中</span> / Following
+          </div>
+          <div id="home-following-list" class="cards-column" style="margin-bottom:10px;"></div>
+
+          <div class="section-title">
+            <span class="jp">アーティストを追加</span> / Add Artist
+          </div>
+          <div class="search-row">
+            <div class="search-input">
+              <span style="font-size:14px; color:var(--text-secondary);">🔍</span>
+              <input id="home-search-input" type="text" placeholder="アーティスト名で検索 / Search artist">
+            </div>
+            <button id="home-search-button" class="btn-secondary" type="button" style="padding-inline:10px; font-size:12px;">
+              検索
+            </button>
+          </div>
+          <div id="home-search-results" class="cards-column"></div>
+        </div>
+      </div>
+
+      <!-- Artist Detail Screen -->
+      <div class="screen" id="screen-artist">
+        <div class="app-header">
+          <button id="artist-back" class="btn-icon" type="button">
+            ←
+          </button>
+          <div class="app-title" style="flex:1; text-align:center;">
+            <div id="artist-header-ja" class="app-title-main" style="font-size:16px;"></div>
+            <div id="artist-header-en" class="app-title-sub"></div>
+          </div>
+          <button id="artist-follow-toggle" class="btn-secondary" type="button" style="font-size:11px; padding-inline:10px;">
+            フォロー / Follow
+          </button>
+        </div>
+
+        <div class="main-scroll">
+          <div class="hero-card">
+            <div class="hero-art">
+              <div class="hero-art-inner" id="artist-hero-initials">AA</div>
+            </div>
+            <div class="hero-body">
+              <div class="hero-names">
+                <div class="hero-name-ja" id="artist-hero-name-ja"></div>
+                <div class="hero-name-en" id="artist-hero-name-en"></div>
+              </div>
+              <div class="hero-tags">
+                <div class="tag" id="artist-tag-genre">Alternative Rock</div>
+                <div class="tag" id="artist-tag-location">Tokyo, Japan</div>
+              </div>
+              <div class="hero-links">
+                <button class="icon-button" id="artist-link-site" type="button" title="Official Site">🌐</button>
+                <button class="icon-button" id="artist-link-x" type="button" title="X (Twitter)">𝕏</button>
+                <button class="icon-button" id="artist-link-instagram" type="button" title="Instagram">📷</button>
+                <button class="icon-button" id="artist-link-youtube" type="button" title="YouTube">▶</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="chips-row">
+            <div class="chip chip-accent">複数アーティストの1人 / One of your favorites</div>
+          </div>
+
+          <div class="tab-bar">
+            <button id="artist-tab-events" class="tab-button active" type="button">
+              <span class="jp">イベント</span>
+              <span class="en">Events</span>
+            </button>
+            <button id="artist-tab-releases" class="tab-button" type="button">
+              <span class="jp">リリース</span>
+              <span class="en">Releases</span>
+            </button>
+          </div>
+
+          <div id="artist-tab-events-pane">
+            <div class="section-title">
+              <span class="jp">次のイベント</span> / Next Event
+            </div>
+            <div id="artist-next-event"></div>
+
+            <div class="section-title">
+              <span class="jp">これからのイベント</span> / Upcoming Events
+            </div>
+            <div id="artist-upcoming-events" class="cards-column"></div>
+          </div>
+
+          <div id="artist-tab-releases-pane" style="display:none;">
+            <div class="section-title">
+              <span class="jp">リリース</span> / Releases
+            </div>
+            <div id="artist-releases" class="grid-releases"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Event Detail Screen -->
+      <div class="screen" id="screen-event">
+        <div class="app-header">
+          <button id="event-back" class="btn-icon" type="button">
+            ←
+          </button>
+          <div class="app-title" style="flex:1; text-align:center;">
+            <div class="app-title-main" id="event-header-title" style="font-size:15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
+            <div class="app-title-sub">イベント詳細 / Event Detail</div>
+          </div>
+          <div style="width:40px;"></div>
+        </div>
+
+        <div class="main-scroll">
+          <div class="hero-card" style="margin-bottom:12px;">
+            <div class="event-date-pill" id="event-pill-date">
+              <div class="event-date-month">MAR</div>
+              <div class="event-date-day">10</div>
+              <div class="event-date-week">TUE</div>
+            </div>
+            <div class="event-main">
+              <div class="badge-row" id="event-badges-row">
+                <span class="badge badge-type-live" id="event-badge-type">LIVE</span>
+                <span class="badge" id="event-badge-all-day" style="display:none;">終日 / All day</span>
+              </div>
+              <div class="event-title-ja" id="event-title-ja"></div>
+              <div class="event-title-en" id="event-title-en"></div>
+              <div class="event-meta" id="event-meta-datetime"></div>
+              <div class="event-meta" id="event-meta-venue"></div>
+              <div class="event-meta" id="event-meta-artists"></div>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <div class="settings-label">リンク / Links</div>
+            <div class="btn-row">
+              <button id="event-open-official" class="btn-secondary" type="button">
+                公式情報を見る / Official
+              </button>
+              <button id="event-open-ticket" class="btn-secondary" type="button">
+                チケット情報を見る / Ticket
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <div class="settings-label">カレンダー連携 / Calendar</div>
+            <div class="text-small" style="margin-bottom:6px;">
+              「Googleカレンダーに追加」ボタンを押すと、このイベントを新しいタブで開きます（モック動作）。
+            </div>
+            <button id="event-add-calendar" class="btn-primary btn-full" type="button">
+              Googleカレンダーに追加 / Add to Google Calendar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings Screen -->
+      <div class="screen" id="screen-settings">
+        <div class="app-header">
+          <button id="settings-back" class="btn-icon" type="button">
+            ←
+          </button>
+          <div class="app-title" style="flex:1; text-align:center;">
+            <div class="app-title-main">Settings</div>
+            <div class="app-title-sub">共有・データ・ログイン</div>
+          </div>
+          <div style="width:40px;"></div>
+        </div>
+
+        <div class="main-scroll">
+          <div class="settings-group">
+            <div class="settings-row">
+              <div>
+                <div class="settings-label">共有ページを公開 / Share page</div>
+                <div class="settings-desc">
+                  URLを知っている人だけ閲覧できます。
+                </div>
+              </div>
+              <div id="settings-toggle-share" class="toggle">
+                <div class="toggle-knob"></div>
+              </div>
+            </div>
+            <div style="margin-top:8px;">
+              <div class="field-label">共有URL / Share URL</div>
+              <div class="field" id="settings-share-url-field">
+                まだ共有ページは公開されていません。
+              </div>
+              <div class="btn-row" style="margin-top:6px;">
+                <button id="settings-copy-url" class="btn-icon" type="button">
+                  コピー / Copy
+                </button>
+                <button id="settings-preview-share" class="btn-ghost" type="button" style="font-size:11px;">
+                  プレビューを開く / Preview
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <div class="settings-label">データ / Data</div>
+            <div class="settings-row">
+              <div>
+                <div class="settings-label">サンプルデータに戻す</div>
+                <div class="settings-desc">
+                  localStorageをクリアし、初期データを再読み込みします。
+                </div>
+              </div>
+              <button id="settings-reset" class="btn-secondary" type="button" style="font-size:11px;">
+                リセット
+              </button>
+            </div>
+          </div>
+
+          <div class="settings-group">
+            <div class="settings-label">アカウント / Account</div>
+            <div class="settings-row">
+              <div>
+                <div class="settings-label" id="settings-user-name">User</div>
+                <div class="settings-desc" id="settings-user-email">user@example.com</div>
+              </div>
+              <button id="settings-logout" class="btn-ghost" type="button" style="font-size:12px;">
+                ログアウト / Log out
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Share View Screen (preview) -->
+      <div class="screen" id="screen-share">
+        <div class="app-header">
+          <button id="share-back" class="btn-icon" type="button">
+            ←
+          </button>
+          <div class="app-title" style="flex:1; text-align:center;">
+            <div class="app-title-main">Shared View</div>
+            <div class="app-title-sub">友人に見える画面</div>
+          </div>
+          <div style="width:40px;"></div>
+        </div>
+
+        <div class="main-scroll">
+          <div class="hero-card" style="margin-bottom:10px;">
+            <div class="hero-art">
+              <div class="hero-art-inner" id="share-owner-initials">U</div>
+            </div>
+            <div class="hero-body">
+              <div class="hero-names">
+                <div class="hero-name-ja" id="share-owner-name">User</div>
+                <div class="hero-name-en" style="font-size:12px; color:var(--text-secondary);">Shared page (read only)</div>
+              </div>
+              <div class="hero-tags">
+                <div class="tag">フォロー中のアーティスト</div>
+                <div class="tag">今後のイベント一覧</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-title">
+            <span class="jp">フォロー中</span> / Following
+          </div>
+          <div id="share-following-list" class="cards-column"></div>
+
+          <div class="section-title">
+            <span class="jp">これからのイベント</span> / Upcoming
+          </div>
+          <div id="share-events-list" class="cards-column"></div>
+
+          <div class="text-small" style="margin-top:8px;">
+            ※ この画面には「行く/行かない」「チケット状況」「メモ」などの個人的な情報は一切表示されません。
+          </div>
+        </div>
+      </div>
+
+      <div id="toast" class="toast">
+        <div class="toast-dot"></div>
+        <div id="toast-message"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // App state and data
+    const STORAGE_KEYS = {
+      users: 'mat_users',
+      artists: 'mat_artists',
+      events: 'mat_events',
+      releases: 'mat_releases',
+      shareProfiles: 'mat_shareProfiles',
+      lastUserId: 'mat_lastLoginUserId'
+    };
+
+    const state = {
+      currentUserId: null,
+      currentView: 'login',
+      currentArtistId: null,
+      currentEventId: null,
+      isLoading: false,
+      pendingAction: null
+    };
+
+    let users = [];
+    let artists = [];
+    let events = [];
+    let releases = [];
+    let shareProfiles = [];
+
+    function nowIso() {
+      return new Date().toISOString();
+    }
+
+    function loadFromStorage() {
+      try {
+        users = JSON.parse(localStorage.getItem(STORAGE_KEYS.users) || '[]');
+        artists = JSON.parse(localStorage.getItem(STORAGE_KEYS.artists) || '[]');
+        events = JSON.parse(localStorage.getItem(STORAGE_KEYS.events) || '[]');
+        releases = JSON.parse(localStorage.getItem(STORAGE_KEYS.releases) || '[]');
+        shareProfiles = JSON.parse(localStorage.getItem(STORAGE_KEYS.shareProfiles) || '[]');
+      } catch (e) {
+        users = [];
+        artists = [];
+        events = [];
+        releases = [];
+        shareProfiles = [];
+      }
+    }
+
+    function saveToStorage() {
+      localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(users));
+      localStorage.setItem(STORAGE_KEYS.artists, JSON.stringify(artists));
+      localStorage.setItem(STORAGE_KEYS.events, JSON.stringify(events));
+      localStorage.setItem(STORAGE_KEYS.releases, JSON.stringify(releases));
+      localStorage.setItem(STORAGE_KEYS.shareProfiles, JSON.stringify(shareProfiles));
+      if (state.currentUserId) {
+        localStorage.setItem(STORAGE_KEYS.lastUserId, state.currentUserId);
+      }
+    }
+
+    function resetSampleData() {
+      const sampleUserId = 'u-main';
+      users = [
+        { id: sampleUserId, displayName: 'あなた', emailMock: 'you@example.com', locale: 'ja' },
+        { id: 'u-guest', displayName: 'Guest', emailMock: 'guest@example.com', locale: 'en' }
+      ];
+
+      artists = [
+        {
+          id: 'a-yamada',
+          nameJa: '山田バンド',
+          nameEn: 'Yamada Band',
+          tags: ['オルタナティブ・ロック'],
+          officialSiteUrl: 'https://example.com/yamada',
+          snsLinks: [
+            { type: 'X', url: 'https://x.com/yamada' },
+            { type: 'Instagram', url: 'https://instagram.com/yamada' }
+          ]
+        },
+        {
+          id: 'a-sakura',
+          nameJa: '桜エレクトロ',
+          nameEn: 'Sakura Electro',
+          tags: ['エレクトロポップ'],
+          officialSiteUrl: 'https://example.com/sakura',
+          snsLinks: [
+            { type: 'X', url: 'https://x.com/sakura' },
+            { type: 'YouTube', url: 'https://youtube.com/@sakura' }
+          ]
+        },
+        {
+          id: 'a-longname',
+          nameJa: 'とてもとても名前の長い架空のアーティストユニット',
+          nameEn: 'The Very Very Long Named Fictional Artist Unit',
+          tags: ['インディー'],
+          officialSiteUrl: null,
+          snsLinks: []
+        }
+      ];
+
+      const today = new Date();
+      const nextWeek = new Date(today.getTime() + 7 * 86400000);
+      const inTwoWeeks = new Date(today.getTime() + 14 * 86400000);
+      const inThreeWeeks = new Date(today.getTime() + 21 * 86400000);
+
+      function toIso(d, hour) {
+        const clone = new Date(d.getTime());
+        clone.setHours(hour, 0, 0, 0);
+        return clone.toISOString();
+      }
+
+      events = [
+        {
+          id: 'e-yamada-next',
+          artistIds: ['a-yamada'],
+          titleJa: 'ワンマンライブ「BLUE NIGHT」',
+          titleEn: 'One-man Live "BLUE NIGHT"',
+          type: 'LIVE',
+          startAt: toIso(nextWeek, 19),
+          endAt: toIso(nextWeek, 21),
+          allDay: false,
+          venueName: '渋谷○○ホール',
+          venueAddress: '東京都渋谷区道玄坂1-1-1 ○○ビルB1',
+          officialUrl: 'https://example.com/yamada/live',
+          ticketUrl: 'https://tickets.example.com/yamada-blue-night',
+          source: 'sample',
+          userNotesPrivate: '',
+          goingFlag: 'none',
+          ticketStatus: 'none'
+        },
+        {
+          id: 'e-yamada-popup',
+          artistIds: ['a-yamada'],
+          titleJa: 'ポップアップストア「BLUE ROOM」',
+          titleEn: 'Pop-up "BLUE ROOM"',
+          type: 'POPUP',
+          startAt: toIso(inTwoWeeks, 0),
+          endAt: toIso(inTwoWeeks, 0),
+          allDay: true,
+          venueName: '原宿Somewhere',
+          venueAddress: '東京都渋谷区神宮前1-2-3',
+          officialUrl: 'https://example.com/yamada/popup',
+          ticketUrl: null,
+          source: 'sample',
+          userNotesPrivate: '',
+          goingFlag: 'interested',
+          ticketStatus: 'none'
+        },
+        {
+          id: 'e-sakura-live',
+          artistIds: ['a-sakura'],
+          titleJa: '桜エレクトロ Release Party',
+          titleEn: 'Sakura Electro Release Party',
+          type: 'LIVE',
+          startAt: toIso(inThreeWeeks, 18),
+          endAt: toIso(inThreeWeeks, 20),
+          allDay: false,
+          venueName: '心斎橋CLUB XX',
+          venueAddress: '大阪府大阪市中央区1-2-3',
+          officialUrl: 'https://example.com/sakura/live',
+          ticketUrl: 'https://tickets.example.com/sakura-release',
+          source: 'sample',
+          userNotesPrivate: '',
+          goingFlag: 'none',
+          ticketStatus: 'applied'
+        }
+      ];
+
+      releases = [
+        {
+          id: 'r-yamada-album',
+          artistId: 'a-yamada',
+          titleJa: '青の軌跡',
+          titleEn: 'Traces of Blue',
+          type: 'ALBUM',
+          releaseDate: '2025-11-20',
+          officialUrl: 'https://example.com/yamada/blue-album'
+        },
+        {
+          id: 'r-yamada-single',
+          artistId: 'a-yamada',
+          titleJa: '夜を追いかけて',
+          titleEn: 'Chasing the Night',
+          type: 'SINGLE',
+          releaseDate: '2026-02-14',
+          officialUrl: null
+        },
+        {
+          id: 'r-sakura-ep',
+          artistId: 'a-sakura',
+          titleJa: 'Neon Bloom',
+          titleEn: 'Neon Bloom',
+          type: 'EP',
+          releaseDate: '2025-09-01',
+          officialUrl: 'https://example.com/sakura/neon-bloom'
+        }
+      ];
+
+      shareProfiles = [
+        {
+          id: 'share-main',
+          ownerUserId: sampleUserId,
+          isPublic: false,
+          createdAt: nowIso(),
+          updatedAt: nowIso()
+        }
+      ];
+
+      localStorage.setItem(STORAGE_KEYS.users, JSON.stringify(users));
+      localStorage.setItem(STORAGE_KEYS.artists, JSON.stringify(artists));
+      localStorage.setItem(STORAGE_KEYS.events, JSON.stringify(events));
+      localStorage.setItem(STORAGE_KEYS.releases, JSON.stringify(releases));
+      localStorage.setItem(STORAGE_KEYS.shareProfiles, JSON.stringify(shareProfiles));
+      localStorage.setItem(STORAGE_KEYS.lastUserId, sampleUserId);
+    }
+
+    function ensureSampleData() {
+      loadFromStorage();
+      if (!users || users.length === 0) {
+        resetSampleData();
+        loadFromStorage();
+      }
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const msgEl = document.getElementById('toast-message');
+      msgEl.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2200);
+    }
+
+    function setScreen(view) {
+      const ids = ['login', 'home', 'artist', 'event', 'settings', 'share'];
+      ids.forEach(id => {
+        const el = document.getElementById('screen-' + id);
+        if (!el) return;
+        el.style.display = 'none';
+        el.classList.remove('active');
+      });
+      const target = document.getElementById('screen-' + view);
+      if (target) {
+        target.style.display = 'flex';
+        // force reflow for animation
+        void target.offsetWidth;
+        target.classList.add('active');
+        state.currentView = view;
+      }
+    }
+
+    function initialsFromName(name) {
+      if (!name) return 'AA';
+      const trimmed = name.trim();
+      if (!trimmed) return 'AA';
+      const parts = trimmed.split(/\s+/);
+      if (parts.length === 1) {
+        return parts[0].slice(0, 2).toUpperCase();
+      }
+      return (parts[0][0] + parts[1][0]).toUpperCase();
+    }
+
+    function findCurrentUser() {
+      return users.find(u => u.id === state.currentUserId) || null;
+    }
+
+    function renderHome() {
+      const user = findCurrentUser();
+      const pill = document.getElementById('home-user-pill');
+      const userInitial = document.getElementById('home-user-initial');
+      const userNameEl = document.getElementById('home-user-name');
+      if (user) {
+        userInitial.textContent = initialsFromName(user.displayName);
+        userNameEl.textContent = user.displayName;
+      }
+
+      const followingList = document.getElementById('home-following-list');
+      followingList.innerHTML = '';
+
+      if (artists.length === 0) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.innerHTML = '<strong>まだフォローしているアーティストはいません。</strong><br>下の検索から、よく追っているアーティストを追加してみてください。';
+        followingList.appendChild(empty);
+      } else {
+        artists.forEach(artist => {
+          const card = document.createElement('div');
+          card.className = 'event-card'; // reuse style
+
+          const pill = document.createElement('div');
+          pill.className = 'event-date-pill';
+          pill.innerHTML = '<div class="event-date-month">ART</div><div class="event-date-day">' +
+            (artist.nameJa ? artist.nameJa.length : 2) +
+            '</div><div class="event-date-week">JP</div>';
+
+          const main = document.createElement('div');
+          main.className = 'event-main';
+
+          const badgeRow = document.createElement('div');
+          badgeRow.className = 'badge-row';
+          const badge = document.createElement('span');
+          badge.className = 'badge';
+          badge.textContent = 'フォロー中 / Following';
+          badgeRow.appendChild(badge);
+
+          const titleJa = document.createElement('div');
+          titleJa.className = 'event-title-ja';
+          titleJa.textContent = artist.nameJa;
+
+          const titleEn = document.createElement('div');
+          titleEn.className = 'event-title-en';
+          titleEn.textContent = artist.nameEn || artist.nameJa;
+
+          const meta = document.createElement('div');
+          meta.className = 'event-meta';
+          meta.textContent = artist.tags && artist.tags.length ? artist.tags.join(', ') : '';
+
+          const more = document.createElement('div');
+          more.className = 'event-more';
+          more.textContent = '詳細を見る / View details ›';
+
+          main.appendChild(badgeRow);
+          main.appendChild(titleJa);
+          main.appendChild(titleEn);
+          main.appendChild(meta);
+          main.appendChild(more);
+
+          card.appendChild(pill);
+          card.appendChild(main);
+
+          card.addEventListener('click', () => {
+            state.currentArtistId = artist.id;
+            renderArtistDetail();
+            setScreen('artist');
+          });
+
+          followingList.appendChild(card);
+        });
+      }
+
+      document.getElementById('home-search-input').value = '';
+      document.getElementById('home-search-results').innerHTML = '';
+    }
+
+    function filterEventsByArtist(artistId) {
+      const now = new Date();
+      const list = events
+        .filter(e => e.artistIds && e.artistIds.includes(artistId))
+        .sort((a, b) => new Date(a.startAt) - new Date(b.startAt));
+      const upcoming = list.filter(e => new Date(e.endAt || e.startAt) >= now);
+      return { list, upcoming };
+    }
+
+    function renderArtistDetail() {
+      const artist = artists.find(a => a.id === state.currentArtistId);
+      if (!artist) {
+        showToast('アーティストが見つかりません。');
+        setScreen('home');
+        return;
+      }
+
+      document.getElementById('artist-header-ja').textContent = artist.nameJa;
+      document.getElementById('artist-header-en').textContent = artist.nameEn || artist.nameJa;
+      document.getElementById('artist-hero-name-ja').textContent = artist.nameJa;
+      document.getElementById('artist-hero-name-en').textContent = artist.nameEn || artist.nameJa;
+      document.getElementById('artist-hero-initials').textContent = initialsFromName(artist.nameEn || artist.nameJa);
+
+      const genreTag = document.getElementById('artist-tag-genre');
+      genreTag.textContent = (artist.tags && artist.tags.length ? artist.tags[0] : 'Unknown Genre');
+
+      const locationTag = document.getElementById('artist-tag-location');
+      locationTag.textContent = 'Japan';
+
+      const followBtn = document.getElementById('artist-follow-toggle');
+      followBtn.textContent = 'フォロー中 / Following';
+
+      const { upcoming } = filterEventsByArtist(artist.id);
+      const nextContainer = document.getElementById('artist-next-event');
+      const othersContainer = document.getElementById('artist-upcoming-events');
+      nextContainer.innerHTML = '';
+      othersContainer.innerHTML = '';
+
+      if (!upcoming.length) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.innerHTML = '<strong>予定されているイベントはまだありません。</strong><br>告知が出たら、ここに表示されます。';
+        nextContainer.appendChild(empty);
+      } else {
+        const next = upcoming[0];
+        const nextCard = buildEventCard(next, true);
+        nextContainer.appendChild(nextCard);
+
+        const others = upcoming.slice(1);
+        if (!others.length) {
+          const hint = document.createElement('div');
+          hint.className = 'text-small';
+          hint.style.marginTop = '4px';
+          hint.textContent = '他の予定が追加されると、ここに一覧で並びます。';
+          othersContainer.appendChild(hint);
+        } else {
+          others.forEach(ev => {
+            const c = buildEventCard(ev, false);
+            othersContainer.appendChild(c);
+          });
+        }
+      }
+
+      const rels = releases.filter(r => r.artistId === artist.id);
+      const relContainer = document.getElementById('artist-releases');
+      relContainer.innerHTML = '';
+      if (!rels.length) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.innerHTML = '<strong>登録されているリリースはまだありません。</strong><br>アルバムやシングル情報を追加するとここに表示されます。';
+        relContainer.appendChild(empty);
+      } else {
+        rels.forEach(r => {
+          relContainer.appendChild(buildReleaseCard(r, artist));
+        });
+      }
+    }
+
+    function buildEventCard(ev, large) {
+      const card = document.createElement('div');
+      card.className = large ? 'event-card-large' : 'event-card';
+
+      const datePill = document.createElement('div');
+      datePill.className = 'event-date-pill';
+      const d = new Date(ev.startAt);
+      const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+      const weekNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+      datePill.innerHTML = '<div class="event-date-month">' + monthNames[d.getMonth()] +
+        '</div><div class="event-date-day">' + d.getDate() +
+        '</div><div class="event-date-week">' + weekNames[d.getDay()] + '</div>';
+
+      const main = document.createElement('div');
+      main.className = 'event-main';
+
+      const badgeRow = document.createElement('div');
+      badgeRow.className = 'badge-row';
+      const typeBadge = document.createElement('span');
+      typeBadge.className = 'badge ' + badgeClassForType(ev.type);
+      typeBadge.textContent = labelForType(ev.type);
+      badgeRow.appendChild(typeBadge);
+
+      const titleJa = document.createElement('div');
+      titleJa.className = 'event-title-ja';
+      titleJa.textContent = ev.titleJa;
+
+      const titleEn = document.createElement('div');
+      titleEn.className = 'event-title-en';
+      titleEn.textContent = ev.titleEn;
+
+      const meta = document.createElement('div');
+      meta.className = 'event-meta';
+      const options = { hour: '2-digit', minute: '2-digit' };
+      const timeStr = ev.allDay ? '終日 / All day' : d.toLocaleTimeString('ja-JP', options) + ' JST';
+      meta.innerHTML = '<strong>' + ev.venueName + '</strong> ・ ' + timeStr;
+
+      const more = document.createElement('div');
+      more.className = 'event-more';
+      more.textContent = '詳細を見る / View details ›';
+
+      main.appendChild(badgeRow);
+      main.appendChild(titleJa);
+      main.appendChild(titleEn);
+      main.appendChild(meta);
+      main.appendChild(more);
+
+      card.appendChild(datePill);
+      card.appendChild(main);
+
+      card.addEventListener('click', () => {
+        state.currentEventId = ev.id;
+        renderEventDetail();
+        setScreen('event');
+      });
+
+      return card;
+    }
+
+    function badgeClassForType(type) {
+      switch (type) {
+        case 'LIVE':
+          return 'badge-type-live';
+        case 'TOUR':
+          return 'badge-type-tour';
+        case 'POPUP':
+          return 'badge-type-popup';
+        case 'EXHIBITION':
+          return 'badge-type-exhibition';
+        default:
+          return '';
+      }
+    }
+
+    function labelForType(type) {
+      switch (type) {
+        case 'LIVE':
+          return 'ライブ / Live';
+        case 'TOUR':
+          return 'ツアー / Tour';
+        case 'POPUP':
+          return 'ポップアップ / Pop-up';
+        case 'EXHIBITION':
+          return '展示 / Exhibition';
+        default:
+          return 'その他 / Other';
+      }
+    }
+
+    function buildReleaseCard(rel, artist) {
+      const card = document.createElement('div');
+      card.className = 'release-card';
+      card.style.flexDirection = 'column';
+      card.style.cursor = 'default';
+
+      const cover = document.createElement('div');
+      cover.className = 'release-cover';
+      const inner = document.createElement('div');
+      inner.className = 'release-cover-inner';
+      inner.textContent = initialsFromName(rel.titleEn || rel.titleJa);
+      cover.appendChild(inner);
+
+      const content = document.createElement('div');
+
+      const title = document.createElement('div');
+      title.className = 'release-title';
+      title.textContent = rel.titleJa;
+
+      const meta = document.createElement('div');
+      meta.className = 'release-meta';
+      meta.innerHTML = badgeForReleaseType(rel.type) + ' ・ ' + rel.releaseDate;
+
+      content.appendChild(title);
+      content.appendChild(meta);
+
+      card.appendChild(cover);
+      card.appendChild(content);
+
+      card.addEventListener('click', () => {
+        if (rel.officialUrl) {
+          window.open(rel.officialUrl, '_blank');
+        } else {
+          showToast('公式リンクは登録されていません。');
+        }
+      });
+
+      return card;
+    }
+
+    function badgeForReleaseType(type) {
+      switch (type) {
+        case 'ALBUM':
+          return 'アルバム / Album';
+        case 'EP':
+          return 'EP';
+        case 'SINGLE':
+          return 'シングル / Single';
+        default:
+          return 'その他 / Other';
+      }
+    }
+
+    function renderEventDetail() {
+      const ev = events.find(e => e.id === state.currentEventId);
+      if (!ev) {
+        showToast('イベントが見つかりません。');
+        setScreen('artist');
+        return;
+      }
+      const titleShort = ev.titleJa.length > 18 ? ev.titleJa.slice(0, 16) + '…' : ev.titleJa;
+      document.getElementById('event-header-title').textContent = titleShort;
+      document.getElementById('event-title-ja').textContent = ev.titleJa;
+      document.getElementById('event-title-en').textContent = ev.titleEn;
+
+      const d = new Date(ev.startAt);
+      const pill = document.getElementById('event-pill-date');
+      const monthNames = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+      const weekNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+      pill.querySelector('.event-date-month').textContent = monthNames[d.getMonth()];
+      pill.querySelector('.event-date-day').textContent = d.getDate();
+      pill.querySelector('.event-date-week').textContent = weekNames[d.getDay()];
+
+      const typeBadge = document.getElementById('event-badge-type');
+      typeBadge.className = 'badge ' + badgeClassForType(ev.type);
+      typeBadge.textContent = labelForType(ev.type);
+
+      const allDayBadge = document.getElementById('event-badge-all-day');
+      allDayBadge.style.display = ev.allDay ? 'inline-flex' : 'none';
+
+      const metaTime = document.getElementById('event-meta-datetime');
+      const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short', hour: '2-digit', minute: '2-digit' };
+      const optionsNoTime = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'short' };
+      metaTime.textContent = ev.allDay
+        ? d.toLocaleDateString('ja-JP', optionsNoTime) + '（終日）'
+        : d.toLocaleDateString('ja-JP', options);
+
+      document.getElementById('event-meta-venue').textContent = ev.venueName + '（' + ev.venueAddress + '）';
+
+      const metaArtists = document.getElementById('event-meta-artists');
+      const names = (ev.artistIds || []).map(id => {
+        const a = artists.find(ar => ar.id === id);
+        return a ? a.nameJa : 'Unknown';
+      });
+      metaArtists.textContent = names.length ? '出演: ' + names.join(', ') : '';
+
+      state.pendingAction = null;
+      state.isLoading = false;
+      const addBtn = document.getElementById('event-add-calendar');
+      addBtn.style.display = 'inline-flex';
+    }
+
+    function buildGoogleCalendarUrl(ev) {
+      const start = new Date(ev.startAt);
+      const end = new Date(ev.endAt || ev.startAt);
+      const pad = n => (n < 10 ? '0' + n : '' + n);
+      function formatDate(d) {
+        return d.getFullYear().toString() +
+          pad(d.getMonth() + 1) +
+          pad(d.getDate()) + 'T' +
+          pad(d.getHours()) +
+          pad(d.getMinutes()) +
+          '00';
+      }
+      const startStr = formatDate(start);
+      const endStr = formatDate(end);
+      const text = encodeURIComponent(ev.titleJa + ' / ' + ev.titleEn);
+      const details = encodeURIComponent((ev.officialUrl || '') + '\n' + (ev.ticketUrl || ''));
+      const location = encodeURIComponent(ev.venueName + ' ' + ev.venueAddress);
+      return 'https://calendar.google.com/calendar/render?action=TEMPLATE' +
+        '&text=' + text +
+        '&dates=' + startStr + '/' + endStr +
+        '&details=' + details +
+        '&location=' + location;
+    }
+
+    function renderSettings() {
+      const user = findCurrentUser();
+      document.getElementById('settings-user-name').textContent = user ? user.displayName : 'User';
+      document.getElementById('settings-user-email').textContent = user ? user.emailMock : 'user@example.com';
+
+      const share = shareProfiles.find(s => s.ownerUserId === state.currentUserId) || shareProfiles[0];
+      const toggleEl = document.getElementById('settings-toggle-share');
+      const urlField = document.getElementById('settings-share-url-field');
+
+      if (share && share.isPublic) {
+        toggleEl.classList.add('on');
+        urlField.textContent = buildShareUrl(share.id);
+      } else {
+        toggleEl.classList.remove('on');
+        urlField.textContent = 'まだ共有ページは公開されていません。';
+      }
+    }
+
+    function buildShareUrl(id) {
+      return 'https://example.com/share/' + id;
+    }
+
+    function renderShareView() {
+      const user = findCurrentUser();
+      if (!user) {
+        showToast('共有ページを表示できません。');
+        setScreen('home');
+        return;
+      }
+      document.getElementById('share-owner-name').textContent = user.displayName;
+      document.getElementById('share-owner-initials').textContent = initialsFromName(user.displayName);
+
+      const followList = document.getElementById('share-following-list');
+      followList.innerHTML = '';
+      if (!artists.length) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.innerHTML = '<strong>フォロー中のアーティストはまだありません。</strong>';
+        followList.appendChild(empty);
+      } else {
+        artists.forEach(a => {
+          const card = document.createElement('div');
+          card.className = 'event-card';
+          const cover = document.createElement('div');
+          cover.className = 'event-date-pill';
+          cover.innerHTML = '<div class="event-date-month">ART</div><div class="event-date-day">' +
+            (a.nameJa ? a.nameJa.length : 2) +
+            '</div><div class="event-date-week">JP</div>';
+          const main = document.createElement('div');
+          main.className = 'event-main';
+          const titleJa = document.createElement('div');
+          titleJa.className = 'event-title-ja';
+          titleJa.textContent = a.nameJa;
+          const titleEn = document.createElement('div');
+          titleEn.className = 'event-title-en';
+          titleEn.textContent = a.nameEn || a.nameJa;
+          main.appendChild(titleJa);
+          main.appendChild(titleEn);
+          card.appendChild(cover);
+          card.appendChild(main);
+          followList.appendChild(card);
+        });
+      }
+
+      const shareEvents = document.getElementById('share-events-list');
+      shareEvents.innerHTML = '';
+      const now = new Date();
+      const upcoming = events
+        .filter(e => new Date(e.endAt || e.startAt) >= now)
+        .sort((a, b) => new Date(a.startAt) - new Date(b.startAt));
+      if (!upcoming.length) {
+        const empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.innerHTML = '<strong>これからのイベントはまだありません。</strong>';
+        shareEvents.appendChild(empty);
+      } else {
+        upcoming.forEach(ev => {
+          const card = buildEventCard(ev, false);
+          shareEvents.appendChild(card);
+        });
+      }
+    }
+
+    function onLoginGoogle() {
+      const btn = document.getElementById('btn-login-google');
+      const progress = document.getElementById('login-progress');
+      btn.style.display = 'none';
+      progress.style.opacity = '1';
+      state.pendingAction = 'login';
+      state.isLoading = true;
+      setTimeout(() => {
+        if (state.pendingAction !== 'login') return;
+        const last = localStorage.getItem(STORAGE_KEYS.lastUserId);
+        const user = (last && users.find(u => u.id === last)) || users[0] || null;
+        if (!user) {
+          showToast('ユーザーを初期化できませんでした。');
+          state.pendingAction = null;
+          state.isLoading = false;
+          btn.style.display = 'inline-flex';
+          progress.style.opacity = '0';
+          return;
+        }
+        state.currentUserId = user.id;
+        state.pendingAction = null;
+        state.isLoading = false;
+        saveToStorage();
+        renderHome();
+        setScreen('home');
+        showToast('ログインしました: ' + user.displayName);
+      }, 600);
+    }
+
+    function attachEventHandlers() {
+      document.getElementById('btn-login-google').addEventListener('click', onLoginGoogle);
+
+      document.getElementById('home-user-pill').addEventListener('click', () => {
+        renderSettings();
+        setScreen('settings');
+      });
+
+      document.getElementById('artist-back').addEventListener('click', () => {
+        setScreen('home');
+      });
+      document.getElementById('event-back').addEventListener('click', () => {
+        setScreen('artist');
+      });
+      document.getElementById('settings-back').addEventListener('click', () => {
+        setScreen('home');
+      });
+      document.getElementById('share-back').addEventListener('click', () => {
+        setScreen('settings');
+      });
+
+      document.getElementById('artist-tab-events').addEventListener('click', () => {
+        document.getElementById('artist-tab-events').classList.add('active');
+        document.getElementById('artist-tab-releases').classList.remove('active');
+        document.getElementById('artist-tab-events-pane').style.display = 'block';
+        document.getElementById('artist-tab-releases-pane').style.display = 'none';
+      });
+      document.getElementById('artist-tab-releases').addEventListener('click', () => {
+        document.getElementById('artist-tab-events').classList.remove('active');
+        document.getElementById('artist-tab-releases').classList.add('active');
+        document.getElementById('artist-tab-events-pane').style.display = 'block';
+        document.getElementById('artist-tab-releases-pane').style.display = 'block';
+      });
+
+      document.getElementById('home-search-button').addEventListener('click', () => {
+        const q = document.getElementById('home-search-input').value.trim().toLowerCase();
+        const container = document.getElementById('home-search-results');
+        container.innerHTML = '';
+        if (!q) {
+          const msg = document.createElement('div');
+          msg.className = 'text-small';
+          msg.textContent = 'アーティスト名を入力して検索してください。';
+          container.appendChild(msg);
+          return;
+        }
+        const matched = artists.filter(a =>
+          a.nameJa.toLowerCase().includes(q) ||
+          (a.nameEn && a.nameEn.toLowerCase().includes(q))
+        );
+        if (!matched.length) {
+          const empty = document.createElement('div');
+          empty.className = 'empty-state';
+          empty.innerHTML = '<strong>該当するアーティストが見つかりませんでした。</strong>';
+          container.appendChild(empty);
+        } else {
+          matched.forEach(a => {
+            const card = document.createElement('div');
+            card.className = 'event-card';
+            const pill = document.createElement('div');
+            pill.className = 'event-date-pill';
+            pill.innerHTML = '<div class="event-date-month">ART</div><div class="event-date-day">' +
+              (a.nameJa ? a.nameJa.length : 2) +
+              '</div><div class="event-date-week">JP</div>';
+            const main = document.createElement('div');
+            main.className = 'event-main';
+            const titleJa = document.createElement('div');
+            titleJa.className = 'event-title-ja';
+            titleJa.textContent = a.nameJa;
+            const titleEn = document.createElement('div');
+            titleEn.className = 'event-title-en';
+            titleEn.textContent = a.nameEn || a.nameJa;
+            const more = document.createElement('div');
+            more.className = 'event-more';
+            more.textContent = 'フォロー中 / Already followed';
+            main.appendChild(titleJa);
+            main.appendChild(titleEn);
+            main.appendChild(more);
+            card.appendChild(pill);
+            card.appendChild(main);
+            card.addEventListener('click', () => {
+              state.currentArtistId = a.id;
+              renderArtistDetail();
+              setScreen('artist');
+            });
+            container.appendChild(card);
+          });
+        }
+      });
+
+      document.getElementById('event-add-calendar').addEventListener('click', () => {
+        const ev = events.find(e => e.id === state.currentEventId);
+        if (!ev) {
+          showToast('イベントが見つかりません。');
+          return;
+        }
+        state.pendingAction = 'openCalendar';
+        state.isLoading = true;
+        const btn = document.getElementById('event-add-calendar');
+        btn.style.display = 'none';
+        showToast('Googleカレンダーを開いています...');
+        setTimeout(() => {
+          if (state.pendingAction !== 'openCalendar' || state.currentView !== 'event') return;
+          const url = buildGoogleCalendarUrl(ev);
+          window.open(url, '_blank');
+          state.pendingAction = null;
+          state.isLoading = false;
+          btn.style.display = 'inline-flex';
+        }, 600);
+      });
+
+      document.getElementById('event-open-official').addEventListener('click', () => {
+        const ev = events.find(e => e.id === state.currentEventId);
+        if (!ev || !ev.officialUrl) {
+          showToast('公式リンクは登録されていません。');
+          return;
+        }
+        window.open(ev.officialUrl, '_blank');
+      });
+
+      document.getElementById('event-open-ticket').addEventListener('click', () => {
+        const ev = events.find(e => e.id === state.currentEventId);
+        if (!ev || !ev.ticketUrl) {
+          showToast('チケット情報のリンクは登録されていません。');
+          return;
+        }
+        window.open(ev.ticketUrl, '_blank');
+      });
+
+      document.getElementById('settings-toggle-share').addEventListener('click', () => {
+        let share = shareProfiles.find(s => s.ownerUserId === state.currentUserId);
+        if (!share) {
+          share = {
+            id: 'share-' + Math.random().toString(36).slice(2, 8),
+            ownerUserId: state.currentUserId,
+            isPublic: false,
+            createdAt: nowIso(),
+            updatedAt: nowIso()
+          };
+          shareProfiles.push(share);
+        }
+        share.isPublic = !share.isPublic;
+        share.updatedAt = nowIso();
+        saveToStorage();
+        renderSettings();
+        showToast(share.isPublic ? '共有ページを公開しました。' : '共有ページを非公開にしました。');
+      });
+
+      document.getElementById('settings-copy-url').addEventListener('click', () => {
+        const urlField = document.getElementById('settings-share-url-field');
+        const text = urlField.textContent || '';
+        if (!text.startsWith('http')) {
+          showToast('共有URLがまだありません。');
+          return;
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(() => {
+            showToast('URLをコピーしました。');
+          }).catch(() => {
+            showToast('コピーに失敗しました。');
+          });
+        } else {
+          showToast('このブラウザでは自動コピーに対応していません。');
+        }
+      });
+
+      document.getElementById('settings-preview-share').addEventListener('click', () => {
+        const share = shareProfiles.find(s => s.ownerUserId === state.currentUserId && s.isPublic);
+        if (!share) {
+          showToast('共有ページが公開されていません。');
+          return;
+        }
+        renderShareView();
+        setScreen('share');
+      });
+
+      document.getElementById('settings-reset').addEventListener('click', () => {
+        resetSampleData();
+        ensureSampleData();
+        saveToStorage();
+        showToast('サンプルデータにリセットしました。');
+        if (state.currentView === 'home') {
+          renderHome();
+        }
+      });
+
+      document.getElementById('settings-logout').addEventListener('click', () => {
+        state.currentUserId = null;
+        state.currentArtistId = null;
+        state.currentEventId = null;
+        state.pendingAction = null;
+        state.isLoading = false;
+        setScreen('login');
+        document.getElementById('btn-login-google').style.display = 'inline-flex';
+        document.getElementById('login-progress').style.opacity = '0';
+        showToast('ログアウトしました。');
+      });
+    }
+
+    function initClock() {
+      const el = document.getElementById('status-time');
+      function update() {
+        const now = new Date();
+        const h = now.getHours().toString().padStart(2, '0');
+        const m = now.getMinutes().toString().padStart(2, '0');
+        el.textContent = h + ':' + m;
+      }
+      update();
+      setInterval(update, 60000);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      ensureSampleData();
+      attachEventHandlers();
+      initClock();
+      const last = localStorage.getItem(STORAGE_KEYS.lastUserId);
+      if (last && users.find(u => u.id === last)) {
+        state.currentUserId = last;
+        renderHome();
+        setScreen('home');
+      } else {
+        setScreen('login');
+      }
+    });
+  </script>
+</body>
+</html>
+

@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>案05: FIBONACCI PRECISION — MO-GI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0d1321;
+    --gold: #c9a84c;
+    --gold-dim: rgba(201, 168, 76, 0.3);
+    --gold-faint: rgba(201, 168, 76, 0.08);
+    --ivory: #f0ece2;
+    --ivory-dim: rgba(240, 236, 226, 0.6);
+    --muted-blue: #3d5a80;
+    --phi: 1.618;
+    --moe: #FF8FAB;
+    --tech: #64B5F6;
+    --guard: #81C784;
+    --chair: #FFD54F;
+    --gal: #FF8A65;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #080c14;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Zen Kaku Gothic New', sans-serif;
+  }
+
+  /* Outer page background pattern */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      repeating-linear-gradient(
+        0deg,
+        rgba(201, 168, 76, 0.02) 0px,
+        rgba(201, 168, 76, 0.02) 1px,
+        transparent 1px,
+        transparent 34px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        rgba(201, 168, 76, 0.02) 0px,
+        rgba(201, 168, 76, 0.02) 1px,
+        transparent 1px,
+        transparent 34px
+      );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .phone-frame {
+    width: 375px;
+    height: 812px;
+    background: var(--navy);
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    z-index: 1;
+    border: 1px solid var(--gold-dim);
+    box-shadow:
+      0 0 60px rgba(201, 168, 76, 0.08),
+      0 0 120px rgba(13, 19, 33, 0.8);
+  }
+
+  /* Geometric grid background */
+  .phone-frame::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-linear-gradient(
+        0deg,
+        transparent 0px,
+        transparent 20px,
+        rgba(201, 168, 76, 0.03) 20px,
+        rgba(201, 168, 76, 0.03) 21px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent 0px,
+        transparent 20px,
+        rgba(201, 168, 76, 0.03) 20px,
+        rgba(201, 168, 76, 0.03) 21px
+      );
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* Golden ratio spiral - subtle background */
+  .phone-frame::after {
+    content: '';
+    position: absolute;
+    top: -60px;
+    right: -120px;
+    width: 400px;
+    height: 400px;
+    border: 1px solid rgba(201, 168, 76, 0.04);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    box-shadow:
+      inset -80px -80px 0 -79px rgba(201, 168, 76, 0.03),
+      inset -130px -130px 0 -129px rgba(201, 168, 76, 0.02);
+  }
+
+  .container {
+    padding: 48px 24px 32px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ========== Title ========== */
+  .title-area {
+    text-align: center;
+    margin-bottom: 20px;
+    opacity: 0;
+    transform: translateY(16px);
+    animation: revealUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.1s forwards;
+  }
+
+  .title {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--ivory);
+    letter-spacing: 3px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    position: relative;
+  }
+
+  .title .material-symbols-outlined {
+    font-size: 22px;
+    color: var(--gold);
+    vertical-align: middle;
+  }
+
+  .title::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 61.8%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .subtitle {
+    font-family: 'Playfair Display', serif;
+    font-size: 9px;
+    color: var(--gold);
+    letter-spacing: 4px;
+    margin-top: 16px;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+
+  /* ========== Divider ========== */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 24px 0;
+    opacity: 0;
+    animation: revealUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.25s forwards;
+  }
+
+  .divider::before,
+  .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-dim));
+  }
+
+  .divider::after {
+    background: linear-gradient(90deg, var(--gold-dim), transparent);
+  }
+
+  .divider-diamond {
+    width: 6px;
+    height: 6px;
+    background: var(--gold);
+    transform: rotate(45deg);
+    flex-shrink: 0;
+    opacity: 0.6;
+  }
+
+  /* ========== Catchcopy ========== */
+  .catchcopy {
+    text-align: center;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--ivory);
+    margin-bottom: 32px;
+    letter-spacing: 1px;
+    line-height: 1.8;
+    opacity: 0;
+    transform: translateY(16px);
+    animation: revealUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.4s forwards;
+  }
+
+  .catchcopy-bracket {
+    color: var(--gold);
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+  }
+
+  /* ========== Characters ========== */
+  .section-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 9px;
+    color: var(--gold);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+
+  .characters {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 40px;
+    opacity: 0;
+    transform: translateY(16px);
+    animation: revealUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.55s forwards;
+  }
+
+  .char-item {
+    text-align: center;
+    cursor: default;
+    position: relative;
+  }
+
+  .char-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(201, 168, 76, 0.04);
+    border: 1.5px solid var(--gold-dim);
+    position: relative;
+    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .char-icon .material-symbols-outlined {
+    font-size: 22px;
+    color: var(--ivory-dim);
+    transition: color 0.3s ease;
+  }
+
+  .char-icon::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    border: 1px solid transparent;
+    transition: border-color 0.4s ease;
+  }
+
+  .char-icon.moe { border-color: rgba(255, 143, 171, 0.4); }
+  .char-icon.moe .material-symbols-outlined { color: var(--moe); }
+  .char-icon.moe::before { border-color: rgba(255, 143, 171, 0.15); }
+
+  .char-icon.tech { border-color: rgba(100, 181, 246, 0.4); }
+  .char-icon.tech .material-symbols-outlined { color: var(--tech); }
+  .char-icon.tech::before { border-color: rgba(100, 181, 246, 0.15); }
+
+  .char-icon.guard { border-color: rgba(129, 199, 132, 0.4); }
+  .char-icon.guard .material-symbols-outlined { color: var(--guard); }
+  .char-icon.guard::before { border-color: rgba(129, 199, 132, 0.15); }
+
+  .char-icon.chair { border-color: rgba(255, 213, 79, 0.4); }
+  .char-icon.chair .material-symbols-outlined { color: var(--chair); }
+  .char-icon.chair::before { border-color: rgba(255, 213, 79, 0.15); }
+
+  .char-icon.gal { border-color: rgba(255, 138, 101, 0.4); }
+  .char-icon.gal .material-symbols-outlined { color: var(--gal); }
+  .char-icon.gal::before { border-color: rgba(255, 138, 101, 0.15); }
+
+  .char-item:hover .char-icon {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  .char-item:hover .char-icon.moe { border-color: var(--moe); box-shadow: 0 4px 20px rgba(255, 143, 171, 0.2); }
+  .char-item:hover .char-icon.tech { border-color: var(--tech); box-shadow: 0 4px 20px rgba(100, 181, 246, 0.2); }
+  .char-item:hover .char-icon.guard { border-color: var(--guard); box-shadow: 0 4px 20px rgba(129, 199, 132, 0.2); }
+  .char-item:hover .char-icon.chair { border-color: var(--chair); box-shadow: 0 4px 20px rgba(255, 213, 79, 0.2); }
+  .char-item:hover .char-icon.gal { border-color: var(--gal); box-shadow: 0 4px 20px rgba(255, 138, 101, 0.2); }
+
+  .char-name {
+    font-size: 10px;
+    color: var(--ivory-dim);
+    margin-top: 8px;
+    letter-spacing: 1px;
+    font-weight: 500;
+    opacity: 0.6;
+    transition: opacity 0.3s ease;
+  }
+
+  .char-item:hover .char-name { opacity: 1; }
+
+  /* Tooltip */
+  .char-item .tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--navy);
+    border: 1px solid var(--gold-dim);
+    color: var(--ivory);
+    font-size: 10px;
+    padding: 6px 12px;
+    white-space: nowrap;
+    z-index: 10;
+    letter-spacing: 0.5px;
+  }
+
+  .char-item .tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: var(--gold-dim);
+  }
+
+  .char-item:hover .tooltip { display: block; }
+
+  /* ========== Scenario Cards ========== */
+  .scenario-section {
+    opacity: 0;
+    transform: translateY(16px);
+    animation: revealUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.7s forwards;
+  }
+
+  .scenario-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 48px;
+  }
+
+  .scenario-card {
+    background: rgba(201, 168, 76, 0.02);
+    border: 1px solid rgba(201, 168, 76, 0.12);
+    padding: 18px 20px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .scenario-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, var(--gold-faint) 0%, transparent 60%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .scenario-card:hover::before { opacity: 1; }
+
+  .scenario-card:hover {
+    border-color: rgba(201, 168, 76, 0.35);
+    transform: translateX(4px);
+  }
+
+  .scenario-card:active {
+    transform: translateX(4px) scale(0.98);
+  }
+
+  .scenario-number-circle {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Playfair Display', serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--gold);
+    position: relative;
+    z-index: 1;
+    background: var(--navy);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .scenario-content {
+    position: relative;
+    z-index: 1;
+    flex: 1;
+  }
+
+  .scenario-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 8px;
+    color: var(--gold);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    opacity: 0.6;
+  }
+
+  .scenario-title {
+    font-size: 14px;
+    color: var(--ivory);
+    line-height: 1.6;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+
+  .scenario-arrow {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 1;
+  }
+
+  .scenario-arrow .material-symbols-outlined {
+    font-size: 18px;
+    color: var(--gold);
+    opacity: 0.3;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+
+  .scenario-card:hover .scenario-arrow .material-symbols-outlined {
+    opacity: 0.8;
+    transform: translateX(2px);
+  }
+
+  /* ========== Decorative Elements ========== */
+  .deco-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 40px;
+    opacity: 0;
+    animation: revealUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.85s forwards;
+  }
+
+  .deco-circle {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--gold);
+    opacity: 0.3;
+  }
+
+  .deco-circle:nth-child(2) { opacity: 0.5; width: 5px; height: 5px; }
+  .deco-circle:nth-child(3) { opacity: 0.7; width: 6px; height: 6px; }
+  .deco-circle:nth-child(4) { opacity: 0.5; width: 5px; height: 5px; }
+  .deco-circle:nth-child(5) { opacity: 0.3; }
+
+  /* ========== Footer ========== */
+  .footer {
+    text-align: center;
+    opacity: 0;
+    animation: revealUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) 1.0s forwards;
+  }
+
+  .footer-version {
+    font-family: 'Playfair Display', serif;
+    font-size: 10px;
+    color: var(--gold);
+    letter-spacing: 4px;
+    opacity: 0.35;
+    text-transform: uppercase;
+  }
+
+  .footer-line {
+    width: 32px;
+    height: 1px;
+    background: var(--gold);
+    opacity: 0.15;
+    margin: 10px auto 0;
+  }
+
+  /* ========== Spiral decoration ========== */
+  .spiral-deco {
+    position: absolute;
+    bottom: 120px;
+    left: -40px;
+    width: 200px;
+    height: 200px;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .spiral-deco .arc {
+    position: absolute;
+    border: 1px solid rgba(201, 168, 76, 0.04);
+    border-radius: 50%;
+  }
+
+  .spiral-deco .arc:nth-child(1) {
+    width: 200px; height: 200px;
+    top: 0; left: 0;
+  }
+
+  .spiral-deco .arc:nth-child(2) {
+    width: 123px; height: 123px;
+    bottom: 0; right: 0;
+  }
+
+  .spiral-deco .arc:nth-child(3) {
+    width: 76px; height: 76px;
+    bottom: 0; left: 0;
+  }
+
+  .spiral-deco .arc:nth-child(4) {
+    width: 47px; height: 47px;
+    top: 0; left: 0;
+  }
+
+  /* ========== Hexagonal corner decorations ========== */
+  .hex-deco {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    opacity: 0.06;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .hex-deco::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--gold);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  }
+
+  .hex-deco.top-right {
+    top: 16px;
+    right: 16px;
+  }
+
+  .hex-deco.bottom-left {
+    bottom: 60px;
+    left: 16px;
+    width: 24px;
+    height: 24px;
+  }
+
+  /* ========== Animations ========== */
+  @keyframes revealUp {
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Scrollbar styling */
+  .phone-frame::-webkit-scrollbar {
+    width: 2px;
+  }
+
+  .phone-frame::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .phone-frame::-webkit-scrollbar-thumb {
+    background: var(--gold-dim);
+    border-radius: 1px;
+  }
+</style>
+</head>
+<body>
+  <div class="phone-frame">
+    <!-- Decorative hexagons -->
+    <div class="hex-deco top-right"></div>
+    <div class="hex-deco bottom-left"></div>
+
+    <!-- Spiral decoration -->
+    <div class="spiral-deco">
+      <div class="arc"></div>
+      <div class="arc"></div>
+      <div class="arc"></div>
+      <div class="arc"></div>
+    </div>
+
+    <div class="container">
+      <!-- Title -->
+      <div class="title-area">
+        <div class="title">
+          <span class="material-symbols-outlined">play_arrow</span>
+          萌GI SYSTEM
+        </div>
+        <div class="subtitle">MO-GI DECISION MAKING SYSTEM</div>
+      </div>
+
+      <!-- Divider -->
+      <div class="divider">
+        <div class="divider-diamond"></div>
+      </div>
+
+      <!-- Catchcopy -->
+      <div class="catchcopy">
+        <span class="catchcopy-bracket">&laquo;</span>
+        GALが5人で会議したらこうなる。
+        <span class="catchcopy-bracket">&raquo;</span>
+      </div>
+
+      <!-- Characters -->
+      <div class="section-label">— MEMBERS —</div>
+      <div class="characters">
+        <div class="char-item">
+          <div class="tooltip">綿雲モカ / 共感翻訳</div>
+          <div class="char-icon moe">
+            <span class="material-symbols-outlined">favorite</span>
+          </div>
+          <div class="char-name">モカ</div>
+        </div>
+        <div class="char-item">
+          <div class="tooltip">真白リツ / ファクト警察</div>
+          <div class="char-icon tech">
+            <span class="material-symbols-outlined">science</span>
+          </div>
+          <div class="char-name">リツ</div>
+        </div>
+        <div class="char-item">
+          <div class="tooltip">戒堂カノン / 炎上予防装置</div>
+          <div class="char-icon guard">
+            <span class="material-symbols-outlined">shield</span>
+          </div>
+          <div class="char-name">カノン</div>
+        </div>
+        <div class="char-item">
+          <div class="tooltip">黒羽レイカ / 結論製造機</div>
+          <div class="char-icon chair">
+            <span class="material-symbols-outlined">emoji_events</span>
+          </div>
+          <div class="char-name">レイカ</div>
+        </div>
+        <div class="char-item">
+          <div class="tooltip">陽キャ神ルナ / バズ製造姫</div>
+          <div class="char-icon gal">
+            <span class="material-symbols-outlined">star</span>
+          </div>
+          <div class="char-name">ルナ</div>
+        </div>
+      </div>
+
+      <!-- Scenario Cards -->
+      <div class="scenario-section">
+        <div class="section-label">— SCENARIOS —</div>
+        <div class="scenario-list">
+          <div class="scenario-card">
+            <div class="scenario-number-circle">1</div>
+            <div class="scenario-content">
+              <div class="scenario-label">Scenario I</div>
+              <div class="scenario-title">副業でAIサービスを始めるべき？</div>
+            </div>
+            <div class="scenario-arrow">
+              <span class="material-symbols-outlined">chevron_right</span>
+            </div>
+          </div>
+          <div class="scenario-card">
+            <div class="scenario-number-circle">2</div>
+            <div class="scenario-content">
+              <div class="scenario-label">Scenario II</div>
+              <div class="scenario-title">社内データをClaude APIに渡していい？</div>
+            </div>
+            <div class="scenario-arrow">
+              <span class="material-symbols-outlined">chevron_right</span>
+            </div>
+          </div>
+          <div class="scenario-card">
+            <div class="scenario-number-circle">3</div>
+            <div class="scenario-content">
+              <div class="scenario-label">Scenario III</div>
+              <div class="scenario-title">勉強会をYouTubeで公開配信すべき？</div>
+            </div>
+            <div class="scenario-arrow">
+              <span class="material-symbols-outlined">chevron_right</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Decorative dots (Fibonacci sequence: sizes) -->
+      <div class="deco-line">
+        <div class="deco-circle"></div>
+        <div class="deco-circle"></div>
+        <div class="deco-circle"></div>
+        <div class="deco-circle"></div>
+        <div class="deco-circle"></div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <div class="footer-version">MO-GI v1.0</div>
+        <div class="footer-line"></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

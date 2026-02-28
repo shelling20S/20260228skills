@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>案19: スイスタイポ — MO-GI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Sans:wght@300;400;600;700&family=Noto+Sans+JP:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --black: #0a0a0a;
+      --white: #fafafa;
+      --red: #e42313;
+      --gray-1: #333;
+      --gray-2: #666;
+      --gray-3: #999;
+      --gray-4: #ccc;
+      --gray-5: #eee;
+    }
+
+    body {
+      background: var(--gray-3);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'IBM Plex Sans', 'Noto Sans JP', sans-serif;
+    }
+
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: var(--white);
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    .container {
+      padding: 0;
+      position: relative;
+    }
+
+    /* ヘッダーブロック — 赤ベタ */
+    .header-block {
+      background: var(--red);
+      padding: 48px 24px 28px;
+      position: relative;
+    }
+
+    .header-block .issue {
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.6);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+
+    .header-block .title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 72px;
+      color: #fff;
+      letter-spacing: 6px;
+      line-height: 0.85;
+      position: relative;
+    }
+
+    .header-block .title .gi {
+      color: var(--black);
+    }
+
+    .header-block .title-sub {
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 9px;
+      font-weight: 300;
+      color: rgba(255,255,255,0.7);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-top: 14px;
+    }
+
+    /* 大きな番号装飾 */
+    .header-block .big-num {
+      position: absolute;
+      top: 40px;
+      right: 20px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 120px;
+      color: rgba(255,255,255,0.08);
+      line-height: 1;
+      pointer-events: none;
+    }
+
+    /* コンテンツエリア */
+    .content {
+      padding: 28px 24px 40px;
+    }
+
+    /* キャッチコピー */
+    .catchcopy {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--black);
+      margin-bottom: 36px;
+      line-height: 2.2;
+      letter-spacing: 0.5px;
+    }
+
+    .catchcopy .gal {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 20px;
+      color: var(--red);
+      letter-spacing: 3px;
+      vertical-align: baseline;
+    }
+
+    /* セクションラベル */
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 8px;
+      border-bottom: 3px solid var(--black);
+    }
+
+    .section-label .num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      color: var(--red);
+      line-height: 1;
+    }
+
+    .section-label .text {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--black);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    /* キャラクターグリッド — 厳密な5カラム */
+    .char-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+      margin-bottom: 36px;
+      border: 1px solid var(--gray-5);
+    }
+
+    .char-item {
+      text-align: center;
+      cursor: pointer;
+      padding: 16px 4px;
+      border-right: 1px solid var(--gray-5);
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .char-item:last-child { border-right: none; }
+
+    .char-item:hover {
+      background: var(--black);
+    }
+
+    .char-item:hover .char-name,
+    .char-item:hover .char-role,
+    .char-item:hover .char-symbol {
+      color: var(--white);
+    }
+
+    .char-symbol {
+      font-size: 20px;
+      color: var(--gray-2);
+      margin-bottom: 10px;
+      display: block;
+      transition: color 0.2s;
+    }
+
+    .char-item.gal .char-symbol { color: var(--red); }
+
+    .char-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--black);
+      letter-spacing: 1px;
+      transition: color 0.2s;
+    }
+
+    .char-role {
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 8px;
+      font-weight: 600;
+      color: var(--gray-3);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 4px;
+      transition: color 0.2s;
+    }
+
+    /* ツールチップ */
+    .char-item .tooltip {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 6px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--black);
+      color: var(--white);
+      font-size: 10px;
+      padding: 6px 12px;
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    .char-item:hover .tooltip { display: block; }
+
+    /* シナリオ — スイスグリッド式 */
+    .scenario-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      margin-bottom: 36px;
+    }
+
+    .scenario-card {
+      display: grid;
+      grid-template-columns: 48px 1fr 28px;
+      align-items: center;
+      padding: 16px 0;
+      border-top: 1px solid var(--gray-5);
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .scenario-card:last-child {
+      border-bottom: 1px solid var(--gray-5);
+    }
+
+    .scenario-card:hover {
+      background: var(--gray-5);
+      padding-left: 8px;
+      padding-right: 8px;
+    }
+
+    .scenario-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 24px;
+      color: var(--red);
+      line-height: 1;
+    }
+
+    .scenario-text {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--gray-1);
+      line-height: 1.7;
+    }
+
+    .scenario-arrow {
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 18px;
+      color: var(--gray-4);
+      text-align: right;
+      transition: all 0.2s;
+    }
+
+    .scenario-card:hover .scenario-arrow {
+      color: var(--red);
+      transform: translateX(3px);
+    }
+
+    /* フッターバー */
+    .footer-bar {
+      background: var(--black);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-bar .left {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 14px;
+      color: var(--white);
+      letter-spacing: 4px;
+    }
+
+    .footer-bar .right {
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-size: 9px;
+      color: var(--gray-3);
+      letter-spacing: 2px;
+    }
+
+    /* アニメーション */
+    .slide-up {
+      opacity: 0;
+      animation: slideUp 0.4s ease forwards;
+    }
+    .slide-up:nth-child(1) { animation-delay: 0.1s; }
+    .slide-up:nth-child(2) { animation-delay: 0.2s; }
+    .slide-up:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* スクロールバー */
+    .phone-frame::-webkit-scrollbar { width: 3px; }
+    .phone-frame::-webkit-scrollbar-thumb { background: var(--red); }
+    .phone-frame::-webkit-scrollbar-track { background: var(--gray-5); }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="container">
+
+      <!-- ヘッダー赤ブロック -->
+      <div class="header-block">
+        <div class="big-num">19</div>
+        <div class="issue">Vol. 01 — System</div>
+        <div class="title">
+          MO<span class="gi">GI</span>
+        </div>
+        <div class="title-sub">Decision Making System</div>
+      </div>
+
+      <!-- コンテンツ -->
+      <div class="content">
+
+        <!-- キャッチコピー -->
+        <div class="catchcopy">
+          「<span class="gal">GAL</span>が5人で会議したら<br>　こうなる。」
+        </div>
+
+        <!-- メンバー -->
+        <div class="section-label">
+          <span class="num">01</span>
+          <span class="text">Members</span>
+        </div>
+        <div class="char-grid">
+          <div class="char-item moe">
+            <div class="tooltip">共感翻訳 / 萌コア</div>
+            <span class="char-symbol">♥</span>
+            <div class="char-name">モカ</div>
+            <div class="char-role">Moe</div>
+          </div>
+          <div class="char-item tech">
+            <div class="tooltip">ファクト警察 / 技コア</div>
+            <span class="char-symbol">⚗</span>
+            <div class="char-name">リツ</div>
+            <div class="char-role">Tech</div>
+          </div>
+          <div class="char-item guard">
+            <div class="tooltip">炎上予防装置 / 守コア</div>
+            <span class="char-symbol">◇</span>
+            <div class="char-name">カノン</div>
+            <div class="char-role">Guard</div>
+          </div>
+          <div class="char-item chair">
+            <div class="tooltip">結論製造機 / 統括</div>
+            <span class="char-symbol">♛</span>
+            <div class="char-name">レイカ</div>
+            <div class="char-role">Chair</div>
+          </div>
+          <div class="char-item gal">
+            <div class="tooltip">バズ製造姫 / ギャル</div>
+            <span class="char-symbol">★</span>
+            <div class="char-name">ルナ</div>
+            <div class="char-role">Gal</div>
+          </div>
+        </div>
+
+        <!-- シナリオ -->
+        <div class="section-label">
+          <span class="num">02</span>
+          <span class="text">Scenarios</span>
+        </div>
+        <div class="scenario-list">
+          <div class="scenario-card slide-up">
+            <div class="scenario-num">01</div>
+            <div class="scenario-text">副業でAIサービスを始めるべき？</div>
+            <div class="scenario-arrow">→</div>
+          </div>
+          <div class="scenario-card slide-up">
+            <div class="scenario-num">02</div>
+            <div class="scenario-text">社内データをClaude APIに渡していい？</div>
+            <div class="scenario-arrow">→</div>
+          </div>
+          <div class="scenario-card slide-up">
+            <div class="scenario-num">03</div>
+            <div class="scenario-text">勉強会をYouTubeで公開配信すべき？</div>
+            <div class="scenario-arrow">→</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- フッター -->
+      <div class="footer-bar">
+        <span class="left">MO-GI</span>
+        <span class="right">V1.0</span>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>案20: レトロゲーム — MO-GI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #1a1a2e;
+      --bg-card: #16213e;
+      --border: #0f3460;
+      --blue: #4cc9f0;
+      --pink: #f72585;
+      --yellow: #ffd60a;
+      --green: #06d6a0;
+      --purple: #b5179e;
+      --white: #e8e8f0;
+      --dim: #5a5a8a;
+    }
+
+    body {
+      background: #0a0a14;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'DotGothic16', sans-serif;
+      image-rendering: pixelated;
+    }
+
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: var(--bg);
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+      border: 3px solid var(--border);
+    }
+
+    /* ピクセルグリッド背景 */
+    .phone-frame::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
+      background-size: 16px 16px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      padding: 44px 20px 36px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* HP/MPバー風ステータス */
+    .status-hud {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 28px;
+      padding: 10px 14px;
+      background: rgba(0,0,0,0.4);
+      border: 2px solid var(--border);
+    }
+
+    .status-hud .label {
+      font-family: 'Silkscreen', sans-serif;
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 1px;
+    }
+
+    .stat-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .stat-bar .tag {
+      font-family: 'Silkscreen', sans-serif;
+      font-size: 9px;
+      letter-spacing: 1px;
+    }
+
+    .stat-bar .tag.hp { color: var(--green); }
+    .stat-bar .tag.mp { color: var(--blue); }
+
+    .bar-track {
+      width: 60px;
+      height: 8px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+
+    .bar-fill.hp {
+      width: 85%;
+      background: var(--green);
+      box-shadow: 0 0 6px rgba(6, 214, 160, 0.5);
+    }
+
+    .bar-fill.mp {
+      width: 62%;
+      background: var(--blue);
+      box-shadow: 0 0 6px rgba(76, 201, 240, 0.5);
+    }
+
+    /* タイトル */
+    .title-area {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .title {
+      font-family: 'Press Start 2P', sans-serif;
+      font-size: 24px;
+      color: var(--yellow);
+      letter-spacing: 4px;
+      text-shadow:
+        3px 3px 0 #b8860b,
+        0 0 20px rgba(255, 214, 10, 0.3);
+      display: inline-block;
+    }
+
+    .title .gi {
+      color: var(--blue);
+      text-shadow:
+        3px 3px 0 #1a6a80,
+        0 0 20px rgba(76, 201, 240, 0.3);
+    }
+
+    .subtitle {
+      font-family: 'Silkscreen', sans-serif;
+      font-size: 9px;
+      color: var(--dim);
+      letter-spacing: 3px;
+      margin-top: 14px;
+      text-transform: uppercase;
+    }
+
+    /* ピクセルディバイダー */
+    .pixel-divider {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 4px;
+      margin: 24px 0;
+    }
+
+    .pixel-divider span {
+      display: block;
+      width: 8px;
+      height: 8px;
+      background: var(--border);
+    }
+
+    .pixel-divider span:nth-child(odd) {
+      background: var(--pink);
+      box-shadow: 0 0 6px rgba(247, 37, 133, 0.4);
+    }
+
+    /* キャッチコピー — RPGテキストボックス */
+    .text-box {
+      background: var(--bg-card);
+      border: 3px solid var(--white);
+      padding: 18px 20px;
+      margin-bottom: 32px;
+      position: relative;
+    }
+
+    /* 二重ボーダー */
+    .text-box::before {
+      content: '';
+      position: absolute;
+      inset: 3px;
+      border: 1px solid rgba(255,255,255,0.15);
+      pointer-events: none;
+    }
+
+    .text-box .catchcopy {
+      font-size: 14px;
+      color: var(--white);
+      line-height: 2.2;
+      letter-spacing: 1px;
+    }
+
+    .text-box .gal {
+      color: var(--pink);
+      font-weight: 700;
+      text-shadow: 0 0 8px rgba(247, 37, 133, 0.4);
+    }
+
+    /* カーソル点滅 */
+    .text-box .cursor {
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid var(--white);
+      margin-left: 4px;
+      vertical-align: middle;
+      animation: cursorBlink 0.8s step-end infinite;
+    }
+
+    @keyframes cursorBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* セクションラベル */
+    .section-label {
+      font-family: 'Silkscreen', sans-serif;
+      font-size: 11px;
+      color: var(--yellow);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-shadow: 0 0 8px rgba(255, 214, 10, 0.3);
+    }
+
+    .section-label::before {
+      content: '▶';
+      font-size: 8px;
+      color: var(--yellow);
+    }
+
+    /* キャラクター — RPGパーティ選択風 */
+    .party-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+
+    .party-member {
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      padding: 12px 2px;
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      transition: all 0.15s ease;
+    }
+
+    .party-member:hover {
+      border-color: var(--yellow);
+      box-shadow: 0 0 12px rgba(255, 214, 10, 0.2);
+      transform: translateY(-3px);
+    }
+
+    /* 選択カーソル */
+    .party-member:hover::before {
+      content: '▶';
+      position: absolute;
+      top: -14px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 8px;
+      color: var(--yellow);
+      animation: selectBounce 0.5s ease-in-out infinite;
+    }
+
+    @keyframes selectBounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-3px); }
+    }
+
+    .party-sprite {
+      font-size: 22px;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .party-member.moe .party-sprite { color: var(--pink); }
+    .party-member.tech .party-sprite { color: var(--blue); }
+    .party-member.guard .party-sprite { color: var(--green); }
+    .party-member.chair .party-sprite { color: var(--yellow); }
+    .party-member.gal .party-sprite { color: var(--purple); }
+
+    .party-name {
+      font-size: 11px;
+      color: var(--white);
+      letter-spacing: 1px;
+    }
+
+    .party-class {
+      font-family: 'Silkscreen', sans-serif;
+      font-size: 7px;
+      color: var(--dim);
+      margin-top: 4px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* ツールチップ */
+    .party-member .tooltip {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 16px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg-card);
+      border: 2px solid var(--white);
+      color: var(--white);
+      font-size: 10px;
+      padding: 6px 12px;
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    .party-member:hover .tooltip { display: block; }
+
+    /* シナリオ — クエスト選択画面 */
+    .quest-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+
+    .quest-card {
+      background: var(--bg-card);
+      border: 2px solid var(--border);
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: relative;
+    }
+
+    .quest-card:hover {
+      border-color: var(--blue);
+      box-shadow: 0 0 12px rgba(76, 201, 240, 0.15);
+    }
+
+    .quest-card:hover::before {
+      content: '▶';
+      position: absolute;
+      left: -16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 8px;
+      color: var(--yellow);
+      animation: selectBounce 0.5s ease-in-out infinite;
+    }
+
+    .quest-rank {
+      font-family: 'Press Start 2P', sans-serif;
+      font-size: 10px;
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border);
+    }
+
+    .quest-rank.s { color: var(--yellow); border-color: var(--yellow); }
+    .quest-rank.a { color: var(--pink); border-color: var(--pink); }
+    .quest-rank.b { color: var(--blue); border-color: var(--blue); }
+
+    .quest-text {
+      font-size: 13px;
+      color: var(--white);
+      line-height: 1.7;
+      flex: 1;
+    }
+
+    .quest-arrow {
+      font-family: 'Silkscreen', sans-serif;
+      font-size: 14px;
+      color: var(--dim);
+      transition: all 0.15s;
+    }
+
+    .quest-card:hover .quest-arrow {
+      color: var(--blue);
+      transform: translateX(3px);
+    }
+
+    /* フッター — GAME OVERスタイル */
+    .footer {
+      text-align: center;
+      padding-top: 8px;
+    }
+
+    .footer-text {
+      font-family: 'Silkscreen', sans-serif;
+      font-size: 10px;
+      color: var(--dim);
+      letter-spacing: 3px;
+    }
+
+    .footer-text .ver {
+      color: var(--green);
+    }
+
+    /* コイン風装飾 */
+    .coin-row {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+
+    .coin {
+      width: 10px;
+      height: 10px;
+      background: var(--yellow);
+      border-radius: 50%;
+      box-shadow: 0 0 6px rgba(255, 214, 10, 0.4);
+      animation: coinSpin 2s ease-in-out infinite;
+    }
+
+    .coin:nth-child(2) { animation-delay: 0.3s; }
+    .coin:nth-child(3) { animation-delay: 0.6s; }
+
+    @keyframes coinSpin {
+      0%, 100% { transform: scaleX(1); }
+      50% { transform: scaleX(0.3); }
+    }
+
+    /* 登場アニメーション */
+    .appear {
+      opacity: 0;
+      animation: appear 0.3s ease forwards;
+    }
+    .appear:nth-child(1) { animation-delay: 0.15s; }
+    .appear:nth-child(2) { animation-delay: 0.3s; }
+    .appear:nth-child(3) { animation-delay: 0.45s; }
+
+    @keyframes appear {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* スクロールバー */
+    .phone-frame::-webkit-scrollbar { width: 6px; }
+    .phone-frame::-webkit-scrollbar-thumb {
+      background: var(--border);
+    }
+    .phone-frame::-webkit-scrollbar-track {
+      background: rgba(0,0,0,0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="container">
+
+      <!-- ステータスHUD -->
+      <div class="status-hud">
+        <div class="stat-bar">
+          <span class="tag hp">HP</span>
+          <div class="bar-track"><div class="bar-fill hp"></div></div>
+        </div>
+        <span class="label">LV.1</span>
+        <div class="stat-bar">
+          <span class="tag mp">MP</span>
+          <div class="bar-track"><div class="bar-fill mp"></div></div>
+        </div>
+      </div>
+
+      <!-- タイトル -->
+      <div class="title-area">
+        <div class="title">萌<span class="gi">GI</span></div>
+        <div class="subtitle">Decision Making Quest</div>
+      </div>
+
+      <div class="pixel-divider">
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span>
+      </div>
+
+      <!-- テキストボックス -->
+      <div class="text-box">
+        <div class="catchcopy">
+          「<span class="gal">GAL</span>が5人で会議したら<br>　こうなる。」<span class="cursor"></span>
+        </div>
+      </div>
+
+      <!-- パーティメンバー -->
+      <div class="section-label">Party</div>
+      <div class="party-grid">
+        <div class="party-member moe">
+          <div class="tooltip">共感翻訳 / 萌コア</div>
+          <span class="party-sprite">♥</span>
+          <div class="party-name">モカ</div>
+          <div class="party-class">Healer</div>
+        </div>
+        <div class="party-member tech">
+          <div class="tooltip">ファクト警察 / 技コア</div>
+          <span class="party-sprite">⚗</span>
+          <div class="party-name">リツ</div>
+          <div class="party-class">Mage</div>
+        </div>
+        <div class="party-member guard">
+          <div class="tooltip">炎上予防装置 / 守コア</div>
+          <span class="party-sprite">◇</span>
+          <div class="party-name">カノン</div>
+          <div class="party-class">Tank</div>
+        </div>
+        <div class="party-member chair">
+          <div class="tooltip">結論製造機 / 統括</div>
+          <span class="party-sprite">♛</span>
+          <div class="party-name">レイカ</div>
+          <div class="party-class">Leader</div>
+        </div>
+        <div class="party-member gal">
+          <div class="tooltip">バズ製造姫 / ギャル</div>
+          <span class="party-sprite">★</span>
+          <div class="party-name">ルナ</div>
+          <div class="party-class">Bard</div>
+        </div>
+      </div>
+
+      <!-- クエスト -->
+      <div class="section-label">Quest Select</div>
+      <div class="quest-list">
+        <div class="quest-card appear">
+          <div class="quest-rank s">S</div>
+          <div class="quest-text">副業でAIサービスを始めるべき？</div>
+          <div class="quest-arrow">→</div>
+        </div>
+        <div class="quest-card appear">
+          <div class="quest-rank a">A</div>
+          <div class="quest-text">社内データをClaude APIに渡していい？</div>
+          <div class="quest-arrow">→</div>
+        </div>
+        <div class="quest-card appear">
+          <div class="quest-rank b">B</div>
+          <div class="quest-text">勉強会をYouTubeで公開配信すべき？</div>
+          <div class="quest-arrow">→</div>
+        </div>
+      </div>
+
+      <!-- フッター -->
+      <div class="footer">
+        <div class="coin-row">
+          <div class="coin"></div>
+          <div class="coin"></div>
+          <div class="coin"></div>
+        </div>
+        <div class="footer-text">MO-GI <span class="ver">v1.0</span> // SAVE POINT</div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

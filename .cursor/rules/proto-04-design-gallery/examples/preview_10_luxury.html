@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>案10: NOIR VELVET SALON — MO-GI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Zen+Old+Mincho:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/light/style.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Zen Old Mincho', serif;
+  }
+
+  .phone-frame {
+    width: 375px;
+    height: 812px;
+    background: #1a1a1a;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Grain texture overlay */
+  .phone-frame::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 50;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    background-size: 128px 128px;
+  }
+
+  /* Subtle top gradient shimmer */
+  .phone-frame::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 200px;
+    background: linear-gradient(180deg, rgba(242,232,213,0.03) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .container {
+    padding: 56px 32px 40px;
+    position: relative;
+    z-index: 2;
+  }
+
+  /* ── Title ── */
+  .title-area {
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .title {
+    font-family: 'Cormorant', serif;
+    font-weight: 300;
+    font-size: 30px;
+    color: #f8f4ef;
+    letter-spacing: 8px;
+    display: inline-block;
+  }
+
+  .title i {
+    color: #b76e79;
+    font-size: 20px;
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+
+  .subtitle {
+    font-family: 'Cormorant', serif;
+    font-weight: 300;
+    font-size: 10px;
+    color: #f2e8d5;
+    letter-spacing: 8px;
+    margin-top: 12px;
+    opacity: 0.6;
+    text-transform: uppercase;
+  }
+
+  /* ── Divider ── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, #f2e8d520, #f2e8d540, #f2e8d520, transparent);
+    margin: 28px 0;
+  }
+
+  /* ── Catchcopy ── */
+  .catchcopy {
+    text-align: center;
+    font-family: 'Zen Old Mincho', serif;
+    font-size: 15px;
+    color: #f8f4ef;
+    margin-bottom: 40px;
+    font-style: italic;
+    letter-spacing: 2px;
+    line-height: 2;
+    opacity: 0.85;
+  }
+
+  .catchcopy .accent {
+    color: #b76e79;
+  }
+
+  /* ── Section label ── */
+  .section-label {
+    font-family: 'Cormorant', serif;
+    font-weight: 300;
+    font-size: 9px;
+    color: #c9b99a;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: 20px;
+    opacity: 0.5;
+  }
+
+  /* ── Scenario Cards ── */
+  .scenario-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-bottom: 48px;
+  }
+
+  .scenario-card {
+    border: 1px solid #f2e8d518;
+    padding: 20px 22px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.4s ease;
+    background: transparent;
+  }
+
+  .scenario-card:hover {
+    border-color: #f2e8d540;
+    box-shadow: 0 0 30px rgba(242,232,213,0.04), 0 0 60px rgba(183,110,121,0.03);
+  }
+
+  .scenario-card:active {
+    transform: scale(0.98);
+    opacity: 0.8;
+  }
+
+  .scenario-number {
+    font-family: 'Cormorant', serif;
+    font-weight: 300;
+    font-size: 9px;
+    color: #c9b99a;
+    margin-bottom: 8px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+
+  .scenario-title {
+    font-family: 'Zen Old Mincho', serif;
+    font-size: 14px;
+    color: #f8f4ef;
+    line-height: 1.8;
+    letter-spacing: 1px;
+    padding-right: 24px;
+  }
+
+  .scenario-arrow {
+    position: absolute;
+    right: 22px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #c9b99a;
+    opacity: 0.2;
+    transition: opacity 0.4s, color 0.4s;
+    font-size: 18px;
+  }
+
+  .scenario-card:hover .scenario-arrow {
+    opacity: 0.6;
+    color: #b76e79;
+  }
+
+  /* ── Characters ── */
+  .characters {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 48px;
+  }
+
+  .char-item {
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .char-icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    border: 1px solid;
+    transition: all 0.4s ease;
+    background: transparent;
+  }
+
+  .char-icon:hover {
+    box-shadow: 0 0 20px rgba(242,232,213,0.08);
+  }
+
+  .char-icon.moe {
+    border-color: #d4919e;
+    color: #d4919e;
+  }
+  .char-icon.tech {
+    border-color: #8ba8c4;
+    color: #8ba8c4;
+  }
+  .char-icon.guard {
+    border-color: #8baa8d;
+    color: #8baa8d;
+  }
+  .char-icon.chair {
+    border-color: #c9b99a;
+    color: #c9b99a;
+  }
+  .char-icon.gal {
+    border-color: #c99a82;
+    color: #c99a82;
+  }
+
+  .char-name {
+    font-family: 'Cormorant', serif;
+    font-weight: 400;
+    font-size: 10px;
+    color: #f8f4ef;
+    margin-top: 10px;
+    opacity: 0.45;
+    letter-spacing: 3px;
+  }
+
+  /* ── Tooltip ── */
+  .char-item .tooltip {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #222;
+    border: 1px solid #f2e8d520;
+    color: #f2e8d5;
+    font-family: 'Zen Old Mincho', serif;
+    font-size: 10px;
+    padding: 8px 14px;
+    white-space: nowrap;
+    margin-bottom: 10px;
+    z-index: 10;
+    letter-spacing: 1px;
+  }
+
+  .char-item .tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: #f2e8d520;
+  }
+
+  .char-item:hover .tooltip { display: block; }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    font-family: 'Cormorant', serif;
+    font-weight: 300;
+    font-size: 9px;
+    color: #c9b99a;
+    letter-spacing: 6px;
+    opacity: 0.25;
+    text-transform: uppercase;
+  }
+
+  /* ── Fade-in animations ── */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(16px);
+    animation: fadeInUp 0.8s ease forwards;
+  }
+  .fade-in:nth-child(1) { animation-delay: 0.2s; }
+  .fade-in:nth-child(2) { animation-delay: 0.35s; }
+  .fade-in:nth-child(3) { animation-delay: 0.5s; }
+
+  @keyframes fadeInUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Scrollbar ── */
+  .phone-frame::-webkit-scrollbar {
+    width: 2px;
+  }
+  .phone-frame::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .phone-frame::-webkit-scrollbar-thumb {
+    background: #f2e8d515;
+    border-radius: 1px;
+  }
+</style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="container">
+
+      <!-- Title -->
+      <div class="title-area">
+        <div class="title"><i class="ph-light ph-play"></i> 萌GI SYSTEM</div>
+        <div class="subtitle">MO-GI Decision Making System</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Catchcopy -->
+      <div class="catchcopy">「<span class="accent">GAL</span>が5人で会議したら<br>こうなる。」</div>
+
+      <!-- Scenarios -->
+      <div class="section-label">Scenarios</div>
+      <div class="scenario-list">
+        <div class="scenario-card fade-in">
+          <div class="scenario-number">Scenario 01</div>
+          <div class="scenario-title">副業でAIサービスを始めるべき？</div>
+          <div class="scenario-arrow"><i class="ph-light ph-arrow-right"></i></div>
+        </div>
+        <div class="scenario-card fade-in">
+          <div class="scenario-number">Scenario 02</div>
+          <div class="scenario-title">社内データをClaude APIに渡していい？</div>
+          <div class="scenario-arrow"><i class="ph-light ph-arrow-right"></i></div>
+        </div>
+        <div class="scenario-card fade-in">
+          <div class="scenario-number">Scenario 03</div>
+          <div class="scenario-title">勉強会をYouTubeで公開配信すべき？</div>
+          <div class="scenario-arrow"><i class="ph-light ph-arrow-right"></i></div>
+        </div>
+      </div>
+
+      <!-- Characters -->
+      <div class="section-label">Members</div>
+      <div class="characters">
+        <div class="char-item">
+          <div class="tooltip">共感翻訳 / 萌コア</div>
+          <div class="char-icon moe"><i class="ph-light ph-heart"></i></div>
+          <div class="char-name">モカ</div>
+        </div>
+        <div class="char-item">
+          <div class="tooltip">ファクト警察 / 技コア</div>
+          <div class="char-icon tech"><i class="ph-light ph-flask"></i></div>
+          <div class="char-name">リツ</div>
+        </div>
+        <div class="char-item">
+          <div class="tooltip">炎上予防装置 / 守コア</div>
+          <div class="char-icon guard"><i class="ph-light ph-shield"></i></div>
+          <div class="char-name">カノン</div>
+        </div>
+        <div class="char-item">
+          <div class="tooltip">結論製造機 / 統括</div>
+          <div class="char-icon chair"><i class="ph-light ph-crown"></i></div>
+          <div class="char-name">レイカ</div>
+        </div>
+        <div class="char-item">
+          <div class="tooltip">バズ製造姫 / ギャル</div>
+          <div class="char-icon gal"><i class="ph-light ph-star"></i></div>
+          <div class="char-name">ルナ</div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">MO-GI v1.0</div>
+
+    </div>
+  </div>
+</body>
+</html>

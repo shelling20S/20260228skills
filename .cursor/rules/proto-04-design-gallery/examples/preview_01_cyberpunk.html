@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>萌GI SYSTEM - S01 Top Screen (Cyberpunk)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Zen+Kurenaido&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+  <style>
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #06060a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      font-family: 'Zen Kurenaido', sans-serif;
+      overflow: hidden;
+    }
+
+    /* ===== PHONE FRAME ===== */
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      border: 2px solid #1a1a2e;
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+      box-shadow:
+        0 0 30px rgba(0, 255, 242, 0.15),
+        0 0 60px rgba(255, 0, 255, 0.1),
+        inset 0 0 30px rgba(0, 0, 0, 0.5);
+    }
+
+    /* ===== SCREEN ===== */
+    .screen {
+      width: 100%;
+      height: 100%;
+      background: #0a0a0f;
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+      scrollbar-width: thin;
+      scrollbar-color: #00fff233 transparent;
+    }
+    .screen::-webkit-scrollbar { width: 3px; }
+    .screen::-webkit-scrollbar-thumb { background: #00fff233; border-radius: 3px; }
+
+    /* ===== GRID BACKGROUND ===== */
+    .grid-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(rgba(0, 255, 242, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 242, 0.03) 1px, transparent 1px);
+      background-size: 30px 30px;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .grid-bg::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(rgba(255, 0, 255, 0.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 0, 255, 0.015) 1px, transparent 1px);
+      background-size: 90px 90px;
+    }
+
+    /* ===== SCANLINE OVERLAY ===== */
+    .scanlines {
+      position: fixed;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.08) 2px,
+        rgba(0, 0, 0, 0.08) 4px
+      );
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* ===== CONTENT WRAPPER ===== */
+    .content {
+      position: relative;
+      z-index: 1;
+      padding: 48px 20px 32px;
+    }
+
+    /* ===== TITLE: GLITCH ===== */
+    .title-block {
+      text-align: center;
+      margin-bottom: 8px;
+      animation: fadeSlideIn 0.8s ease-out both;
+    }
+
+    .title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 32px;
+      font-weight: 900;
+      color: #fff;
+      position: relative;
+      display: inline-block;
+      letter-spacing: 2px;
+    }
+    .title .icon-play {
+      color: #00fff2;
+      font-size: 24px;
+      margin-right: 6px;
+      filter: drop-shadow(0 0 6px #00fff2);
+    }
+    .title .moe { color: #ff00ff; text-shadow: 0 0 10px #ff00ff, 0 0 30px #ff00ff55; }
+    .title .gi { color: #00fff2; text-shadow: 0 0 10px #00fff2, 0 0 30px #00fff255; }
+
+    /* Glitch pseudo-elements */
+    .title::before,
+    .title::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+    .title::before {
+      color: #ff00ff;
+      animation: glitch1 3s infinite linear alternate-reverse;
+      clip-path: inset(0 0 70% 0);
+      text-shadow: -2px 0 #ff00ff;
+    }
+    .title::after {
+      color: #00fff2;
+      animation: glitch2 2.5s infinite linear alternate-reverse;
+      clip-path: inset(70% 0 0 0);
+      text-shadow: 2px 0 #00fff2;
+    }
+
+    @keyframes glitch1 {
+      0%, 90%  { clip-path: inset(0 0 85% 0); transform: translate(0); }
+      91%      { clip-path: inset(10% 0 60% 0); transform: translate(-3px, 1px); }
+      93%      { clip-path: inset(40% 0 30% 0); transform: translate(3px, -1px); }
+      95%      { clip-path: inset(60% 0 10% 0); transform: translate(-2px, 0); }
+      97%      { clip-path: inset(20% 0 50% 0); transform: translate(1px, 1px); }
+      100%     { clip-path: inset(0 0 85% 0); transform: translate(0); }
+    }
+    @keyframes glitch2 {
+      0%, 88%  { clip-path: inset(85% 0 0 0); transform: translate(0); }
+      89%      { clip-path: inset(50% 0 20% 0); transform: translate(2px, -1px); }
+      92%      { clip-path: inset(20% 0 60% 0); transform: translate(-3px, 1px); }
+      94%      { clip-path: inset(70% 0 5% 0); transform: translate(2px, 0); }
+      96%      { clip-path: inset(30% 0 40% 0); transform: translate(-1px, -1px); }
+      100%     { clip-path: inset(85% 0 0 0); transform: translate(0); }
+    }
+
+    /* ===== SUBTITLE ===== */
+    .subtitle {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 9px;
+      color: #00fff2;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      text-align: center;
+      margin-bottom: 20px;
+      opacity: 0.7;
+      animation: fadeSlideIn 0.8s 0.15s ease-out both;
+    }
+
+    /* ===== CATCHCOPY ===== */
+    .catchcopy {
+      text-align: center;
+      font-size: 15px;
+      color: #ccc;
+      margin-bottom: 36px;
+      padding: 12px 16px;
+      border-left: 2px solid #ff00ff;
+      border-right: 2px solid #00fff2;
+      background: linear-gradient(90deg, rgba(255,0,255,0.05), transparent, rgba(0,255,242,0.05));
+      animation: fadeSlideIn 0.8s 0.3s ease-out both;
+    }
+
+    /* ===== CHARACTER ROW ===== */
+    .chara-section {
+      margin-bottom: 36px;
+      animation: fadeSlideIn 0.8s 0.45s ease-out both;
+    }
+    .chara-row {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+    }
+    .chara {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: default;
+      position: relative;
+    }
+    .chara-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: #0a0a0f;
+      transition: transform 0.25s, box-shadow 0.25s;
+      position: relative;
+    }
+    .chara-icon::after {
+      content: '';
+      position: absolute;
+      inset: -3px;
+      border-radius: 50%;
+      border: 1px solid currentColor;
+      opacity: 0;
+      transition: opacity 0.25s, transform 0.25s;
+      transform: scale(0.9);
+    }
+    .chara:hover .chara-icon {
+      transform: scale(1.12);
+    }
+    .chara:hover .chara-icon::after {
+      opacity: 0.5;
+      transform: scale(1);
+    }
+    .chara-name {
+      font-size: 12px;
+      color: #aaa;
+      transition: color 0.25s;
+    }
+    .chara:hover .chara-name { color: #fff; }
+
+    /* Character colors */
+    .chara--moe .chara-icon  { background: #FF8FAB; color: #FF8FAB; box-shadow: 0 0 12px #FF8FAB55; }
+    .chara--moe .chara-icon i { color: #0a0a0f; }
+    .chara--tech .chara-icon { background: #64B5F6; color: #64B5F6; box-shadow: 0 0 12px #64B5F655; }
+    .chara--tech .chara-icon i { color: #0a0a0f; }
+    .chara--guard .chara-icon { background: #81C784; color: #81C784; box-shadow: 0 0 12px #81C78455; }
+    .chara--guard .chara-icon i { color: #0a0a0f; }
+    .chara--chair .chara-icon { background: #FFD54F; color: #FFD54F; box-shadow: 0 0 12px #FFD54F55; }
+    .chara--chair .chara-icon i { color: #0a0a0f; }
+    .chara--gal .chara-icon   { background: #FF8A65; color: #FF8A65; box-shadow: 0 0 12px #FF8A6555; }
+    .chara--gal .chara-icon i { color: #0a0a0f; }
+
+    .chara:hover .chara-icon { box-shadow: 0 0 20px currentColor, 0 0 40px currentColor; }
+
+    /* Tooltip */
+    .chara-tooltip {
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      background: #14141f;
+      border: 1px solid #00fff244;
+      color: #eee;
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 10;
+    }
+    .chara-tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: #00fff244;
+    }
+    .chara:hover .chara-tooltip {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ===== SCENARIO SECTION ===== */
+    .scenario-section {
+      animation: fadeSlideIn 0.8s 0.6s ease-out both;
+    }
+    .section-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      color: #00fff2;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-label i {
+      font-size: 14px;
+      filter: drop-shadow(0 0 4px #00fff2);
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, #00fff233, transparent);
+    }
+
+    .scenario-card {
+      background: linear-gradient(135deg, #12121e 0%, #0e0e1a 100%);
+      border: 1px solid #1a1a30;
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-bottom: 12px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color 0.3s, box-shadow 0.3s, transform 0.25s;
+      cursor: default;
+    }
+    .scenario-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px;
+      height: 100%;
+      background: linear-gradient(180deg, #00fff2, #ff00ff);
+      opacity: 0.6;
+      transition: opacity 0.3s;
+    }
+    .scenario-card:hover {
+      border-color: #00fff244;
+      box-shadow: 0 0 20px rgba(0, 255, 242, 0.12), 0 0 40px rgba(255, 0, 255, 0.08);
+      transform: translateX(4px);
+    }
+    .scenario-card:hover::before { opacity: 1; }
+
+    .scenario-card:nth-child(2) { animation-delay: 0.72s; }
+    .scenario-card:nth-child(3) { animation-delay: 0.84s; }
+
+    .scenario-num {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 10px;
+      color: #ff00ff;
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+      opacity: 0.7;
+    }
+    .scenario-text {
+      font-size: 15px;
+      color: #e0e0e0;
+      line-height: 1.6;
+    }
+
+    /* staggered card animation */
+    .scenario-card:nth-child(1) { animation: fadeSlideIn 0.8s 0.65s ease-out both; }
+    .scenario-card:nth-child(2) { animation: fadeSlideIn 0.8s 0.78s ease-out both; }
+    .scenario-card:nth-child(3) { animation: fadeSlideIn 0.8s 0.91s ease-out both; }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      text-align: center;
+      margin-top: 36px;
+      padding-top: 20px;
+      border-top: 1px solid #1a1a2e;
+      animation: fadeSlideIn 0.8s 1.0s ease-out both;
+    }
+    .footer-text {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 10px;
+      color: #444;
+      letter-spacing: 3px;
+    }
+
+    /* ===== DECORATIVE ELEMENTS ===== */
+    .deco-line {
+      width: 60%;
+      height: 1px;
+      margin: 0 auto 28px;
+      background: linear-gradient(90deg, transparent, #ff00ff44, #00fff244, transparent);
+      animation: fadeSlideIn 0.8s 0.38s ease-out both;
+    }
+
+    /* Ambient neon glow at top */
+    .ambient-glow {
+      position: absolute;
+      top: -60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 250px;
+      height: 150px;
+      background: radial-gradient(ellipse, rgba(0,255,242,0.08) 0%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ===== FADE-IN ANIMATION ===== */
+    @keyframes fadeSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(16px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="phone-frame">
+  <div class="screen">
+    <div class="grid-bg"></div>
+    <div class="ambient-glow"></div>
+
+    <div class="content">
+
+      <!-- TITLE -->
+      <div class="title-block">
+        <div class="title" data-text="萌GI SYSTEM">
+          <i class="fa-solid fa-play icon-play"></i><span class="moe">萌</span><span class="gi">GI</span> SYSTEM
+        </div>
+      </div>
+
+      <!-- SUBTITLE -->
+      <div class="subtitle">MO-GI DECISION MAKING SYSTEM</div>
+
+      <!-- CATCHCOPY -->
+      <div class="catchcopy">「GALが5人で会議したらこうなる。」</div>
+
+      <!-- DECORATIVE LINE -->
+      <div class="deco-line"></div>
+
+      <!-- CHARACTERS -->
+      <div class="chara-section">
+        <div class="chara-row">
+
+          <div class="chara chara--moe">
+            <div class="chara-tooltip">モカ / 萌え担当</div>
+            <div class="chara-icon"><i class="fa-solid fa-heart"></i></div>
+            <span class="chara-name">モカ</span>
+          </div>
+
+          <div class="chara chara--tech">
+            <div class="chara-tooltip">リツ / 技術担当</div>
+            <div class="chara-icon"><i class="fa-solid fa-flask"></i></div>
+            <span class="chara-name">リツ</span>
+          </div>
+
+          <div class="chara chara--guard">
+            <div class="chara-tooltip">カノン / 守護担当</div>
+            <div class="chara-icon"><i class="fa-solid fa-shield"></i></div>
+            <span class="chara-name">カノン</span>
+          </div>
+
+          <div class="chara chara--chair">
+            <div class="chara-tooltip">レイカ / 議長担当</div>
+            <div class="chara-icon"><i class="fa-solid fa-crown"></i></div>
+            <span class="chara-name">レイカ</span>
+          </div>
+
+          <div class="chara chara--gal">
+            <div class="chara-tooltip">ルナ / ギャル担当</div>
+            <div class="chara-icon"><i class="fa-solid fa-star"></i></div>
+            <span class="chara-name">ルナ</span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- SCENARIOS -->
+      <div class="scenario-section">
+        <div class="section-label">
+          <i class="fa-solid fa-list-check"></i>
+          おためしシナリオ（サンプル）
+        </div>
+
+        <div class="scenario-card">
+          <div class="scenario-num">SCENARIO 01</div>
+          <div class="scenario-text">副業でAIサービスを始めるべき？</div>
+        </div>
+
+        <div class="scenario-card">
+          <div class="scenario-num">SCENARIO 02</div>
+          <div class="scenario-text">社内データをClaude APIに渡していい？</div>
+        </div>
+
+        <div class="scenario-card">
+          <div class="scenario-num">SCENARIO 03</div>
+          <div class="scenario-text">勉強会をYouTubeで公開配信すべき？</div>
+        </div>
+      </div>
+
+      <!-- FOOTER -->
+      <div class="footer">
+        <div class="footer-text">MO-GI v1.0</div>
+      </div>
+
+    </div><!-- /content -->
+  </div><!-- /screen -->
+  <div class="scanlines"></div>
+</div><!-- /phone-frame -->
+
+</body>
+</html>

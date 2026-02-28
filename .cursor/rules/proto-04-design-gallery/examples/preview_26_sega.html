@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>案26: セガ — MO-GI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Exo+2:wght@400;600;800;900&family=DotGothic16&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --sega-blue: #0060a8;
+      --sega-blue-dark: #003868;
+      --sega-blue-light: #4090d0;
+      --sega-white: #ffffff;
+      --sega-red: #e60012;
+      --sega-yellow: #ffd700;
+      --sega-sky: #80c0ff;
+      --sega-bg: #000820;
+      --sega-grid: rgba(0, 96, 168, 0.15);
+    }
+
+    body {
+      background: #000410;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: var(--sega-bg);
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* チェッカーフロア風背景 */
+    .checker-bg {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 160px;
+      background:
+        repeating-conic-gradient(
+          var(--sega-grid) 0% 25%,
+          transparent 0% 50%
+        ) 0 0 / 32px 32px;
+      transform: perspective(300px) rotateX(60deg);
+      transform-origin: bottom;
+      pointer-events: none;
+      z-index: 0;
+      opacity: 0.6;
+    }
+
+    .container {
+      padding: 40px 20px 32px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ===== スピードライン装飾 ===== */
+    .speed-lines {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 200px;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .speed-lines span {
+      position: absolute;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--sega-blue-light), transparent);
+      opacity: 0.15;
+    }
+
+    .speed-lines span:nth-child(1) { top: 30px; left: 0; width: 120px; }
+    .speed-lines span:nth-child(2) { top: 55px; left: 40px; width: 200px; opacity: 0.1; }
+    .speed-lines span:nth-child(3) { top: 80px; left: 0; width: 80px; }
+    .speed-lines span:nth-child(4) { top: 110px; right: 0; left: auto; width: 150px; }
+    .speed-lines span:nth-child(5) { top: 140px; left: 60px; width: 100px; opacity: 0.08; }
+
+    /* ===== ヘッダー「セーガー！」風 ===== */
+    .sega-splash {
+      text-align: center;
+      margin-bottom: 8px;
+      position: relative;
+    }
+
+    .sega-logo-text {
+      font-family: 'Bungee', sans-serif;
+      font-size: 52px;
+      color: var(--sega-white);
+      letter-spacing: 6px;
+      text-shadow:
+        0 0 20px rgba(0, 96, 168, 0.6),
+        0 0 40px rgba(0, 96, 168, 0.3),
+        4px 4px 0 var(--sega-blue-dark);
+      line-height: 1;
+    }
+
+    .sega-logo-text .gi {
+      color: var(--sega-sky);
+    }
+
+    /* アーチ状のサブテキスト */
+    .sega-arch {
+      font-family: 'Exo 2', sans-serif;
+      font-size: 9px;
+      font-weight: 800;
+      color: var(--sega-blue-light);
+      letter-spacing: 6px;
+      text-transform: uppercase;
+      margin-top: 12px;
+    }
+
+    .sega-ver {
+      font-family: 'Exo 2', sans-serif;
+      font-size: 8px;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 3px;
+      margin-top: 8px;
+    }
+
+    /* ===== ストライプ区切り ===== */
+    .stripe-bar {
+      height: 8px;
+      margin: 24px 0;
+      background: repeating-linear-gradient(
+        -45deg,
+        var(--sega-blue) 0px,
+        var(--sega-blue) 8px,
+        var(--sega-blue-dark) 8px,
+        var(--sega-blue-dark) 16px
+      );
+      box-shadow: 0 0 12px rgba(0, 96, 168, 0.3);
+    }
+
+    /* ===== キャッチコピー ===== */
+    .catch-panel {
+      background: linear-gradient(135deg, var(--sega-blue-dark), var(--sega-blue));
+      border: 2px solid var(--sega-blue-light);
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 斜めハイライト */
+    .catch-panel::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(
+        45deg,
+        transparent 40%,
+        rgba(255,255,255,0.03) 45%,
+        rgba(255,255,255,0.03) 55%,
+        transparent 60%
+      );
+      pointer-events: none;
+    }
+
+    .catch-panel .catchcopy {
+      font-family: 'DotGothic16', sans-serif;
+      font-size: 15px;
+      color: var(--sega-white);
+      line-height: 2.2;
+      text-align: center;
+      letter-spacing: 1px;
+      position: relative;
+    }
+
+    .catch-panel .gal {
+      font-family: 'Bungee', sans-serif;
+      font-size: 18px;
+      color: var(--sega-yellow);
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+      letter-spacing: 2px;
+    }
+
+    /* ===== セクションラベル ===== */
+    .sega-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .sega-label .badge {
+      font-family: 'Exo 2', sans-serif;
+      font-size: 11px;
+      font-weight: 900;
+      color: var(--sega-bg);
+      background: var(--sega-blue-light);
+      padding: 3px 12px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      clip-path: polygon(0 0, 100% 0, 96% 100%, 4% 100%);
+    }
+
+    .sega-label .line {
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(90deg, var(--sega-blue-light), transparent);
+    }
+
+    /* ===== キャラ — セレクト画面風 ===== */
+    .select-grid {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .select-slot {
+      flex: 1;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      padding: 14px 4px 10px;
+      background: rgba(0, 96, 168, 0.1);
+      border: 2px solid rgba(0, 96, 168, 0.3);
+      border-radius: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .select-slot:hover {
+      border-color: var(--sega-yellow);
+      background: rgba(255, 215, 0, 0.08);
+      box-shadow:
+        0 0 16px rgba(255, 215, 0, 0.15),
+        inset 0 0 12px rgba(255, 215, 0, 0.05);
+      transform: translateY(-3px);
+    }
+
+    /* 選択フレーム */
+    .select-slot:hover::after {
+      content: '▲';
+      position: absolute;
+      bottom: -16px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 8px;
+      color: var(--sega-yellow);
+      animation: segaBounce 0.4s ease infinite;
+    }
+
+    @keyframes segaBounce {
+      0%, 100% { transform: translateX(-50%) translateY(0); }
+      50% { transform: translateX(-50%) translateY(-3px); }
+    }
+
+    .slot-sprite {
+      font-size: 24px;
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .select-slot.moe .slot-sprite { color: var(--sega-red); }
+    .select-slot.tech .slot-sprite { color: var(--sega-sky); }
+    .select-slot.guard .slot-sprite { color: #40e040; }
+    .select-slot.chair .slot-sprite { color: var(--sega-yellow); }
+    .select-slot.gal .slot-sprite { color: #ff60a0; }
+
+    .slot-name {
+      font-family: 'DotGothic16', sans-serif;
+      font-size: 11px;
+      color: var(--sega-white);
+      letter-spacing: 1px;
+    }
+
+    .slot-type {
+      font-family: 'Exo 2', sans-serif;
+      font-size: 7px;
+      font-weight: 800;
+      color: var(--sega-blue-light);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-top: 3px;
+    }
+
+    /* ツールチップ */
+    .select-slot .tooltip {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--sega-blue-dark);
+      border: 1px solid var(--sega-blue-light);
+      color: var(--sega-white);
+      font-size: 10px;
+      padding: 6px 12px;
+      white-space: nowrap;
+      z-index: 10;
+      border-radius: 4px;
+    }
+
+    .select-slot:hover .tooltip { display: block; }
+
+    /* ===== シナリオ — ステージセレクト風 ===== */
+    .stage-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 28px;
+    }
+
+    .stage-card {
+      background: linear-gradient(90deg, rgba(0,96,168,0.15), transparent);
+      border: 2px solid rgba(0,96,168,0.25);
+      border-radius: 8px;
+      padding: 14px 16px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .stage-card:hover {
+      border-color: var(--sega-blue-light);
+      background: linear-gradient(90deg, rgba(0,96,168,0.25), rgba(0,96,168,0.05));
+      transform: translateX(4px);
+      box-shadow: 0 0 16px rgba(0, 96, 168, 0.2);
+    }
+
+    /* スピードエフェクト */
+    .stage-card:hover::before {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0; left: -100%;
+      width: 50%;
+      background: linear-gradient(90deg, transparent, rgba(128,192,255,0.08), transparent);
+      animation: stageFlash 0.4s ease-out;
+    }
+
+    @keyframes stageFlash {
+      from { left: -50%; }
+      to { left: 100%; }
+    }
+
+    .stage-num {
+      font-family: 'Bungee', sans-serif;
+      font-size: 22px;
+      color: var(--sega-blue-light);
+      flex-shrink: 0;
+      min-width: 36px;
+      text-shadow: 0 0 8px rgba(64, 144, 208, 0.3);
+    }
+
+    .stage-text {
+      font-family: 'DotGothic16', sans-serif;
+      font-size: 13px;
+      color: var(--sega-white);
+      line-height: 1.7;
+      flex: 1;
+    }
+
+    .stage-zone {
+      font-family: 'Exo 2', sans-serif;
+      font-size: 8px;
+      font-weight: 800;
+      color: var(--sega-blue-light);
+      flex-shrink: 0;
+      letter-spacing: 1px;
+      opacity: 0.5;
+      transition: opacity 0.2s;
+    }
+
+    .stage-card:hover .stage-zone {
+      opacity: 1;
+      color: var(--sega-yellow);
+    }
+
+    /* ===== リング風フッター ===== */
+    .sega-footer {
+      text-align: center;
+    }
+
+    .ring-row {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+
+    .ring {
+      width: 14px;
+      height: 14px;
+      border: 2px solid var(--sega-yellow);
+      border-radius: 50%;
+      animation: ringSpin 1.5s linear infinite;
+      box-shadow: 0 0 6px rgba(255, 215, 0, 0.3);
+    }
+
+    .ring:nth-child(2) { animation-delay: 0.2s; }
+    .ring:nth-child(3) { animation-delay: 0.4s; }
+
+    @keyframes ringSpin {
+      0% { transform: scaleX(1); }
+      25% { transform: scaleX(0.3); }
+      50% { transform: scaleX(1); }
+      75% { transform: scaleX(0.3); }
+      100% { transform: scaleX(1); }
+    }
+
+    .sega-footer-text {
+      font-family: 'Exo 2', sans-serif;
+      font-size: 9px;
+      font-weight: 800;
+      color: rgba(255,255,255,0.2);
+      letter-spacing: 4px;
+    }
+
+    /* スクロールバー */
+    .phone-frame::-webkit-scrollbar { width: 4px; }
+    .phone-frame::-webkit-scrollbar-thumb { background: var(--sega-blue); border-radius: 4px; }
+    .phone-frame::-webkit-scrollbar-track { background: var(--sega-bg); }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="speed-lines">
+      <span></span><span></span><span></span><span></span><span></span>
+    </div>
+    <div class="checker-bg"></div>
+    <div class="container">
+
+      <!-- タイトル -->
+      <div class="sega-splash">
+        <div class="sega-logo-text">萌<span class="gi">GI</span></div>
+        <div class="sega-arch">Decision Making System</div>
+        <div class="sega-ver">PRESENTED BY MO-GI PROJECT</div>
+      </div>
+
+      <div class="stripe-bar"></div>
+
+      <!-- キャッチ -->
+      <div class="catch-panel">
+        <div class="catchcopy">
+          「<span class="gal">GAL</span>が5人で会議したら<br>こうなる。」
+        </div>
+      </div>
+
+      <!-- キャラクター -->
+      <div class="sega-label">
+        <span class="badge">SELECT</span>
+        <span class="line"></span>
+      </div>
+      <div class="select-grid">
+        <div class="select-slot moe">
+          <div class="tooltip">共感翻訳 / 萌コア</div>
+          <span class="slot-sprite">♥</span>
+          <div class="slot-name">モカ</div>
+          <div class="slot-type">Healer</div>
+        </div>
+        <div class="select-slot tech">
+          <div class="tooltip">ファクト警察 / 技コア</div>
+          <span class="slot-sprite">⚗</span>
+          <div class="slot-name">リツ</div>
+          <div class="slot-type">Sage</div>
+        </div>
+        <div class="select-slot guard">
+          <div class="tooltip">炎上予防装置 / 守コア</div>
+          <span class="slot-sprite">◇</span>
+          <div class="slot-name">カノン</div>
+          <div class="slot-type">Guard</div>
+        </div>
+        <div class="select-slot chair">
+          <div class="tooltip">結論製造機 / 統括</div>
+          <span class="slot-sprite">♛</span>
+          <div class="slot-name">レイカ</div>
+          <div class="slot-type">Chair</div>
+        </div>
+        <div class="select-slot gal">
+          <div class="tooltip">バズ製造姫 / ギャル</div>
+          <span class="slot-sprite">★</span>
+          <div class="slot-name">ルナ</div>
+          <div class="slot-type">GAL</div>
+        </div>
+      </div>
+
+      <!-- ステージ -->
+      <div class="sega-label">
+        <span class="badge">STAGE</span>
+        <span class="line"></span>
+      </div>
+      <div class="stage-list">
+        <div class="stage-card">
+          <div class="stage-num">1</div>
+          <div class="stage-text">副業でAIサービスを始めるべき？</div>
+          <div class="stage-zone">ZONE 1</div>
+        </div>
+        <div class="stage-card">
+          <div class="stage-num">2</div>
+          <div class="stage-text">社内データをClaude APIに渡していい？</div>
+          <div class="stage-zone">ZONE 2</div>
+        </div>
+        <div class="stage-card">
+          <div class="stage-num">3</div>
+          <div class="stage-text">勉強会をYouTubeで公開配信すべき？</div>
+          <div class="stage-zone">ZONE 3</div>
+        </div>
+      </div>
+
+      <!-- フッター -->
+      <div class="sega-footer">
+        <div class="ring-row">
+          <div class="ring"></div>
+          <div class="ring"></div>
+          <div class="ring"></div>
+        </div>
+        <div class="sega-footer-text">MO-GI v1.0</div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

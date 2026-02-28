@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>案02: EXPLOSIVE POP CANDY — MO-GI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Kosugi+Maru&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #FFFDE7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Kosugi Maru', sans-serif;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── 背景の紙吹雪ドット（CSS only） ── */
+  body::before,
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::before {
+    background:
+      radial-gradient(circle 6px, #FF1493 70%, transparent 71%) 20px 40px,
+      radial-gradient(circle 4px, #ADFF2F 70%, transparent 71%) 80px 120px,
+      radial-gradient(circle 5px, #00FFFF 70%, transparent 71%) 150px 60px,
+      radial-gradient(circle 3px, #FF6B00 70%, transparent 71%) 250px 180px,
+      radial-gradient(circle 7px, #FF1493 70%, transparent 71%) 320px 30px,
+      radial-gradient(circle 4px, #ADFF2F 70%, transparent 71%) 400px 200px,
+      radial-gradient(circle 6px, #00FFFF 70%, transparent 71%) 50px 300px,
+      radial-gradient(circle 5px, #FF6B00 70%, transparent 71%) 200px 350px,
+      radial-gradient(circle 4px, #FF1493 70%, transparent 71%) 350px 280px,
+      radial-gradient(circle 3px, #ADFF2F 70%, transparent 71%) 100px 500px,
+      radial-gradient(circle 6px, #00FFFF 70%, transparent 71%) 280px 480px,
+      radial-gradient(circle 5px, #FF6B00 70%, transparent 71%) 420px 400px,
+      radial-gradient(circle 4px, #FF1493 70%, transparent 71%) 60px 600px,
+      radial-gradient(circle 7px, #ADFF2F 70%, transparent 71%) 300px 550px;
+    background-size: 500px 700px;
+    opacity: 0.5;
+  }
+  body::after {
+    background:
+      radial-gradient(circle 3px, #FF1493 70%, transparent 71%) 450px 90px,
+      radial-gradient(circle 5px, #ADFF2F 70%, transparent 71%) 130px 170px,
+      radial-gradient(circle 4px, #00FFFF 70%, transparent 71%) 370px 250px,
+      radial-gradient(circle 6px, #FF6B00 70%, transparent 71%) 40px 420px,
+      radial-gradient(circle 3px, #FF1493 70%, transparent 71%) 220px 630px,
+      radial-gradient(circle 5px, #00FFFF 70%, transparent 71%) 480px 510px;
+    background-size: 500px 700px;
+    opacity: 0.35;
+  }
+
+  /* ── フォン枠 ── */
+  .phone-frame {
+    width: 375px;
+    height: 812px;
+    background: #FFFFFF;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    z-index: 1;
+    border: 5px solid #111;
+    box-shadow: 12px 12px 0 #111;
+    border-radius: 20px;
+  }
+
+  .container {
+    padding: 28px 18px 32px;
+    position: relative;
+  }
+
+  /* ── 背景スター装飾（フレーム内） ── */
+  .container::before {
+    content: '★ ✦ ★ ✦ ★ ✦ ★ ✦ ★ ✦ ★ ✦ ★ ✦ ★ ✦';
+    position: absolute;
+    top: 8px;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-size: 8px;
+    letter-spacing: 4px;
+    color: #FF1493;
+    opacity: 0.3;
+    pointer-events: none;
+  }
+
+  /* ── タイトルカード ── */
+  .title-card {
+    background: linear-gradient(135deg, #FF1493, #FF6B00);
+    border: 5px solid #111;
+    box-shadow: 8px 8px 0 #111;
+    padding: 22px 16px 18px;
+    text-align: center;
+    margin-bottom: 20px;
+    transform: rotate(-2deg);
+    animation: pop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) backwards;
+    position: relative;
+    overflow: hidden;
+  }
+  .title-card::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    width: 60px;
+    height: 60px;
+    background: #ADFF2F;
+    border: 4px solid #111;
+    border-radius: 50%;
+    opacity: 0.5;
+  }
+  .title-card::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 20px;
+    width: 30px;
+    height: 30px;
+    background: #00FFFF;
+    border: 3px solid #111;
+    border-radius: 50%;
+    opacity: 0.4;
+  }
+  .title {
+    font-family: 'Bangers', cursive;
+    font-size: 36px;
+    color: #FFF;
+    text-shadow: 4px 4px 0 #111;
+    letter-spacing: 4px;
+    position: relative;
+    z-index: 1;
+  }
+  .title .ri-play-fill {
+    display: inline-block;
+    font-size: 28px;
+    vertical-align: middle;
+    animation: wiggle 1.5s infinite;
+    margin: 0 4px;
+  }
+  .subtitle {
+    font-family: 'Bangers', cursive;
+    font-size: 11px;
+    color: #FFF;
+    letter-spacing: 4px;
+    margin-top: 6px;
+    opacity: 0.85;
+    text-shadow: 2px 2px 0 #111;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── キャッチコピー ── */
+  .catchcopy {
+    text-align: center;
+    font-size: 16px;
+    font-weight: 700;
+    color: #111;
+    margin-bottom: 24px;
+    padding: 14px 12px;
+    border: 4px solid #111;
+    box-shadow: 5px 5px 0 #FF1493;
+    background: #FFF;
+    transform: rotate(1deg);
+    animation: pop-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.15s backwards;
+    position: relative;
+  }
+  .catchcopy::before {
+    content: '💥';
+    position: absolute;
+    top: -14px;
+    left: -8px;
+    font-size: 22px;
+    transform: rotate(-15deg);
+  }
+  .catchcopy::after {
+    content: '💥';
+    position: absolute;
+    bottom: -14px;
+    right: -8px;
+    font-size: 22px;
+    transform: rotate(15deg);
+  }
+
+  /* ── キャラセクション ── */
+  .characters {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 28px;
+    flex-wrap: wrap;
+  }
+  .char-item {
+    text-align: center;
+    cursor: pointer;
+    position: relative;
+  }
+  .char-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    color: #111;
+    border: 4px solid #111;
+    box-shadow: 4px 4px 0 #111;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s;
+    position: relative;
+  }
+  .char-icon:hover {
+    transform: translate(-3px, -3px) scale(1.15) rotate(-5deg);
+    box-shadow: 7px 7px 0 #111;
+  }
+  .char-icon:active {
+    transform: translate(2px, 2px) scale(0.9);
+    box-shadow: 2px 2px 0 #111;
+  }
+  .char-icon.moe  { background: #FF8FAB; }
+  .char-icon.tech  { background: #64B5F6; }
+  .char-icon.guard { background: #81C784; }
+  .char-icon.chair { background: #FFD54F; }
+  .char-icon.gal   { background: #FF8A65; }
+
+  .char-name {
+    font-size: 11px;
+    font-weight: 700;
+    color: #111;
+    margin-top: 6px;
+    letter-spacing: 1px;
+  }
+
+  /* バウンスアニメ */
+  .char-item:nth-child(1) .char-icon { animation: bounce-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s backwards; }
+  .char-item:nth-child(2) .char-icon { animation: bounce-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s backwards; }
+  .char-item:nth-child(3) .char-icon { animation: bounce-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s backwards; }
+  .char-item:nth-child(4) .char-icon { animation: bounce-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.6s backwards; }
+  .char-item:nth-child(5) .char-icon { animation: bounce-in 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 0.7s backwards; }
+
+  /* ツールチップ */
+  .char-item .tooltip {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #111;
+    color: #FFF;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 6px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    margin-bottom: 8px;
+    z-index: 10;
+    border: 2px solid #FF1493;
+  }
+  .char-item .tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #111;
+  }
+  .char-item:hover .tooltip { display: block; }
+
+  /* ── セクションラベル ── */
+  .scenario-section-label {
+    font-family: 'Bangers', cursive;
+    font-size: 16px;
+    color: #111;
+    text-align: center;
+    margin-bottom: 14px;
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transform: rotate(-1deg);
+  }
+  .scenario-section-label i {
+    font-size: 20px;
+    color: #FF6B00;
+  }
+  .scenario-section-label .label-jp {
+    font-family: 'Kosugi Maru', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  /* ── シナリオカード ── */
+  .scenario-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .scenario-card {
+    border: 4px solid #111;
+    box-shadow: 5px 5px 0 #111;
+    padding: 16px 48px 16px 16px;
+    cursor: pointer;
+    position: relative;
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .scenario-card:nth-child(1) {
+    background: #FF1493;
+    color: #FFF;
+    transform: rotate(-1.5deg);
+  }
+  .scenario-card:nth-child(2) {
+    background: #ADFF2F;
+    color: #111;
+    transform: rotate(1deg);
+  }
+  .scenario-card:nth-child(3) {
+    background: #00FFFF;
+    color: #111;
+    transform: rotate(-0.5deg);
+  }
+  .scenario-card:hover {
+    transform: translate(-4px, -4px) rotate(0deg) scale(1.02);
+    box-shadow: 9px 9px 0 #111;
+  }
+  .scenario-card:active {
+    transform: translate(2px, 2px) scale(0.98);
+    box-shadow: 2px 2px 0 #111;
+  }
+  .scenario-number {
+    font-family: 'Bangers', cursive;
+    font-size: 40px;
+    opacity: 0.15;
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    letter-spacing: 2px;
+  }
+  .scenario-card:nth-child(1) .scenario-number { color: #FFF; }
+  .scenario-card:nth-child(2) .scenario-number { color: #111; }
+  .scenario-card:nth-child(3) .scenario-number { color: #111; }
+
+  .scenario-title {
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.7;
+    position: relative;
+    z-index: 1;
+  }
+  .scenario-arrow {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+    opacity: 0.6;
+    z-index: 1;
+  }
+
+  /* カードのスライドイン */
+  .scenario-card:nth-child(1) { animation: slide-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.5s backwards; }
+  .scenario-card:nth-child(2) { animation: slide-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.65s backwards; }
+  .scenario-card:nth-child(3) { animation: slide-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.8s backwards; }
+
+  /* ── フッター ── */
+  .footer {
+    margin-top: 28px;
+    text-align: center;
+    font-family: 'Bangers', cursive;
+    font-size: 13px;
+    color: #111;
+    opacity: 0.25;
+    letter-spacing: 3px;
+  }
+
+  /* ── デコレーションステッカー ── */
+  .sticker {
+    position: absolute;
+    border: 3px solid #111;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    color: #111;
+    font-weight: 700;
+    pointer-events: none;
+    z-index: 2;
+  }
+  .sticker-1 {
+    width: 36px;
+    height: 36px;
+    background: #ADFF2F;
+    top: 200px;
+    right: 12px;
+    transform: rotate(15deg);
+    animation: float 3s ease-in-out infinite;
+  }
+  .sticker-2 {
+    width: 28px;
+    height: 28px;
+    background: #00FFFF;
+    top: 400px;
+    left: 8px;
+    transform: rotate(-10deg);
+    animation: float 3.5s ease-in-out 0.5s infinite;
+  }
+  .sticker-3 {
+    width: 32px;
+    height: 32px;
+    background: #FF1493;
+    top: 580px;
+    right: 18px;
+    transform: rotate(8deg);
+    animation: float 2.8s ease-in-out 1s infinite;
+  }
+
+  /* ── キーフレーム ── */
+  @keyframes pop-in {
+    from { opacity: 0; transform: rotate(-2deg) scale(0.6); }
+    to { opacity: 1; }
+  }
+  @keyframes bounce-in {
+    0% { opacity: 0; transform: translateY(-80px) scale(0.3) rotate(20deg); }
+    60% { transform: translateY(8px) scale(1.1) rotate(-5deg); }
+    100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+  }
+  @keyframes slide-in {
+    from { opacity: 0; transform: translateX(60px) rotate(5deg); }
+    to { opacity: 1; }
+  }
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(0deg) scale(1); }
+    25% { transform: rotate(12deg) scale(1.1); }
+    75% { transform: rotate(-12deg) scale(1.1); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(var(--rot, 15deg)); }
+    50% { transform: translateY(-8px) rotate(var(--rot, 15deg)); }
+  }
+
+  /* ── スクロールバー ── */
+  .phone-frame::-webkit-scrollbar { width: 4px; }
+  .phone-frame::-webkit-scrollbar-track { background: transparent; }
+  .phone-frame::-webkit-scrollbar-thumb {
+    background: #FF1493;
+    border-radius: 4px;
+  }
+</style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="container">
+
+      <!-- デコステッカー -->
+      <div class="sticker sticker-1"><i class="ri-star-fill"></i></div>
+      <div class="sticker sticker-2"><i class="ri-heart-fill"></i></div>
+      <div class="sticker sticker-3"><i class="ri-flashlight-fill"></i></div>
+
+      <!-- タイトル -->
+      <div class="title-card">
+        <div class="title"><i class="ri-play-fill"></i> 萌GI SYSTEM</div>
+        <div class="subtitle">MO-GI DECISION MAKING SYSTEM</div>
+      </div>
+
+      <!-- キャッチコピー -->
+      <div class="catchcopy">「GALが5人で会議したら<br>こうなる。」</div>
+
+      <!-- キャラ紹介 -->
+      <div class="characters">
+        <div class="char-item">
+          <div class="tooltip">共感翻訳 / 萌コア</div>
+          <div class="char-icon moe"><i class="ri-heart-fill"></i></div>
+          <div class="char-name">モカ</div>
+        </div>
+        <div class="char-item">
+          <div class="tooltip">ファクト警察 / 技コア</div>
+          <div class="char-icon tech"><i class="ri-flask-fill"></i></div>
+          <div class="char-name">リツ</div>
+        </div>
+        <div class="char-item">
+          <div class="tooltip">炎上予防装置 / 守コア</div>
+          <div class="char-icon guard"><i class="ri-shield-fill"></i></div>
+          <div class="char-name">カノン</div>
+        </div>
+        <div class="char-item">
+          <div class="tooltip">結論製造機 / 統括</div>
+          <div class="char-icon chair"><i class="ri-vip-crown-fill"></i></div>
+          <div class="char-name">レイカ</div>
+        </div>
+        <div class="char-item">
+          <div class="tooltip">バズ製造姫 / ギャル</div>
+          <div class="char-icon gal"><i class="ri-star-fill"></i></div>
+          <div class="char-name">ルナ</div>
+        </div>
+      </div>
+
+      <!-- シナリオ選択 -->
+      <div class="scenario-section-label">
+        <i class="ri-list-check"></i>
+        <span class="label-jp">おためしシナリオ（サンプル）</span>
+      </div>
+      <div class="scenario-list">
+        <div class="scenario-card">
+          <div class="scenario-number">01</div>
+          <div class="scenario-title">副業でAIサービスを<br>始めるべき？</div>
+          <span class="scenario-arrow"><i class="ri-arrow-right-s-fill"></i></span>
+        </div>
+        <div class="scenario-card">
+          <div class="scenario-number">02</div>
+          <div class="scenario-title">社内データをClaude APIに<br>渡していい？</div>
+          <span class="scenario-arrow"><i class="ri-arrow-right-s-fill"></i></span>
+        </div>
+        <div class="scenario-card">
+          <div class="scenario-number">03</div>
+          <div class="scenario-title">勉強会をYouTubeで<br>公開配信すべき？</div>
+          <span class="scenario-arrow"><i class="ri-arrow-right-s-fill"></i></span>
+        </div>
+      </div>
+
+      <div class="footer">MO-GI v1.0</div>
+    </div>
+  </div>
+</body>
+</html>

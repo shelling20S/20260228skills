@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>案25: ゲームボーイ — MO-GI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      /* GB実機の4階調 */
+      --gb-0: #0f380f; /* 最暗 */
+      --gb-1: #306230; /* 暗 */
+      --gb-2: #8bac0f; /* 明 */
+      --gb-3: #9bbc0f; /* 最明（背景） */
+      /* 本体カラー */
+      --shell: #c4b08a;
+      --shell-dark: #8b7d62;
+      --shell-light: #d4c49a;
+      --screen-frame: #6b6b4b;
+    }
+
+    body {
+      background: #3a3a2a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      image-rendering: pixelated;
+    }
+
+    /* ===== ゲームボーイ本体フレーム ===== */
+    .gb-body {
+      width: 375px;
+      min-height: 812px;
+      background: linear-gradient(180deg, var(--shell-light) 0%, var(--shell) 20%, var(--shell) 80%, var(--shell-dark) 100%);
+      border-radius: 16px 16px 40px 40px;
+      padding: 20px 20px 40px;
+      position: relative;
+      box-shadow:
+        inset 0 2px 0 rgba(255,255,255,0.2),
+        0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    /* 上部ライン装飾 */
+    .gb-body::before {
+      content: 'Nintendo GAME BOY™';
+      position: absolute;
+      top: 10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Silkscreen', sans-serif;
+      font-size: 7px;
+      color: var(--shell-dark);
+      letter-spacing: 2px;
+      opacity: 0.5;
+    }
+
+    /* スクリーン枠 */
+    .screen-bezel {
+      background: var(--screen-frame);
+      border-radius: 8px;
+      padding: 12px 10px;
+      margin-top: 14px;
+      box-shadow:
+        inset 0 2px 4px rgba(0,0,0,0.3),
+        0 1px 0 rgba(255,255,255,0.1);
+    }
+
+    /* DOTMATRIXラベル */
+    .dot-matrix-label {
+      font-family: 'Silkscreen', sans-serif;
+      font-size: 6px;
+      color: #4a4a3a;
+      letter-spacing: 3px;
+      text-align: center;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+
+    .dot-matrix-label span {
+      color: #6a5a4a;
+      margin: 0 1px;
+    }
+
+    /* LED */
+    .power-led {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .power-led .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #c00;
+      box-shadow: 0 0 6px rgba(255, 0, 0, 0.6);
+      animation: ledPulse 2s ease infinite;
+    }
+
+    @keyframes ledPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .power-led .text {
+      font-family: 'Silkscreen', sans-serif;
+      font-size: 5px;
+      color: #4a4a3a;
+      letter-spacing: 2px;
+    }
+
+    /* ===== 液晶画面 ===== */
+    .lcd-screen {
+      background: var(--gb-3);
+      min-height: 500px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+      border: 2px solid var(--gb-0);
+      box-shadow: inset 0 0 20px rgba(15, 56, 15, 0.15);
+    }
+
+    /* スキャンライン */
+    .lcd-screen::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent 0px,
+        transparent 1px,
+        rgba(15, 56, 15, 0.04) 1px,
+        rgba(15, 56, 15, 0.04) 2px
+      );
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    .lcd-content {
+      padding: 16px 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ===== タイトル ===== */
+    .gb-title {
+      text-align: center;
+      margin-bottom: 8px;
+      padding: 12px 0;
+    }
+
+    .gb-title-text {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 22px;
+      color: var(--gb-0);
+      letter-spacing: 3px;
+      text-shadow: 2px 2px 0 var(--gb-1);
+    }
+
+    .gb-title-text .gi {
+      color: var(--gb-1);
+    }
+
+    .gb-title-sub {
+      font-family: 'Silkscreen', sans-serif;
+      font-size: 7px;
+      color: var(--gb-1);
+      letter-spacing: 2px;
+      margin-top: 10px;
+    }
+
+    /* 区切り */
+    .gb-sep {
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+      margin: 12px 0;
+    }
+
+    .gb-sep span {
+      width: 4px;
+      height: 4px;
+      background: var(--gb-1);
+    }
+
+    /* ===== テキストボックス ===== */
+    .gb-textbox {
+      border: 2px solid var(--gb-0);
+      padding: 10px 12px;
+      margin-bottom: 16px;
+      background: var(--gb-3);
+    }
+
+    .gb-textbox .text {
+      font-family: 'DotGothic16', sans-serif;
+      font-size: 13px;
+      color: var(--gb-0);
+      line-height: 2;
+      letter-spacing: 0.5px;
+    }
+
+    .gb-textbox .gal {
+      font-weight: 700;
+      border-bottom: 2px solid var(--gb-0);
+    }
+
+    .gb-textbox .tri {
+      text-align: right;
+      font-size: 8px;
+      color: var(--gb-0);
+      margin-top: 4px;
+      animation: gbBlink 0.6s step-end infinite;
+    }
+
+    @keyframes gbBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* ===== ラベル ===== */
+    .gb-label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      color: var(--gb-0);
+      letter-spacing: 1px;
+      margin-bottom: 10px;
+      padding-bottom: 4px;
+      border-bottom: 2px solid var(--gb-1);
+    }
+
+    /* ===== キャラ — リスト形式 ===== */
+    .gb-party {
+      margin-bottom: 18px;
+    }
+
+    .gb-member {
+      display: flex;
+      align-items: center;
+      padding: 6px 8px;
+      gap: 8px;
+      cursor: pointer;
+      border: 2px solid transparent;
+    }
+
+    .gb-member:hover {
+      background: var(--gb-2);
+      border-color: var(--gb-0);
+    }
+
+    .gb-member:hover::before {
+      content: '▶';
+      font-size: 6px;
+      color: var(--gb-0);
+      margin-right: -4px;
+    }
+
+    .gb-member .icon {
+      font-size: 14px;
+      color: var(--gb-0);
+      width: 20px;
+      text-align: center;
+    }
+
+    .gb-member .name {
+      font-family: 'DotGothic16', sans-serif;
+      font-size: 12px;
+      color: var(--gb-0);
+      flex: 1;
+      letter-spacing: 2px;
+    }
+
+    .gb-member .role {
+      font-family: 'Silkscreen', sans-serif;
+      font-size: 6px;
+      color: var(--gb-1);
+      letter-spacing: 1px;
+    }
+
+    /* ===== クエスト ===== */
+    .gb-quests {
+      margin-bottom: 16px;
+    }
+
+    .gb-quest {
+      display: flex;
+      align-items: flex-start;
+      padding: 8px;
+      gap: 8px;
+      cursor: pointer;
+      border: 2px solid transparent;
+      margin-bottom: 2px;
+    }
+
+    .gb-quest:hover {
+      background: var(--gb-2);
+      border-color: var(--gb-0);
+    }
+
+    .gb-quest:hover .q-cursor { visibility: visible; }
+
+    .q-cursor {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 6px;
+      color: var(--gb-0);
+      visibility: hidden;
+      flex-shrink: 0;
+      margin-top: 4px;
+      animation: gbBlink 0.4s step-end infinite;
+    }
+
+    .q-num {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      color: var(--gb-1);
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+
+    .q-text {
+      font-family: 'DotGothic16', sans-serif;
+      font-size: 12px;
+      color: var(--gb-0);
+      line-height: 1.8;
+    }
+
+    /* フッター */
+    .gb-footer {
+      text-align: center;
+      font-family: 'Silkscreen', sans-serif;
+      font-size: 6px;
+      color: var(--gb-1);
+      letter-spacing: 2px;
+      padding-top: 8px;
+      border-top: 2px solid var(--gb-1);
+    }
+
+    /* ===== 本体下部ボタン ===== */
+    .gb-controls {
+      margin-top: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+    }
+
+    /* 十字キー */
+    .dpad {
+      width: 70px;
+      height: 70px;
+      position: relative;
+    }
+
+    .dpad-h, .dpad-v {
+      position: absolute;
+      background: #3a3a3a;
+      border-radius: 4px;
+    }
+
+    .dpad-h {
+      width: 70px;
+      height: 24px;
+      top: 23px;
+      left: 0;
+    }
+
+    .dpad-v {
+      width: 24px;
+      height: 70px;
+      left: 23px;
+      top: 0;
+    }
+
+    .dpad-center {
+      position: absolute;
+      width: 14px;
+      height: 14px;
+      background: #2a2a2a;
+      border-radius: 50%;
+      top: 28px;
+      left: 28px;
+    }
+
+    /* ABボタン */
+    .ab-buttons {
+      display: flex;
+      gap: 14px;
+      transform: rotate(-25deg);
+    }
+
+    .btn-ab {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #8b2252;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Silkscreen', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      color: rgba(255,255,255,0.6);
+      box-shadow:
+        0 3px 0 #6a1a42,
+        inset 0 1px 0 rgba(255,255,255,0.1);
+    }
+
+    /* START/SELECT */
+    .ss-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 14px;
+    }
+
+    .btn-ss {
+      width: 32px;
+      height: 8px;
+      background: #6a6a5a;
+      border-radius: 10px;
+      position: relative;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+    }
+
+    .btn-ss-label {
+      font-family: 'Silkscreen', sans-serif;
+      font-size: 5px;
+      color: var(--shell-dark);
+      text-align: center;
+      margin-top: 4px;
+      letter-spacing: 1px;
+    }
+
+    /* スクロールバー非表示 */
+    .lcd-screen::-webkit-scrollbar { width: 0; }
+  </style>
+</head>
+<body>
+  <div class="gb-body">
+
+    <!-- 電源LED -->
+    <div class="power-led">
+      <div class="dot"></div>
+      <span class="text">BATTERY</span>
+    </div>
+
+    <!-- ドットマトリクスラベル -->
+    <div class="dot-matrix-label">
+      <span>·</span>DOT MATRIX WITH STEREO SOUND<span>·</span>
+    </div>
+
+    <!-- スクリーン枠 -->
+    <div class="screen-bezel">
+      <div class="lcd-screen">
+        <div class="lcd-content">
+
+          <!-- タイトル -->
+          <div class="gb-title">
+            <div class="gb-title-text">萌<span class="gi">GI</span></div>
+            <div class="gb-title-sub">DECISION SYSTEM</div>
+          </div>
+
+          <div class="gb-sep">
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span>
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+
+          <!-- テキストボックス -->
+          <div class="gb-textbox">
+            <div class="text">
+              「<span class="gal">GAL</span>が5にんで<br>かいぎしたら こうなる。」
+            </div>
+            <div class="tri">▼</div>
+          </div>
+
+          <!-- パーティ -->
+          <div class="gb-label">PARTY</div>
+          <div class="gb-party">
+            <div class="gb-member">
+              <span class="icon">♥</span>
+              <span class="name">モカ</span>
+              <span class="role">HEALER</span>
+            </div>
+            <div class="gb-member">
+              <span class="icon">⚗</span>
+              <span class="name">リツ</span>
+              <span class="role">SAGE</span>
+            </div>
+            <div class="gb-member">
+              <span class="icon">◇</span>
+              <span class="name">カノン</span>
+              <span class="role">KNIGHT</span>
+            </div>
+            <div class="gb-member">
+              <span class="icon">♛</span>
+              <span class="name">レイカ</span>
+              <span class="role">KING</span>
+            </div>
+            <div class="gb-member">
+              <span class="icon">★</span>
+              <span class="name">ルナ</span>
+              <span class="role">BARD</span>
+            </div>
+          </div>
+
+          <!-- クエスト -->
+          <div class="gb-label">QUEST</div>
+          <div class="gb-quests">
+            <div class="gb-quest">
+              <span class="q-cursor">▶</span>
+              <span class="q-num">01</span>
+              <span class="q-text">副業でAIサービスを始めるべき？</span>
+            </div>
+            <div class="gb-quest">
+              <span class="q-cursor">▶</span>
+              <span class="q-num">02</span>
+              <span class="q-text">社内データをClaude APIに渡していい？</span>
+            </div>
+            <div class="gb-quest">
+              <span class="q-cursor">▶</span>
+              <span class="q-num">03</span>
+              <span class="q-text">勉強会をYouTubeで公開配信すべき？</span>
+            </div>
+          </div>
+
+          <!-- フッター -->
+          <div class="gb-footer">MO-GI v1.0 SAVE OK</div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- 本体ボタン -->
+    <div class="gb-controls">
+      <div class="dpad">
+        <div class="dpad-h"></div>
+        <div class="dpad-v"></div>
+        <div class="dpad-center"></div>
+      </div>
+      <div class="ab-buttons">
+        <div class="btn-ab">B</div>
+        <div class="btn-ab">A</div>
+      </div>
+    </div>
+
+    <div class="ss-buttons">
+      <div>
+        <div class="btn-ss"></div>
+        <div class="btn-ss-label">SELECT</div>
+      </div>
+      <div>
+        <div class="btn-ss"></div>
+        <div class="btn-ss-label">START</div>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

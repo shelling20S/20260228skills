@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>案09: Y2K DREAM TERMINAL — MO-GI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Audiowide&family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
+<script type="module" src="https://cdn.jsdelivr.net/npm/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://cdn.jsdelivr.net/npm/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(76, 201, 240, 0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 10%, rgba(200, 182, 255, 0.2) 0%, transparent 40%),
+      radial-gradient(ellipse at 50% 80%, rgba(255, 107, 157, 0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 90% 70%, rgba(76, 201, 240, 0.1) 0%, transparent 40%),
+      linear-gradient(160deg, #1a0533 0%, #0a1628 100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'M PLUS Rounded 1c', sans-serif;
+  }
+
+  /* Floating orbs in background */
+  body::before,
+  body::after {
+    content: '';
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  body::before {
+    width: 300px;
+    height: 300px;
+    top: 10%;
+    left: -5%;
+    background: radial-gradient(circle, rgba(200, 182, 255, 0.08) 0%, transparent 70%);
+    animation: float-orb 8s ease-in-out infinite;
+  }
+  body::after {
+    width: 250px;
+    height: 250px;
+    bottom: 5%;
+    right: -5%;
+    background: radial-gradient(circle, rgba(255, 107, 157, 0.08) 0%, transparent 70%);
+    animation: float-orb 10s ease-in-out infinite reverse;
+  }
+  @keyframes float-orb {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(20px, -20px) scale(1.1); }
+  }
+
+  .phone-frame {
+    width: 375px;
+    height: 812px;
+    background: linear-gradient(180deg, rgba(26, 5, 51, 0.95) 0%, rgba(10, 22, 40, 0.98) 100%);
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    color: #e0e0e0;
+    border-radius: 40px;
+    border: 1px solid rgba(200, 182, 255, 0.2);
+    box-shadow:
+      0 0 60px rgba(200, 182, 255, 0.1),
+      0 0 120px rgba(76, 201, 240, 0.05),
+      inset 0 0 60px rgba(200, 182, 255, 0.03);
+    z-index: 1;
+  }
+  .phone-frame::-webkit-scrollbar { width: 0; }
+
+  /* Notch */
+  .notch {
+    width: 150px;
+    height: 28px;
+    background: #0a0a14;
+    border-radius: 0 0 18px 18px;
+    margin: 0 auto;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .container {
+    padding: 0 20px 30px;
+  }
+
+  /* ===== TITLE SECTION ===== */
+  .title-section {
+    text-align: center;
+    padding: 30px 0 20px;
+    position: relative;
+  }
+  .title-section::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200, 182, 255, 0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .title {
+    font-family: 'Audiowide', cursive;
+    font-size: 30px;
+    letter-spacing: 3px;
+    background: linear-gradient(135deg, #e0e0e0 0%, #c8b6ff 25%, #ffffff 50%, #4cc9f0 75%, #e0e0e0 100%);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: chrome-shift 4s ease-in-out infinite;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .title ion-icon {
+    font-size: 24px;
+    -webkit-text-fill-color: initial;
+    color: #c8b6ff;
+    filter: drop-shadow(0 0 8px rgba(200, 182, 255, 0.5));
+  }
+  @keyframes chrome-shift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  .subtitle {
+    font-family: 'Audiowide', cursive;
+    font-size: 9px;
+    letter-spacing: 4px;
+    color: rgba(200, 182, 255, 0.5);
+    margin-top: 6px;
+    text-transform: uppercase;
+  }
+
+  .catchcopy {
+    margin-top: 18px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #ff6b9d;
+    text-shadow: 0 0 20px rgba(255, 107, 157, 0.3);
+    letter-spacing: 1px;
+  }
+
+  /* Decorative line */
+  .divider {
+    height: 1px;
+    margin: 20px 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(200, 182, 255, 0.3) 50%, transparent 100%);
+  }
+
+  /* ===== SECTION LABELS ===== */
+  .section-label {
+    font-family: 'Audiowide', cursive;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: rgba(76, 201, 240, 0.6);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  /* ===== CHARACTERS (BUBBLE ORBS) ===== */
+  .characters-section {
+    padding: 0 0 10px;
+  }
+  .characters-grid {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .character-orb {
+    width: 58px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    position: relative;
+  }
+  .orb-circle {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: transform 0.3s ease, filter 0.3s ease;
+    box-shadow:
+      0 4px 15px rgba(0, 0, 0, 0.3),
+      inset 0 -4px 10px rgba(0, 0, 0, 0.2),
+      inset 0 4px 10px rgba(255, 255, 255, 0.15);
+  }
+  .orb-circle::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 10px;
+    top: 8px;
+    left: 12px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    filter: blur(2px);
+  }
+  .orb-circle ion-icon {
+    font-size: 22px;
+    color: #fff;
+    filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3));
+    position: relative;
+    z-index: 1;
+  }
+  .character-orb:hover .orb-circle {
+    transform: scale(1.15) translateY(-3px);
+    filter: hue-rotate(30deg) brightness(1.2);
+  }
+  .character-orb:hover .tooltip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+  }
+
+  /* Character colors */
+  .orb-moe { background: radial-gradient(circle at 35% 35%, #ffc0d3, #FF8FAB 50%, #d6628a); }
+  .orb-tech { background: radial-gradient(circle at 35% 35%, #a0d4ff, #64B5F6 50%, #3a8fd9); }
+  .orb-guard { background: radial-gradient(circle at 35% 35%, #b5e8b9, #81C784 50%, #5aa85d); }
+  .orb-chair { background: radial-gradient(circle at 35% 35%, #ffe68a, #FFD54F 50%, #d4aa2a); }
+  .orb-gal { background: radial-gradient(circle at 35% 35%, #ffb89e, #FF8A65 50%, #d96640); }
+
+  .character-name {
+    font-size: 9px;
+    color: rgba(224, 224, 224, 0.7);
+    text-align: center;
+    line-height: 1.2;
+    letter-spacing: 0.5px;
+  }
+
+  /* Tooltip */
+  .tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(5px);
+    background: rgba(26, 5, 51, 0.9);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(200, 182, 255, 0.3);
+    border-radius: 10px;
+    padding: 8px 12px;
+    white-space: nowrap;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease, transform 0.2s ease;
+    z-index: 20;
+  }
+  .tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: rgba(200, 182, 255, 0.3);
+  }
+  .tooltip-name {
+    font-weight: 700;
+    font-size: 11px;
+    color: #c8b6ff;
+  }
+  .tooltip-role {
+    font-size: 9px;
+    color: rgba(224, 224, 224, 0.6);
+    margin-top: 2px;
+  }
+
+  /* ===== SCENARIO CARDS (GLASSMORPHISM) ===== */
+  .scenarios-section {
+    padding: 0 0 10px;
+  }
+  .scenario-card {
+    background: rgba(200, 182, 255, 0.06);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(200, 182, 255, 0.15);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  .scenario-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  }
+  .scenario-card:hover {
+    background: rgba(200, 182, 255, 0.12);
+    border-color: rgba(200, 182, 255, 0.3);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(200, 182, 255, 0.1);
+    filter: hue-rotate(15deg);
+  }
+  .scenario-card:active {
+    transform: translateY(0);
+  }
+
+  .scenario-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .scenario-number {
+    font-family: 'Audiowide', cursive;
+    font-size: 20px;
+    background: linear-gradient(135deg, #c8b6ff, #4cc9f0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .scenario-badge {
+    font-size: 8px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
+  .badge-conditional {
+    background: rgba(255, 213, 79, 0.15);
+    color: #FFD54F;
+    border: 1px solid rgba(255, 213, 79, 0.3);
+  }
+  .badge-denied {
+    background: rgba(255, 107, 157, 0.15);
+    color: #ff6b9d;
+    border: 1px solid rgba(255, 107, 157, 0.3);
+  }
+  .badge-approved {
+    background: rgba(76, 201, 240, 0.15);
+    color: #4cc9f0;
+    border: 1px solid rgba(76, 201, 240, 0.3);
+  }
+
+  .scenario-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: #e0e0e0;
+    line-height: 1.5;
+  }
+  .scenario-meta {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 10px;
+    font-size: 10px;
+    color: rgba(200, 182, 255, 0.5);
+  }
+  .scenario-meta ion-icon {
+    font-size: 13px;
+    color: rgba(200, 182, 255, 0.4);
+  }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    text-align: center;
+    padding: 20px 0 10px;
+  }
+  .footer-text {
+    font-family: 'Audiowide', cursive;
+    font-size: 10px;
+    letter-spacing: 3px;
+    background: linear-gradient(90deg, rgba(200, 182, 255, 0.3), rgba(76, 201, 240, 0.3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .footer-orbs {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 10px;
+  }
+  .footer-orb {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    animation: pulse-orb 2s ease-in-out infinite;
+  }
+  .footer-orb:nth-child(1) { background: #c8b6ff; animation-delay: 0s; }
+  .footer-orb:nth-child(2) { background: #ff6b9d; animation-delay: 0.3s; }
+  .footer-orb:nth-child(3) { background: #4cc9f0; animation-delay: 0.6s; }
+  .footer-orb:nth-child(4) { background: #e0e0e0; animation-delay: 0.9s; }
+  .footer-orb:nth-child(5) { background: #ff6b9d; animation-delay: 1.2s; }
+  @keyframes pulse-orb {
+    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+
+  /* ===== BUBBLE DECORATIONS ===== */
+  .bubble-deco {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+  }
+  .bubble-1 {
+    width: 80px;
+    height: 80px;
+    top: 120px;
+    right: -20px;
+    background: radial-gradient(circle at 30% 30%, rgba(200, 182, 255, 0.08), transparent 70%);
+    border: 1px solid rgba(200, 182, 255, 0.05);
+    animation: float-bubble 6s ease-in-out infinite;
+  }
+  .bubble-2 {
+    width: 50px;
+    height: 50px;
+    top: 350px;
+    left: -10px;
+    background: radial-gradient(circle at 30% 30%, rgba(76, 201, 240, 0.06), transparent 70%);
+    border: 1px solid rgba(76, 201, 240, 0.05);
+    animation: float-bubble 8s ease-in-out infinite reverse;
+  }
+  .bubble-3 {
+    width: 40px;
+    height: 40px;
+    bottom: 150px;
+    right: 10px;
+    background: radial-gradient(circle at 30% 30%, rgba(255, 107, 157, 0.06), transparent 70%);
+    border: 1px solid rgba(255, 107, 157, 0.05);
+    animation: float-bubble 7s ease-in-out infinite;
+  }
+  @keyframes float-bubble {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+
+  /* ===== STATUS BAR ===== */
+  .status-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 0;
+    margin-bottom: 4px;
+    border-bottom: 1px solid rgba(200, 182, 255, 0.08);
+  }
+  .status-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 9px;
+    letter-spacing: 1px;
+    color: rgba(200, 182, 255, 0.4);
+  }
+  .status-dot {
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #4cc9f0;
+    box-shadow: 0 0 6px rgba(76, 201, 240, 0.5);
+    animation: status-pulse 2s ease-in-out infinite;
+  }
+  @keyframes status-pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+</style>
+</head>
+<body>
+  <div class="phone-frame">
+    <!-- Bubble decorations -->
+    <div class="bubble-deco bubble-1"></div>
+    <div class="bubble-deco bubble-2"></div>
+    <div class="bubble-deco bubble-3"></div>
+
+    <!-- Notch -->
+    <div class="notch"></div>
+
+    <div class="container">
+      <!-- Status bar -->
+      <div class="status-bar">
+        <div class="status-item">
+          <span class="status-dot"></span>
+          SYSTEM READY
+        </div>
+        <div class="status-item">
+          CORES: 5/5
+        </div>
+      </div>
+
+      <!-- Title -->
+      <div class="title-section">
+        <div class="title">
+          <ion-icon name="play"></ion-icon>
+          萌GI SYSTEM
+        </div>
+        <div class="subtitle">MO-GI DECISION MAKING SYSTEM</div>
+        <div class="catchcopy">「GALが5人で会議したらこうなる。」</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Characters -->
+      <div class="characters-section">
+        <div class="section-label">MEMBERS</div>
+        <div class="characters-grid">
+
+          <div class="character-orb">
+            <div class="tooltip">
+              <div class="tooltip-name">綿雲モカ</div>
+              <div class="tooltip-role">共感翻訳 / 萌コア</div>
+            </div>
+            <div class="orb-circle orb-moe">
+              <ion-icon name="heart"></ion-icon>
+            </div>
+            <div class="character-name">モカ</div>
+          </div>
+
+          <div class="character-orb">
+            <div class="tooltip">
+              <div class="tooltip-name">真白リツ</div>
+              <div class="tooltip-role">検証・再現性 / 技コア</div>
+            </div>
+            <div class="orb-circle orb-tech">
+              <ion-icon name="flask"></ion-icon>
+            </div>
+            <div class="character-name">リツ</div>
+          </div>
+
+          <div class="character-orb">
+            <div class="tooltip">
+              <div class="tooltip-name">戒堂カノン</div>
+              <div class="tooltip-role">リスク・規約 / 守コア</div>
+            </div>
+            <div class="orb-circle orb-guard">
+              <ion-icon name="shield"></ion-icon>
+            </div>
+            <div class="character-name">カノン</div>
+          </div>
+
+          <div class="character-orb">
+            <div class="tooltip">
+              <div class="tooltip-name">黒羽レイカ</div>
+              <div class="tooltip-role">結論製造機 / 委員長</div>
+            </div>
+            <div class="orb-circle orb-chair">
+              <ion-icon name="trophy"></ion-icon>
+            </div>
+            <div class="character-name">レイカ</div>
+          </div>
+
+          <div class="character-orb">
+            <div class="tooltip">
+              <div class="tooltip-name">陽キャ神ルナ</div>
+              <div class="tooltip-role">バズ製造姫 / ギャル</div>
+            </div>
+            <div class="orb-circle orb-gal">
+              <ion-icon name="star"></ion-icon>
+            </div>
+            <div class="character-name">ルナ</div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Scenarios -->
+      <div class="scenarios-section">
+        <div class="section-label">SCENARIOS</div>
+
+        <div class="scenario-card" onclick="alert('SCENARIO 01 を読み込み中...')">
+          <div class="scenario-header">
+            <div class="scenario-number">01</div>
+            <span class="scenario-badge badge-conditional">CONDITIONAL</span>
+          </div>
+          <div class="scenario-title">副業でAIサービスを始めるべき？</div>
+          <div class="scenario-meta">
+            <ion-icon name="chatbubbles-outline"></ion-icon>
+            11 messages
+            <ion-icon name="checkmark-circle-outline"></ion-icon>
+            条件付き承認
+          </div>
+        </div>
+
+        <div class="scenario-card" onclick="alert('SCENARIO 02 を読み込み中...')">
+          <div class="scenario-header">
+            <div class="scenario-number">02</div>
+            <span class="scenario-badge badge-denied">DENIED</span>
+          </div>
+          <div class="scenario-title">社内データをClaude APIに渡していい？</div>
+          <div class="scenario-meta">
+            <ion-icon name="chatbubbles-outline"></ion-icon>
+            10 messages
+            <ion-icon name="close-circle-outline"></ion-icon>
+            否決
+          </div>
+        </div>
+
+        <div class="scenario-card" onclick="alert('SCENARIO 03 を読み込み中...')">
+          <div class="scenario-header">
+            <div class="scenario-number">03</div>
+            <span class="scenario-badge badge-approved">APPROVED</span>
+          </div>
+          <div class="scenario-title">勉強会をYouTubeで公開配信すべき？</div>
+          <div class="scenario-meta">
+            <ion-icon name="chatbubbles-outline"></ion-icon>
+            10 messages
+            <ion-icon name="checkmark-done-circle-outline"></ion-icon>
+            全会一致承認
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
+        <div class="footer-text">MO-GI v1.0</div>
+        <div class="footer-orbs">
+          <div class="footer-orb"></div>
+          <div class="footer-orb"></div>
+          <div class="footer-orb"></div>
+          <div class="footer-orb"></div>
+          <div class="footer-orb"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

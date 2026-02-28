@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>案23: タブロイド — MO-GI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Barlow+Condensed:wght@400;600;700;800&family=Noto+Serif+JP:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --yellow: #ffd600;
+      --black: #111;
+      --red: #d40000;
+      --paper: #f8f4ec;
+      --paper-dark: #ede8db;
+      --ink: #1a1a1a;
+      --ink-light: #555;
+      --rule: #ccc;
+    }
+
+    body {
+      background: #2a2a2a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: var(--paper);
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* 新聞の粗い紙質 */
+    .phone-frame::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        url("data:image/svg+xml,%3Csvg width='300' height='300' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    .container {
+      padding: 0;
+      position: relative;
+    }
+
+    /* ===== マストヘッド ===== */
+    .masthead {
+      border-bottom: 4px double var(--black);
+      padding: 12px 16px 8px;
+      text-align: center;
+    }
+
+    .masthead .dateline {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--ink-light);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .masthead .paper-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 42px;
+      font-weight: 900;
+      color: var(--ink);
+      letter-spacing: 4px;
+      line-height: 1;
+    }
+
+    .masthead .paper-name .moe {
+      font-style: italic;
+    }
+
+    .masthead .edition {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 9px;
+      font-weight: 400;
+      color: var(--ink-light);
+      letter-spacing: 3px;
+      margin-top: 6px;
+    }
+
+    /* ===== ヘッドライン ===== */
+    .headline-block {
+      background: var(--yellow);
+      padding: 20px 16px;
+      position: relative;
+    }
+
+    /* 斜めの「速報」帯 */
+    .headline-block .breaking {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: var(--red);
+      color: #fff;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .headline {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 26px;
+      font-weight: 900;
+      color: var(--black);
+      line-height: 1.6;
+      letter-spacing: 1px;
+      margin-top: 16px;
+    }
+
+    .headline .gal {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 30px;
+      color: var(--red);
+    }
+
+    .headline-sub {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-light);
+      margin-top: 8px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    /* ===== 記事風セクション ===== */
+    .article-section {
+      padding: 20px 16px;
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .article-section .section-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .section-head .label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      color: #fff;
+      background: var(--black);
+      padding: 3px 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .section-head .rule {
+      flex: 1;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    /* ===== キャラ — 指名手配風 ===== */
+    .suspect-grid {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .suspect {
+      width: calc(33.33% - 6px);
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .suspect:nth-child(4),
+    .suspect:nth-child(5) {
+      width: calc(50% - 4px);
+    }
+
+    .suspect:hover {
+      transform: scale(1.05);
+    }
+
+    .suspect-photo {
+      width: 100%;
+      aspect-ratio: 1;
+      background: var(--paper-dark);
+      border: 2px solid var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      position: relative;
+    }
+
+    .suspect.moe .suspect-photo { color: #c44; }
+    .suspect.tech .suspect-photo { color: #448; }
+    .suspect.guard .suspect-photo { color: #484; }
+    .suspect.chair .suspect-photo { color: #864; }
+    .suspect.gal .suspect-photo {
+      border-color: var(--red);
+      border-width: 3px;
+      color: var(--red);
+    }
+
+    /* GALスタンプ */
+    .suspect.gal .suspect-photo::after {
+      content: 'KEY PERSON';
+      position: absolute;
+      bottom: 4px;
+      right: 2px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 7px;
+      font-weight: 800;
+      color: var(--red);
+      border: 1.5px solid var(--red);
+      padding: 1px 4px;
+      letter-spacing: 1px;
+      transform: rotate(-6deg);
+    }
+
+    .suspect-name {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--ink);
+      margin-top: 6px;
+      letter-spacing: 2px;
+    }
+
+    .suspect-role {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 9px;
+      color: var(--ink-light);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    /* ツールチップ */
+    .suspect .tooltip {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--ink);
+      color: var(--paper);
+      font-size: 10px;
+      padding: 6px 12px;
+      white-space: nowrap;
+      z-index: 10;
+    }
+
+    .suspect:hover .tooltip { display: block; }
+
+    /* ===== シナリオ — コラム記事風 ===== */
+    .story-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .story-card {
+      padding: 16px 0;
+      border-bottom: 1px solid var(--rule);
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .story-card:hover {
+      background: var(--yellow);
+      padding-left: 12px;
+      padding-right: 12px;
+      margin-left: -12px;
+      margin-right: -12px;
+    }
+
+    .story-kicker {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--red);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .story-headline {
+      font-family: 'Noto Serif JP', serif;
+      font-size: 15px;
+      font-weight: 900;
+      color: var(--ink);
+      line-height: 1.7;
+      padding-right: 28px;
+    }
+
+    .story-byline {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 9px;
+      color: var(--ink-light);
+      margin-top: 6px;
+      letter-spacing: 1px;
+    }
+
+    .story-arrow {
+      position: absolute;
+      right: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Playfair Display', serif;
+      font-size: 18px;
+      color: var(--rule);
+      transition: all 0.2s;
+    }
+
+    .story-card:hover .story-arrow {
+      color: var(--red);
+      transform: translateY(-50%) translateX(3px);
+    }
+
+    /* ===== フッター — 新聞フッター ===== */
+    .footer-paper {
+      padding: 14px 16px;
+      border-top: 4px double var(--black);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-paper .colophon {
+      font-family: 'Playfair Display', serif;
+      font-size: 12px;
+      font-weight: 700;
+      font-style: italic;
+      color: var(--ink);
+      letter-spacing: 2px;
+    }
+
+    .footer-paper .page {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 10px;
+      color: var(--ink-light);
+      letter-spacing: 2px;
+    }
+
+    /* スクロールバー */
+    .phone-frame::-webkit-scrollbar { width: 3px; }
+    .phone-frame::-webkit-scrollbar-thumb { background: var(--ink); }
+    .phone-frame::-webkit-scrollbar-track { background: var(--paper-dark); }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="container">
+
+      <!-- マストヘッド -->
+      <div class="masthead">
+        <div class="dateline">Tokyo · Decision Making · Daily</div>
+        <div class="paper-name"><span class="moe">萌</span>GI TIMES</div>
+        <div class="edition">Vol. 1 · No. 1 · First Edition · ¥0</div>
+      </div>
+
+      <!-- ヘッドライン -->
+      <div class="headline-block">
+        <div class="breaking">速報</div>
+        <div class="headline">
+          「<span class="gal">GAL</span>が5人で<br>会議したらこうなる。」
+        </div>
+        <div class="headline-sub">MO-GI Decision Making System — Exclusive Report</div>
+      </div>
+
+      <!-- メンバー -->
+      <div class="article-section">
+        <div class="section-head">
+          <span class="label">容疑者</span>
+          <span class="rule"></span>
+        </div>
+        <div class="suspect-grid">
+          <div class="suspect moe">
+            <div class="tooltip">共感翻訳 / 萌コア</div>
+            <div class="suspect-photo">♥</div>
+            <div class="suspect-name">モカ</div>
+            <div class="suspect-role">Moe Core</div>
+          </div>
+          <div class="suspect tech">
+            <div class="tooltip">ファクト警察 / 技コア</div>
+            <div class="suspect-photo">⚗</div>
+            <div class="suspect-name">リツ</div>
+            <div class="suspect-role">Tech Core</div>
+          </div>
+          <div class="suspect guard">
+            <div class="tooltip">炎上予防装置 / 守コア</div>
+            <div class="suspect-photo">◇</div>
+            <div class="suspect-name">カノン</div>
+            <div class="suspect-role">Guard</div>
+          </div>
+          <div class="suspect chair">
+            <div class="tooltip">結論製造機 / 統括</div>
+            <div class="suspect-photo">♛</div>
+            <div class="suspect-name">レイカ</div>
+            <div class="suspect-role">Chair</div>
+          </div>
+          <div class="suspect gal">
+            <div class="tooltip">バズ製造姫 / ギャル</div>
+            <div class="suspect-photo">★</div>
+            <div class="suspect-name">ルナ</div>
+            <div class="suspect-role">GAL</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- シナリオ -->
+      <div class="article-section">
+        <div class="section-head">
+          <span class="label">本日の議題</span>
+          <span class="rule"></span>
+        </div>
+        <div class="story-list">
+          <div class="story-card">
+            <div class="story-kicker">Exclusive · Case 01</div>
+            <div class="story-headline">副業でAIサービスを始めるべき？</div>
+            <div class="story-byline">取材：モカ＆リツ — 全5名による緊急討論</div>
+            <div class="story-arrow">→</div>
+          </div>
+          <div class="story-card">
+            <div class="story-kicker">Investigation · Case 02</div>
+            <div class="story-headline">社内データをClaude APIに渡していい？</div>
+            <div class="story-byline">監修：カノン — セキュリティ特別委員会</div>
+            <div class="story-arrow">→</div>
+          </div>
+          <div class="story-card">
+            <div class="story-kicker">Opinion · Case 03</div>
+            <div class="story-headline">勉強会をYouTubeで公開配信すべき？</div>
+            <div class="story-byline">企画：ルナ — バズ戦略本部発</div>
+            <div class="story-arrow">→</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- フッター -->
+      <div class="footer-paper">
+        <span class="colophon">萌GI Times</span>
+        <span class="page">PAGE A1 · v1.0</span>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>案11: 和モダン — MO-GI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Antique&family=Shippori+Mincho:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #2a2520;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Shippori Mincho', serif;
+    }
+
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: #f5f0e6;
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* 和紙テクスチャ */
+    .phone-frame::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.06;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    }
+
+    .container {
+      padding: 48px 28px 40px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* 縦書き装飾 */
+    .vertical-deco {
+      position: absolute;
+      top: 60px;
+      right: 20px;
+      writing-mode: vertical-rl;
+      font-family: 'Zen Antique', serif;
+      font-size: 11px;
+      color: #8b7355;
+      letter-spacing: 6px;
+      opacity: 0.4;
+    }
+
+    /* タイトル */
+    .title-area {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .title {
+      font-family: 'Zen Antique', serif;
+      font-size: 36px;
+      color: #2d2a26;
+      letter-spacing: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .title i {
+      color: #c53d43;
+      font-size: 24px;
+    }
+
+    .title .moe {
+      color: #c53d43;
+    }
+
+    .subtitle {
+      font-family: 'Shippori Mincho', serif;
+      font-size: 10px;
+      color: #8b7355;
+      letter-spacing: 6px;
+      margin-top: 12px;
+      text-transform: uppercase;
+    }
+
+    /* 朱色の横線 */
+    .shu-line {
+      width: 60px;
+      height: 2px;
+      background: #c53d43;
+      margin: 28px auto;
+    }
+
+    /* キャッチコピー */
+    .catchcopy {
+      text-align: center;
+      font-size: 16px;
+      color: #3d3a36;
+      margin-bottom: 40px;
+      line-height: 2;
+      letter-spacing: 2px;
+    }
+
+    .catchcopy .highlight {
+      color: #c53d43;
+      font-weight: 600;
+    }
+
+    /* セクションラベル */
+    .section-label {
+      font-size: 10px;
+      color: #8b7355;
+      letter-spacing: 4px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .section-label::before,
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #d4c8b8;
+    }
+
+    /* シナリオカード - 襖風 */
+    .scenario-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 44px;
+    }
+
+    .scenario-card {
+      background: #fff;
+      border: 1px solid #e8e0d4;
+      padding: 20px 24px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .scenario-card::before {
+      content: '';
+      position: absolute;
+      top: 8px;
+      bottom: 8px;
+      left: 0;
+      width: 3px;
+      background: #c53d43;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .scenario-card:hover {
+      box-shadow: 4px 4px 0 #e8e0d4;
+      transform: translate(-2px, -2px);
+    }
+
+    .scenario-card:hover::before {
+      opacity: 1;
+    }
+
+    .scenario-number {
+      font-size: 9px;
+      color: #8b7355;
+      letter-spacing: 4px;
+      margin-bottom: 8px;
+    }
+
+    .scenario-title {
+      font-size: 14px;
+      color: #2d2a26;
+      line-height: 1.8;
+      letter-spacing: 1px;
+    }
+
+    .scenario-arrow {
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #c53d43;
+      opacity: 0;
+      transition: opacity 0.3s;
+      font-size: 16px;
+    }
+
+    .scenario-card:hover .scenario-arrow {
+      opacity: 1;
+    }
+
+    /* キャラクター */
+    .characters {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 44px;
+    }
+
+    .char-item {
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .char-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      background: #fff;
+      border: 2px solid;
+      transition: all 0.3s ease;
+    }
+
+    .char-icon:hover {
+      transform: scale(1.1);
+    }
+
+    .char-icon.moe { border-color: #e8959a; color: #e8959a; }
+    .char-icon.tech { border-color: #6b99b4; color: #6b99b4; }
+    .char-icon.guard { border-color: #7a9e7a; color: #7a9e7a; }
+    .char-icon.chair { border-color: #c9a96e; color: #c9a96e; }
+    .char-icon.gal { border-color: #d4826a; color: #d4826a; }
+
+    .char-name {
+      font-size: 11px;
+      color: #5a564f;
+      margin-top: 10px;
+      letter-spacing: 2px;
+    }
+
+    /* ツールチップ */
+    .char-item .tooltip {
+      display: none;
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2d2a26;
+      color: #f5f0e6;
+      font-size: 10px;
+      padding: 8px 14px;
+      white-space: nowrap;
+      margin-bottom: 10px;
+      z-index: 10;
+      letter-spacing: 1px;
+    }
+
+    .char-item .tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 4px solid transparent;
+      border-top-color: #2d2a26;
+    }
+
+    .char-item:hover .tooltip { display: block; }
+
+    /* フッター */
+    .footer {
+      text-align: center;
+      font-size: 10px;
+      color: #8b7355;
+      letter-spacing: 4px;
+      opacity: 0.5;
+    }
+
+    /* アニメーション */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(12px);
+      animation: fadeUp 0.6s ease forwards;
+    }
+    .fade-in:nth-child(1) { animation-delay: 0.1s; }
+    .fade-in:nth-child(2) { animation-delay: 0.2s; }
+    .fade-in:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* スクロールバー */
+    .phone-frame::-webkit-scrollbar { width: 3px; }
+    .phone-frame::-webkit-scrollbar-thumb { background: #d4c8b8; }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="vertical-deco">意思決定支援</div>
+    <div class="container">
+
+      <!-- タイトル -->
+      <div class="title-area">
+        <div class="title">
+          <i class="ti ti-player-play"></i>
+          <span class="moe">萌</span>GI SYSTEM
+        </div>
+        <div class="subtitle">MO-GI Decision Making System</div>
+      </div>
+
+      <div class="shu-line"></div>
+
+      <!-- キャッチコピー -->
+      <div class="catchcopy">
+        「<span class="highlight">GAL</span>が5人で会議したら<br>こうなる。」
+      </div>
+
+      <!-- シナリオ -->
+      <div class="section-label">試しのお題</div>
+      <div class="scenario-list">
+        <div class="scenario-card fade-in">
+          <div class="scenario-number">壱の問い</div>
+          <div class="scenario-title">副業でAIサービスを始めるべき？</div>
+          <div class="scenario-arrow"><i class="ti ti-chevron-right"></i></div>
+        </div>
+        <div class="scenario-card fade-in">
+          <div class="scenario-number">弐の問い</div>
+          <div class="scenario-title">社内データをClaude APIに渡していい？</div>
+          <div class="scenario-arrow"><i class="ti ti-chevron-right"></i></div>
+        </div>
+        <div class="scenario-card fade-in">
+          <div class="scenario-number">参の問い</div>
+          <div class="scenario-title">勉強会をYouTubeで公開配信すべき？</div>
+          <div class="scenario-arrow"><i class="ti ti-chevron-right"></i></div>
+        </div>
+      </div>
+
+      <!-- キャラクター -->
+      <div class="section-label">五人衆</div>
+      <div class="characters">
+        <div class="char-item">
+          <div class="tooltip">共感翻訳 / 萌コア</div>
+          <div class="char-icon moe"><i class="ti ti-heart"></i></div>
+          <div class="char-name">モカ</div>
+        </div>
+        <div class="char-item">
+          <div class="tooltip">ファクト警察 / 技コア</div>
+          <div class="char-icon tech"><i class="ti ti-flask"></i></div>
+          <div class="char-name">リツ</div>
+        </div>
+        <div class="char-item">
+          <div class="tooltip">炎上予防装置 / 守コア</div>
+          <div class="char-icon guard"><i class="ti ti-shield"></i></div>
+          <div class="char-name">カノン</div>
+        </div>
+        <div class="char-item">
+          <div class="tooltip">結論製造機 / 統括</div>
+          <div class="char-icon chair"><i class="ti ti-crown"></i></div>
+          <div class="char-name">レイカ</div>
+        </div>
+        <div class="char-item">
+          <div class="tooltip">バズ製造姫 / ギャル</div>
+          <div class="char-icon gal"><i class="ti ti-star"></i></div>
+          <div class="char-name">ルナ</div>
+        </div>
+      </div>
+
+      <!-- フッター -->
+      <div class="footer">MO-GI v1.0</div>
+
+    </div>
+  </div>
+</body>
+</html>

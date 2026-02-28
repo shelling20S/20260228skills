@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>案29: 天気 — MO-GI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&family=M+PLUS+Rounded+1c:wght@400;700;800&family=Noto+Sans+JP:wght@300;400;700;900&family=Zen+Old+Mincho:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #1a1a1a;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Noto Sans JP', sans-serif;
+    }
+
+    /* ===================================================
+       晴れ — SUNNY
+       =================================================== */
+    .phone-frame[data-weather="sunny"] {
+      --bg-1: #fef9ef;
+      --bg-2: #fdf0d5;
+      --bg-3: #fce8c0;
+      --accent: #e67e22;
+      --accent-light: #f39c12;
+      --accent-glow: rgba(230, 126, 34, 0.18);
+      --accent-sub: #d35400;
+      --text: #4a3520;
+      --text-light: #8a6a48;
+      --text-dim: #c4a878;
+      --card-bg: rgba(255, 255, 255, 0.6);
+      --card-border: rgba(230, 126, 34, 0.15);
+      --card-hover: rgba(230, 126, 34, 0.06);
+      --divider: rgba(230, 126, 34, 0.12);
+      --weather-font: 'M PLUS Rounded 1c', sans-serif;
+    }
+
+    /* ===================================================
+       曇り — CLOUDY
+       =================================================== */
+    .phone-frame[data-weather="cloudy"] {
+      --bg-1: #eef0f2;
+      --bg-2: #dde1e6;
+      --bg-3: #cdd3da;
+      --accent: #6b7d90;
+      --accent-light: #8fa4b8;
+      --accent-glow: rgba(107, 125, 144, 0.15);
+      --accent-sub: #4a5c6e;
+      --text: #2c3e50;
+      --text-light: #5a6e80;
+      --text-dim: #95a5b0;
+      --card-bg: rgba(255, 255, 255, 0.55);
+      --card-border: rgba(107, 125, 144, 0.15);
+      --card-hover: rgba(107, 125, 144, 0.06);
+      --divider: rgba(107, 125, 144, 0.12);
+      --weather-font: 'Noto Sans JP', sans-serif;
+    }
+
+    /* ===================================================
+       雨 — RAINY
+       =================================================== */
+    .phone-frame[data-weather="rainy"] {
+      --bg-1: #1b2838;
+      --bg-2: #162230;
+      --bg-3: #111c28;
+      --accent: #5b9dd5;
+      --accent-light: #7db8e8;
+      --accent-glow: rgba(91, 157, 213, 0.2);
+      --accent-sub: #3a7cc0;
+      --text: #c8d8e8;
+      --text-light: #8aa8c0;
+      --text-dim: #4a6878;
+      --card-bg: rgba(20, 40, 60, 0.6);
+      --card-border: rgba(91, 157, 213, 0.15);
+      --card-hover: rgba(91, 157, 213, 0.06);
+      --divider: rgba(91, 157, 213, 0.1);
+      --weather-font: 'Zen Old Mincho', serif;
+    }
+
+    /* ===================================================
+       雪 — SNOWY
+       =================================================== */
+    .phone-frame[data-weather="snowy"] {
+      --bg-1: #f0f4f8;
+      --bg-2: #e4eaf2;
+      --bg-3: #d8e2ee;
+      --accent: #6987a8;
+      --accent-light: #8aaec8;
+      --accent-glow: rgba(105, 135, 168, 0.15);
+      --accent-sub: #4a6a88;
+      --text: #2a3a4a;
+      --text-light: #5a7088;
+      --text-dim: #9ab0c0;
+      --card-bg: rgba(255, 255, 255, 0.55);
+      --card-border: rgba(105, 135, 168, 0.15);
+      --card-hover: rgba(105, 135, 168, 0.05);
+      --divider: rgba(105, 135, 168, 0.1);
+      --weather-font: 'Zen Maru Gothic', sans-serif;
+    }
+
+    /* ===================================================
+       共通レイアウト
+       =================================================== */
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 50%, var(--bg-3) 100%);
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+      transition: background 0.8s ease;
+      border-radius: 40px;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.25);
+    }
+
+    /* パーティクル＆エフェクトレイヤー */
+    .fx-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+      border-radius: 40px;
+    }
+
+    .container {
+      padding: 48px 24px 40px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ===== 晴れ：太陽の光芒 ===== */
+    .sun-glow {
+      display: none;
+      position: absolute;
+      top: -60px;
+      right: -40px;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(243, 156, 18, 0.25) 0%, rgba(243, 156, 18, 0.08) 40%, transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .phone-frame[data-weather="sunny"] .sun-glow {
+      display: block;
+      animation: sunPulse 4s ease-in-out infinite;
+    }
+
+    @keyframes sunPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.08); opacity: 0.8; }
+    }
+
+    /* ===== 曇り：雲レイヤー ===== */
+    .cloud-layer {
+      display: none;
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .phone-frame[data-weather="cloudy"] .cloud-layer { display: block; }
+
+    .cloud-shape {
+      position: absolute;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      filter: blur(20px);
+    }
+
+    .cloud-shape:nth-child(1) { width: 180px; height: 60px; top: 40px; left: -20px; animation: cloudDrift 20s linear infinite; }
+    .cloud-shape:nth-child(2) { width: 140px; height: 50px; top: 120px; left: 200px; animation: cloudDrift 25s linear infinite reverse; opacity: 0.5; }
+    .cloud-shape:nth-child(3) { width: 200px; height: 70px; top: 280px; left: 60px; animation: cloudDrift 30s linear infinite; opacity: 0.25; }
+
+    @keyframes cloudDrift {
+      0% { transform: translateX(-40px); }
+      50% { transform: translateX(40px); }
+      100% { transform: translateX(-40px); }
+    }
+
+    /* ===== 雨：窓の水滴 ===== */
+    .rain-fog {
+      display: none;
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 200px;
+      background: linear-gradient(0deg, rgba(17, 28, 40, 0.4) 0%, transparent 100%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .phone-frame[data-weather="rainy"] .rain-fog { display: block; }
+
+    /* ===== 天気セレクター ===== */
+    .weather-switcher {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 24px;
+    }
+
+    .weather-btn {
+      width: 60px;
+      height: 40px;
+      border: 1.5px solid var(--card-border);
+      border-radius: 10px;
+      background: var(--card-bg);
+      backdrop-filter: blur(8px);
+      cursor: pointer;
+      font-size: 11px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      transition: all 0.3s ease;
+      color: var(--text-dim);
+    }
+
+    .weather-btn .emoji { font-size: 16px; }
+    .weather-btn .wlabel {
+      font-size: 8px;
+      letter-spacing: 1px;
+      font-weight: 700;
+    }
+
+    .weather-btn:hover {
+      transform: scale(1.06);
+      border-color: var(--accent);
+    }
+
+    .weather-btn.active {
+      border-color: var(--accent);
+      box-shadow: 0 0 14px var(--accent-glow);
+      color: var(--accent);
+    }
+
+    .weather-btn.active::after {
+      content: '';
+      display: block;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent);
+      margin-top: 1px;
+    }
+
+    /* 天気ステータス表示 */
+    .weather-status {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .weather-status .auto-label {
+      font-size: 9px;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .weather-status .auto-label .dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--accent);
+      animation: statusPulse 2s ease infinite;
+    }
+
+    @keyframes statusPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    /* ===== タイトル ===== */
+    .title-area {
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .weather-icon {
+      font-size: 40px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .title {
+      font-family: var(--weather-font);
+      font-size: 36px;
+      font-weight: 900;
+      color: var(--text);
+      letter-spacing: 4px;
+      transition: font-family 0.4s;
+    }
+
+    .title .gi { color: var(--accent); }
+
+    .subtitle {
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 4px;
+      margin-top: 12px;
+      text-transform: uppercase;
+    }
+
+    .weather-tag {
+      display: inline-block;
+      font-size: 10px;
+      color: var(--accent);
+      letter-spacing: 3px;
+      margin-top: 10px;
+      padding: 3px 14px;
+      border: 1px solid var(--accent-glow);
+      border-radius: 20px;
+      background: var(--card-bg);
+      backdrop-filter: blur(4px);
+    }
+
+    /* ===== ディバイダー ===== */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--divider), var(--divider), transparent);
+      margin: 24px 0;
+    }
+
+    /* ===== キャッチコピー ===== */
+    .catchcopy {
+      text-align: center;
+      font-family: var(--weather-font);
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 32px;
+      line-height: 2.2;
+      letter-spacing: 1px;
+      transition: font-family 0.4s;
+    }
+
+    .catchcopy .gal {
+      color: var(--accent);
+      font-weight: 900;
+      border-bottom: 2px solid var(--accent);
+    }
+
+    /* ===== セクションラベル ===== */
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 3px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--divider), transparent);
+    }
+
+    /* ===== キャラクター ===== */
+    .characters {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 32px;
+    }
+
+    .char-item {
+      flex: 1;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .char-circle {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin: 0 auto 8px;
+      background: var(--card-bg);
+      backdrop-filter: blur(6px);
+      border: 2px solid var(--card-border);
+      transition: all 0.3s ease;
+      color: var(--accent);
+    }
+
+    .char-item:hover .char-circle {
+      border-color: var(--accent);
+      transform: scale(1.1) translateY(-3px);
+      box-shadow: 0 6px 16px var(--accent-glow);
+    }
+
+    .char-name {
+      font-family: var(--weather-font);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: 1px;
+    }
+
+    .char-role {
+      font-size: 9px;
+      color: var(--text-dim);
+      margin-top: 2px;
+    }
+
+    .char-item .tooltip {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      font-size: 10px;
+      padding: 6px 12px;
+      white-space: nowrap;
+      z-index: 10;
+      border-radius: 8px;
+    }
+
+    .char-item:hover .tooltip { display: block; }
+
+    /* ===== シナリオ ===== */
+    .scenario-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 32px;
+    }
+
+    .scenario-card {
+      background: var(--card-bg);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 16px 18px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .scenario-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      width: 3px;
+      height: 100%;
+      background: var(--accent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .scenario-card:hover {
+      border-color: var(--accent-light);
+      transform: translateX(4px);
+      box-shadow: 0 4px 16px var(--accent-glow);
+      background: var(--card-hover);
+    }
+
+    .scenario-card:hover::before { opacity: 1; }
+
+    .scenario-num {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 2px;
+      margin-bottom: 4px;
+    }
+
+    .scenario-text {
+      font-family: var(--weather-font);
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.7;
+      padding-right: 24px;
+    }
+
+    .scenario-arrow {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      color: var(--text-dim);
+      transition: all 0.3s;
+    }
+
+    .scenario-card:hover .scenario-arrow {
+      color: var(--accent);
+      transform: translateY(-50%) translateX(3px);
+    }
+
+    /* ===== フッター ===== */
+    .footer {
+      text-align: center;
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 3px;
+    }
+
+    /* ===== パーティクル ===== */
+    .particle {
+      position: absolute;
+      pointer-events: none;
+      will-change: transform;
+    }
+
+    /* スクロールバー */
+    .phone-frame::-webkit-scrollbar { width: 4px; }
+    .phone-frame::-webkit-scrollbar-thumb {
+      background: var(--accent-light);
+      border-radius: 4px;
+    }
+    .phone-frame::-webkit-scrollbar-track { background: transparent; }
+  </style>
+</head>
+<body>
+  <div class="phone-frame" data-weather="sunny" id="phone">
+    <!-- エフェクトレイヤー -->
+    <div class="fx-layer" id="fxLayer">
+      <div class="sun-glow"></div>
+      <div class="cloud-layer">
+        <div class="cloud-shape"></div>
+        <div class="cloud-shape"></div>
+        <div class="cloud-shape"></div>
+      </div>
+      <div class="rain-fog"></div>
+    </div>
+
+    <div class="container">
+
+      <!-- 天気ステータス -->
+      <div class="weather-status">
+        <div class="auto-label">
+          <span class="dot"></span>
+          <span id="statusText">現在の天気を取得中…</span>
+        </div>
+      </div>
+
+      <!-- 天気セレクター -->
+      <div class="weather-switcher">
+        <button class="weather-btn active" data-w="sunny" onclick="setWeather('sunny', true)">
+          <span class="emoji">☀️</span>
+          <span class="wlabel">晴れ</span>
+        </button>
+        <button class="weather-btn" data-w="cloudy" onclick="setWeather('cloudy', true)">
+          <span class="emoji">☁️</span>
+          <span class="wlabel">曇り</span>
+        </button>
+        <button class="weather-btn" data-w="rainy" onclick="setWeather('rainy', true)">
+          <span class="emoji">🌧️</span>
+          <span class="wlabel">雨</span>
+        </button>
+        <button class="weather-btn" data-w="snowy" onclick="setWeather('snowy', true)">
+          <span class="emoji">🌨️</span>
+          <span class="wlabel">雪</span>
+        </button>
+      </div>
+
+      <!-- タイトル -->
+      <div class="title-area">
+        <span class="weather-icon" id="weatherIcon">☀️</span>
+        <div class="title">萌<span class="gi">GI</span></div>
+        <div class="subtitle">MO-GI Decision Making System</div>
+        <div class="weather-tag" id="weatherTag">晴れ — HARE</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- キャッチコピー -->
+      <div class="catchcopy">
+        「<span class="gal">GAL</span>が5人で会議したら<br>こうなる。」
+      </div>
+
+      <!-- メンバー -->
+      <div class="section-label">成　員</div>
+      <div class="characters">
+        <div class="char-item">
+          <div class="tooltip">共感翻訳 / 萌コア</div>
+          <div class="char-circle">♥</div>
+          <div class="char-name">モカ</div>
+          <div class="char-role">萌</div>
+        </div>
+        <div class="char-item">
+          <div class="tooltip">ファクト警察 / 技コア</div>
+          <div class="char-circle">⚗</div>
+          <div class="char-name">リツ</div>
+          <div class="char-role">技</div>
+        </div>
+        <div class="char-item">
+          <div class="tooltip">炎上予防装置 / 守コア</div>
+          <div class="char-circle">◇</div>
+          <div class="char-name">カノン</div>
+          <div class="char-role">守</div>
+        </div>
+        <div class="char-item">
+          <div class="tooltip">結論製造機 / 統括</div>
+          <div class="char-circle">♛</div>
+          <div class="char-name">レイカ</div>
+          <div class="char-role">長</div>
+        </div>
+        <div class="char-item">
+          <div class="tooltip">バズ製造姫 / ギャル</div>
+          <div class="char-circle">★</div>
+          <div class="char-name">ルナ</div>
+          <div class="char-role">GAL</div>
+        </div>
+      </div>
+
+      <!-- シナリオ -->
+      <div class="section-label">議　題</div>
+      <div class="scenario-list">
+        <div class="scenario-card">
+          <div class="scenario-num">SCENARIO 01</div>
+          <div class="scenario-text">副業でAIサービスを始めるべき？</div>
+          <div class="scenario-arrow">→</div>
+        </div>
+        <div class="scenario-card">
+          <div class="scenario-num">SCENARIO 02</div>
+          <div class="scenario-text">社内データをClaude APIに渡していい？</div>
+          <div class="scenario-arrow">→</div>
+        </div>
+        <div class="scenario-card">
+          <div class="scenario-num">SCENARIO 03</div>
+          <div class="scenario-text">勉強会をYouTubeで公開配信すべき？</div>
+          <div class="scenario-arrow">→</div>
+        </div>
+      </div>
+
+      <!-- フッター -->
+      <div class="footer">萌議 — v1.0</div>
+
+    </div>
+  </div>
+
+  <script>
+    // ===== 天気定義 =====
+    const WEATHER = {
+      sunny: {
+        icon: '☀️',
+        label: '晴れ — HARE',
+        labelShort: '☀️ 晴れ',
+      },
+      cloudy: {
+        icon: '☁️',
+        label: '曇り — KUMORI',
+        labelShort: '☁️ 曇り',
+      },
+      rainy: {
+        icon: '🌧️',
+        label: '雨 — AME',
+        labelShort: '🌧️ 雨',
+      },
+      snowy: {
+        icon: '🌨️',
+        label: '雪 — YUKI',
+        labelShort: '🌨️ 雪',
+      },
+    };
+
+    const phone = document.getElementById('phone');
+    const fxLayer = document.getElementById('fxLayer');
+    const weatherIcon = document.getElementById('weatherIcon');
+    const weatherTag = document.getElementById('weatherTag');
+    const statusText = document.getElementById('statusText');
+
+    let animFrame;
+    let particlesArr = [];
+
+    // ===== 天気切替 =====
+    function setWeather(w, manual = false) {
+      phone.setAttribute('data-weather', w);
+      weatherIcon.textContent = WEATHER[w].icon;
+      weatherTag.textContent = WEATHER[w].label;
+
+      if (manual) {
+        statusText.textContent = `手動選択: ${WEATHER[w].labelShort}`;
+      }
+
+      document.querySelectorAll('.weather-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.w === w);
+      });
+
+      resetParticles(w);
+    }
+
+    // ===== パーティクルシステム =====
+    class WParticle {
+      constructor(weather, canvasEl) {
+        this.el = document.createElement('div');
+        this.el.className = 'particle';
+        this.canvas = canvasEl;
+        this.tick = 0;
+
+        if (weather === 'sunny') {
+          // 光の粒子がゆらゆら浮遊
+          const size = 3 + Math.random() * 5;
+          this.el.style.cssText = `
+            width: ${size}px; height: ${size}px;
+            background: radial-gradient(circle, rgba(243,156,18,0.6), rgba(243,156,18,0));
+            border-radius: 50%;
+          `;
+          this.x = Math.random() * 375;
+          this.y = Math.random() * 812;
+          this.speedX = (Math.random() - 0.5) * 0.3;
+          this.speedY = -0.1 - Math.random() * 0.15;
+          this.phase = Math.random() * Math.PI * 2;
+          this.maxOp = 0.3 + Math.random() * 0.5;
+          this.type = 'glow';
+        } else if (weather === 'cloudy') {
+          // 小さな霧粒がゆっくり漂う
+          const size = 2 + Math.random() * 3;
+          this.el.style.cssText = `
+            width: ${size}px; height: ${size}px;
+            background: rgba(150,165,180,0.3);
+            border-radius: 50%;
+          `;
+          this.x = Math.random() * 375;
+          this.y = Math.random() * 812;
+          this.speedX = 0.1 + Math.random() * 0.2;
+          this.speedY = (Math.random() - 0.5) * 0.1;
+          this.phase = Math.random() * Math.PI * 2;
+          this.maxOp = 0.2 + Math.random() * 0.3;
+          this.type = 'mist';
+        } else if (weather === 'rainy') {
+          // 雨粒が斜めに降る
+          const len = 12 + Math.random() * 18;
+          const w = 1 + Math.random() * 0.5;
+          this.el.style.cssText = `
+            width: ${w}px; height: ${len}px;
+            background: linear-gradient(180deg, rgba(91,157,213,0), rgba(91,157,213,0.5));
+            border-radius: 0 0 2px 2px;
+            opacity: ${0.2 + Math.random() * 0.4};
+          `;
+          this.x = Math.random() * 420;
+          this.y = -30 - Math.random() * 200;
+          this.speedY = 6 + Math.random() * 6;
+          this.speedX = -1 - Math.random() * 1.5;
+          this.type = 'rain';
+        } else {
+          // 雪の結晶
+          const chars = ['❄', '✧', '·', '◦', '✦'];
+          this.el.textContent = chars[Math.floor(Math.random() * chars.length)];
+          const size = 8 + Math.random() * 12;
+          this.el.style.cssText = `
+            font-size: ${size}px;
+            color: rgba(105,135,168, ${0.2 + Math.random() * 0.4});
+          `;
+          this.x = Math.random() * 375;
+          this.y = -20 - Math.random() * 100;
+          this.speedY = 0.3 + Math.random() * 0.5;
+          this.speedX = (Math.random() - 0.5) * 0.3;
+          this.wobbleAmp = 0.3 + Math.random() * 0.6;
+          this.wobbleSpd = 0.008 + Math.random() * 0.012;
+          this.rot = Math.random() * 360;
+          this.rotSpd = (Math.random() - 0.5) * 0.5;
+          this.phase = Math.random() * Math.PI * 2;
+          this.type = 'snow';
+        }
+
+        this.el.style.position = 'absolute';
+        canvasEl.appendChild(this.el);
+      }
+
+      update() {
+        this.tick++;
+
+        if (this.type === 'glow') {
+          this.x += this.speedX + Math.sin(this.tick * 0.015 + this.phase) * 0.15;
+          this.y += this.speedY;
+          const op = this.maxOp * Math.max(0, Math.sin(this.tick * 0.012 + this.phase));
+          this.el.style.opacity = op;
+          if (this.y < -20) { this.y = 820; this.x = Math.random() * 375; }
+        } else if (this.type === 'mist') {
+          this.x += this.speedX;
+          this.y += this.speedY + Math.sin(this.tick * 0.01 + this.phase) * 0.15;
+          const op = this.maxOp * (0.5 + 0.5 * Math.sin(this.tick * 0.008 + this.phase));
+          this.el.style.opacity = op;
+          if (this.x > 390) { this.x = -10; this.y = Math.random() * 812; }
+        } else if (this.type === 'rain') {
+          this.x += this.speedX;
+          this.y += this.speedY;
+          if (this.y > 830) { this.y = -30 - Math.random() * 100; this.x = Math.random() * 420; }
+        } else if (this.type === 'snow') {
+          this.y += this.speedY;
+          this.x += this.speedX + Math.sin(this.tick * this.wobbleSpd + this.phase) * this.wobbleAmp;
+          this.rot += this.rotSpd;
+          this.el.style.transform = `rotate(${this.rot}deg)`;
+          if (this.y > 820) { this.y = -20; this.x = Math.random() * 375; }
+        }
+
+        this.el.style.left = this.x + 'px';
+        this.el.style.top = this.y + 'px';
+      }
+
+      remove() { this.el.remove(); }
+    }
+
+    function resetParticles(w) {
+      if (animFrame) cancelAnimationFrame(animFrame);
+      particlesArr.forEach(p => p.remove());
+      particlesArr = [];
+
+      // fxLayer内の既存パーティクルだけ削除（静的エフェクトは残す）
+      fxLayer.querySelectorAll('.particle').forEach(el => el.remove());
+
+      const count = w === 'rainy' ? 60 : w === 'snowy' ? 25 : w === 'sunny' ? 20 : 15;
+      for (let i = 0; i < count; i++) {
+        particlesArr.push(new WParticle(w, fxLayer));
+      }
+      animate();
+    }
+
+    function animate() {
+      particlesArr.forEach(p => p.update());
+      animFrame = requestAnimationFrame(animate);
+    }
+
+    // ===== Open-Meteo API で天気取得 =====
+    async function fetchWeather() {
+      try {
+        // 所沢市の座標
+        const lat = 35.7994;
+        const lon = 139.4686;
+        const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
+
+        const res = await fetch(url);
+        const data = await res.json();
+        const code = data.current_weather.weathercode;
+        const temp = Math.round(data.current_weather.temperature);
+
+        // WMO Weather Code → 天気マッピング
+        let detected;
+        if ([71, 73, 75, 77, 85, 86].includes(code)) {
+          detected = 'snowy';
+        } else if ([51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99].includes(code)) {
+          detected = 'rainy';
+        } else if ([1, 2, 3, 45, 48].includes(code)) {
+          detected = 'cloudy';
+        } else {
+          detected = 'sunny';
+        }
+
+        statusText.textContent = `所沢 ${temp}℃ · ${WEATHER[detected].labelShort} (自動取得)`;
+        setWeather(detected);
+      } catch (e) {
+        // API失敗時はデフォルト
+        statusText.textContent = '天気取得失敗 · デフォルト表示';
+        setWeather('sunny');
+      }
+    }
+
+    // ===== 初期化 =====
+    fetchWeather();
+  </script>
+</body>
+</html>

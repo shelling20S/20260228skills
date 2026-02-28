@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>案17: ターミナル — MO-GI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --green: #00ff88;
+      --green-dim: #00cc6a;
+      --green-glow: rgba(0, 255, 136, 0.15);
+      --green-glow-strong: rgba(0, 255, 136, 0.4);
+      --cyan: #00e5ff;
+      --amber: #ffb300;
+      --bg: #0a0e0a;
+      --bg-card: #0d120d;
+      --border: #1a2e1a;
+      --text: #b0d4b0;
+      --text-dim: #4a6a4a;
+    }
+
+    body {
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Noto Sans JP', sans-serif;
+    }
+
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: var(--bg);
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* CRTスキャンライン */
+    .phone-frame::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 255, 136, 0.02) 2px,
+        rgba(0, 255, 136, 0.02) 4px
+      );
+      pointer-events: none;
+      z-index: 100;
+    }
+
+    /* 画面端のビネット */
+    .phone-frame::after {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.5) 100%);
+      pointer-events: none;
+      z-index: 99;
+    }
+
+    .container {
+      padding: 48px 20px 40px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ステータスバー風 */
+    .status-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      margin-bottom: 32px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .status-bar .blink {
+      animation: blink 1.2s step-end infinite;
+      color: var(--green);
+    }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* タイトル */
+    .title-area {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .title {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 36px;
+      font-weight: 400;
+      color: var(--green);
+      letter-spacing: 4px;
+      text-shadow:
+        0 0 10px var(--green-glow-strong),
+        0 0 30px var(--green-glow),
+        0 0 60px var(--green-glow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .title .prompt {
+      color: var(--cyan);
+      font-size: 28px;
+      text-shadow:
+        0 0 10px rgba(0, 229, 255, 0.4),
+        0 0 30px rgba(0, 229, 255, 0.15);
+    }
+
+    .title .gi {
+      color: var(--cyan);
+      text-shadow:
+        0 0 10px rgba(0, 229, 255, 0.4),
+        0 0 30px rgba(0, 229, 255, 0.15);
+    }
+
+    .subtitle {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 3px;
+      margin-top: 12px;
+      text-transform: uppercase;
+    }
+
+    /* ディバイダー */
+    .divider {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--border);
+      text-align: center;
+      margin: 24px 0;
+      letter-spacing: 2px;
+      overflow: hidden;
+    }
+
+    .divider span {
+      color: var(--green-dim);
+    }
+
+    /* キャッチコピー */
+    .catchcopy {
+      text-align: center;
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 36px;
+      line-height: 2.2;
+      letter-spacing: 1px;
+    }
+
+    .catchcopy .gal {
+      color: var(--bg);
+      background: var(--green);
+      padding: 1px 8px;
+      font-family: 'Share Tech Mono', monospace;
+      font-weight: 400;
+      letter-spacing: 2px;
+      text-shadow: none;
+    }
+
+    /* セクションラベル */
+    .section-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 12px;
+      color: var(--green-dim);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-label::before {
+      content: '>';
+      color: var(--green);
+      animation: blink 1.2s step-end infinite;
+    }
+
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* シナリオカード */
+    .scenario-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 36px;
+    }
+
+    .scenario-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 16px 18px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .scenario-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 2px;
+      height: 100%;
+      background: var(--green);
+      opacity: 0;
+      transition: opacity 0.2s;
+      box-shadow: 0 0 8px var(--green-glow-strong);
+    }
+
+    .scenario-card:hover {
+      border-color: var(--green-dim);
+      background: rgba(0, 255, 136, 0.03);
+    }
+
+    .scenario-card:hover::before {
+      opacity: 1;
+    }
+
+    .scenario-num {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--amber);
+      margin-bottom: 6px;
+      letter-spacing: 2px;
+    }
+
+    .scenario-text {
+      font-size: 14px;
+      color: var(--text);
+      line-height: 1.7;
+      padding-right: 28px;
+    }
+
+    .scenario-arrow {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 16px;
+      color: var(--text-dim);
+      transition: all 0.2s;
+    }
+
+    .scenario-card:hover .scenario-arrow {
+      color: var(--green);
+      transform: translateY(-50%) translateX(4px);
+      text-shadow: 0 0 8px var(--green-glow-strong);
+    }
+
+    /* キャラクター */
+    .char-grid {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 36px;
+    }
+
+    .char-item {
+      flex: 1;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .char-icon {
+      width: 50px;
+      height: 50px;
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin: 0 auto 8px;
+      transition: all 0.2s ease;
+      background: var(--bg-card);
+      position: relative;
+    }
+
+    .char-item:hover .char-icon {
+      border-color: var(--green);
+      box-shadow: 0 0 12px var(--green-glow), inset 0 0 12px var(--green-glow);
+    }
+
+    .char-item.moe .char-icon { color: #ff6b9d; }
+    .char-item.tech .char-icon { color: var(--cyan); }
+    .char-item.guard .char-icon { color: #66ff66; }
+    .char-item.chair .char-icon { color: var(--amber); }
+    .char-item.gal .char-icon { color: #ff4444; }
+
+    .char-item:hover .char-icon::after {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border: 1px solid;
+      border-color: inherit;
+      opacity: 0.3;
+      animation: pulse-border 1s ease-in-out infinite;
+    }
+
+    @keyframes pulse-border {
+      0%, 100% { transform: scale(1); opacity: 0.3; }
+      50% { transform: scale(1.08); opacity: 0; }
+    }
+
+    .char-name {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 11px;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+    }
+
+    .char-role {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 9px;
+      color: var(--text-dim);
+      opacity: 0.5;
+      margin-top: 2px;
+    }
+
+    /* ツールチップ */
+    .char-item .tooltip {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bg);
+      border: 1px solid var(--green-dim);
+      color: var(--text);
+      font-size: 10px;
+      padding: 8px 12px;
+      white-space: nowrap;
+      z-index: 10;
+      box-shadow: 0 0 12px var(--green-glow);
+    }
+
+    .char-item:hover .tooltip { display: block; }
+
+    /* フッター */
+    .footer {
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+      text-align: center;
+    }
+
+    .footer-text {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 3px;
+    }
+
+    .footer-text .ver {
+      color: var(--green-dim);
+    }
+
+    /* タイプライターアニメーション */
+    .type-in {
+      opacity: 0;
+      animation: typeIn 0.3s ease forwards;
+    }
+    .type-in:nth-child(1) { animation-delay: 0.15s; }
+    .type-in:nth-child(2) { animation-delay: 0.3s; }
+    .type-in:nth-child(3) { animation-delay: 0.45s; }
+
+    @keyframes typeIn {
+      0% { opacity: 0; transform: translateX(-8px); }
+      100% { opacity: 1; transform: translateX(0); }
+    }
+
+    /* スクロールバー */
+    .phone-frame::-webkit-scrollbar { width: 4px; }
+    .phone-frame::-webkit-scrollbar-thumb {
+      background: var(--green-dim);
+    }
+    .phone-frame::-webkit-scrollbar-track {
+      background: var(--bg);
+    }
+
+    /* グリッチエフェクト（タイトル） */
+    .glitch {
+      position: relative;
+    }
+
+    .glitch::before,
+    .glitch::after {
+      content: attr(data-text);
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    .glitch::before {
+      color: var(--cyan);
+      animation: glitch-1 3s infinite linear;
+      clip-path: inset(0 0 80% 0);
+    }
+
+    .glitch::after {
+      color: #ff0040;
+      animation: glitch-2 3s infinite linear;
+      clip-path: inset(80% 0 0 0);
+    }
+
+    @keyframes glitch-1 {
+      0%, 92%, 100% { transform: translate(0); }
+      93% { transform: translate(-3px, 1px); }
+      95% { transform: translate(2px, -1px); }
+      97% { transform: translate(-1px, 2px); }
+    }
+
+    @keyframes glitch-2 {
+      0%, 90%, 100% { transform: translate(0); }
+      91% { transform: translate(3px, -1px); }
+      93% { transform: translate(-2px, 1px); }
+      96% { transform: translate(1px, -2px); }
+    }
+
+    /* 装飾ドット */
+    .corner-dots {
+      position: absolute;
+      top: 48px;
+      right: 20px;
+      display: grid;
+      grid-template-columns: repeat(3, 4px);
+      gap: 4px;
+      z-index: 1;
+    }
+
+    .corner-dots span {
+      width: 4px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 50%;
+    }
+
+    .corner-dots span:nth-child(5) {
+      background: var(--green-dim);
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="container">
+
+      <!-- 装飾 -->
+      <div class="corner-dots">
+        <span></span><span></span><span></span>
+        <span></span><span></span><span></span>
+        <span></span><span></span><span></span>
+      </div>
+
+      <!-- ステータスバー -->
+      <div class="status-bar">
+        <span>SYS.ONLINE</span>
+        <span><span class="blink">●</span> ACTIVE</span>
+        <span>v1.0.0</span>
+      </div>
+
+      <!-- タイトル -->
+      <div class="title-area">
+        <div class="title glitch" data-text="▶ 萌GI">
+          <span class="prompt">▶</span>
+          萌<span class="gi">GI</span>
+        </div>
+        <div class="subtitle">// decision making system</div>
+      </div>
+
+      <div class="divider">──────── <span>◆</span> ────────</div>
+
+      <!-- キャッチコピー -->
+      <div class="catchcopy">
+        「<span class="gal">GAL</span>が5人で会議したら<br>こうなる。」
+      </div>
+
+      <!-- メンバー -->
+      <div class="section-label">members</div>
+      <div class="char-grid">
+        <div class="char-item moe">
+          <div class="tooltip">共感翻訳 / 萌コア</div>
+          <div class="char-icon">♥</div>
+          <div class="char-name">モカ</div>
+          <div class="char-role">MOE</div>
+        </div>
+        <div class="char-item tech">
+          <div class="tooltip">ファクト警察 / 技コア</div>
+          <div class="char-icon">⚗</div>
+          <div class="char-name">リツ</div>
+          <div class="char-role">TECH</div>
+        </div>
+        <div class="char-item guard">
+          <div class="tooltip">炎上予防装置 / 守コア</div>
+          <div class="char-icon">◇</div>
+          <div class="char-name">カノン</div>
+          <div class="char-role">GUARD</div>
+        </div>
+        <div class="char-item chair">
+          <div class="tooltip">結論製造機 / 統括</div>
+          <div class="char-icon">♛</div>
+          <div class="char-name">レイカ</div>
+          <div class="char-role">CHAIR</div>
+        </div>
+        <div class="char-item gal">
+          <div class="tooltip">バズ製造姫 / ギャル</div>
+          <div class="char-icon">★</div>
+          <div class="char-name">ルナ</div>
+          <div class="char-role">GAL</div>
+        </div>
+      </div>
+
+      <!-- シナリオ -->
+      <div class="section-label">scenarios</div>
+      <div class="scenario-list">
+        <div class="scenario-card type-in">
+          <div class="scenario-num">CASE_01</div>
+          <div class="scenario-text">副業でAIサービスを始めるべき？</div>
+          <div class="scenario-arrow">→</div>
+        </div>
+        <div class="scenario-card type-in">
+          <div class="scenario-num">CASE_02</div>
+          <div class="scenario-text">社内データをClaude APIに渡していい？</div>
+          <div class="scenario-arrow">→</div>
+        </div>
+        <div class="scenario-card type-in">
+          <div class="scenario-num">CASE_03</div>
+          <div class="scenario-text">勉強会をYouTubeで公開配信すべき？</div>
+          <div class="scenario-arrow">→</div>
+        </div>
+      </div>
+
+      <!-- フッター -->
+      <div class="footer">
+        <div class="footer-text">MO-GI <span class="ver">v1.0</span> // END_TRANSMISSION</div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

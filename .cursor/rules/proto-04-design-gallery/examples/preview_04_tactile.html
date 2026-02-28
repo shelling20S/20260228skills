@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>案D: ペーパークラフト — MO-GI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Yomogi&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #b8a88a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Yomogi', cursive;
+  }
+
+  /* SVG noise filter for paper texture */
+  .noise-filter {
+    position: fixed;
+    width: 0;
+    height: 0;
+  }
+
+  .phone-frame {
+    width: 375px;
+    height: 812px;
+    background: #d4c5a9;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+    box-shadow:
+      4px 6px 20px rgba(60, 40, 20, 0.4),
+      -1px -1px 0 rgba(255, 255, 240, 0.2);
+  }
+
+  /* Paper grain texture overlay */
+  .phone-frame::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    filter: url(#paper-noise);
+    opacity: 0.12;
+    pointer-events: none;
+    z-index: 1000;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(93, 78, 55, 0.03) 3px,
+      rgba(93, 78, 55, 0.03) 4px
+    );
+  }
+
+  /* Subtle fiber texture */
+  .phone-frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      radial-gradient(ellipse at 20% 50%, rgba(93, 78, 55, 0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(93, 78, 55, 0.04) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(192, 113, 78, 0.03) 0%, transparent 40%);
+    pointer-events: none;
+    z-index: 50;
+  }
+
+  .container {
+    padding: 32px 20px 40px;
+    position: relative;
+  }
+
+  /* ========== WASHI TAPE TITLE CARD ========== */
+  .title-card {
+    background: #f5f0e8;
+    padding: 28px 20px 22px;
+    margin-bottom: 28px;
+    position: relative;
+    transform: rotate(-0.8deg);
+    box-shadow: 3px 4px 8px rgba(60, 40, 20, 0.18);
+  }
+
+  /* Torn edge effect - top */
+  .title-card::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: #f5f0e8;
+    clip-path: polygon(
+      0% 100%, 2% 40%, 5% 80%, 8% 30%, 11% 70%, 14% 20%, 17% 60%, 20% 40%,
+      23% 80%, 26% 20%, 29% 70%, 32% 30%, 35% 60%, 38% 40%, 41% 80%, 44% 20%,
+      47% 70%, 50% 30%, 53% 60%, 56% 40%, 59% 80%, 62% 20%, 65% 70%, 68% 30%,
+      71% 60%, 74% 40%, 77% 80%, 80% 20%, 83% 70%, 86% 30%, 89% 60%, 92% 40%,
+      95% 80%, 98% 30%, 100% 100%
+    );
+  }
+
+  /* Torn edge effect - bottom */
+  .title-card::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    right: 0;
+    height: 8px;
+    background: #f5f0e8;
+    clip-path: polygon(
+      0% 0%, 3% 60%, 6% 20%, 9% 70%, 12% 30%, 15% 80%, 18% 40%, 21% 60%,
+      24% 20%, 27% 70%, 30% 30%, 33% 80%, 36% 40%, 39% 60%, 42% 20%, 45% 70%,
+      48% 30%, 51% 80%, 54% 40%, 57% 60%, 60% 20%, 63% 70%, 66% 30%, 69% 80%,
+      72% 40%, 75% 60%, 78% 20%, 81% 70%, 84% 30%, 87% 80%, 90% 40%, 93% 60%,
+      96% 20%, 100% 0%
+    );
+  }
+
+  /* Washi tape strips */
+  .washi-tape-top {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%) rotate(1.5deg);
+    width: 120px;
+    height: 24px;
+    background: rgba(212, 168, 67, 0.55);
+    z-index: 10;
+    border-top: 1px dashed rgba(93, 78, 55, 0.2);
+    border-bottom: 1px dashed rgba(93, 78, 55, 0.2);
+  }
+
+  .washi-tape-bottom {
+    position: absolute;
+    bottom: -8px;
+    right: 20px;
+    transform: rotate(-2deg);
+    width: 80px;
+    height: 20px;
+    background: rgba(143, 174, 126, 0.5);
+    z-index: 10;
+    border-top: 1px dashed rgba(93, 78, 55, 0.15);
+    border-bottom: 1px dashed rgba(93, 78, 55, 0.15);
+  }
+
+  .title-area {
+    text-align: center;
+  }
+
+  .title {
+    font-family: 'Caveat', cursive;
+    font-size: 38px;
+    font-weight: 700;
+    color: #5d4e37;
+    letter-spacing: 2px;
+    line-height: 1.1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .title .ti {
+    font-size: 28px;
+    color: #c0714e;
+  }
+
+  .subtitle {
+    font-family: 'Caveat', cursive;
+    font-size: 12px;
+    color: #8a7a64;
+    letter-spacing: 3px;
+    margin-top: 6px;
+    text-transform: uppercase;
+  }
+
+  /* ========== CATCHCOPY ========== */
+  .catchcopy-wrap {
+    margin: 0 auto 28px;
+    max-width: 300px;
+    transform: rotate(0.5deg);
+  }
+
+  .catchcopy {
+    background: #f5f0e8;
+    border: 2px dashed #c0714e;
+    border-radius: 2px;
+    padding: 14px 18px;
+    text-align: center;
+    font-size: 15px;
+    color: #5d4e37;
+    line-height: 1.6;
+    position: relative;
+    box-shadow: 2px 3px 6px rgba(60, 40, 20, 0.12);
+  }
+
+  .catchcopy::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: 15px;
+    width: 50px;
+    height: 18px;
+    background: rgba(192, 113, 78, 0.4);
+    transform: rotate(-3deg);
+    border-top: 1px dashed rgba(93, 78, 55, 0.15);
+    border-bottom: 1px dashed rgba(93, 78, 55, 0.15);
+  }
+
+  /* ========== CHARACTERS SECTION ========== */
+  .section-label {
+    font-family: 'Caveat', cursive;
+    font-size: 22px;
+    font-weight: 600;
+    color: #5d4e37;
+    margin-bottom: 16px;
+    padding-left: 4px;
+    position: relative;
+    display: inline-block;
+  }
+
+  .section-label::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: -10px;
+    height: 3px;
+    background: rgba(212, 168, 67, 0.5);
+    transform: rotate(-0.5deg);
+    border-radius: 2px;
+  }
+
+  .characters-grid {
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 32px;
+    padding: 18px 10px;
+    background: rgba(245, 240, 232, 0.5);
+    border-radius: 4px;
+    position: relative;
+    box-shadow: inset 0 1px 3px rgba(60, 40, 20, 0.08);
+  }
+
+  .character-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+    cursor: default;
+    transition: transform 0.2s ease;
+  }
+
+  .character-item:nth-child(1) { transform: rotate(-2deg); }
+  .character-item:nth-child(2) { transform: rotate(1.5deg); }
+  .character-item:nth-child(3) { transform: rotate(-1deg); }
+  .character-item:nth-child(4) { transform: rotate(2deg); }
+  .character-item:nth-child(5) { transform: rotate(-1.5deg); }
+
+  .character-item:hover {
+    transform: rotate(0deg) scale(1.08) !important;
+  }
+
+  .character-circle {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 2px 3px 6px rgba(60, 40, 20, 0.2);
+    position: relative;
+  }
+
+  /* Hand-drawn circle effect */
+  .character-circle::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 50%;
+    border: 2px solid rgba(93, 78, 55, 0.15);
+    transform: rotate(5deg);
+  }
+
+  .character-circle .ti {
+    font-size: 22px;
+    color: #fff;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.15);
+  }
+
+  .character-name {
+    font-size: 11px;
+    color: #5d4e37;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+  }
+
+  /* Tooltip */
+  .character-item .tooltip {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #f5f0e8;
+    color: #5d4e37;
+    font-size: 10px;
+    padding: 6px 10px;
+    border-radius: 3px;
+    white-space: nowrap;
+    box-shadow: 2px 3px 8px rgba(60, 40, 20, 0.2);
+    border: 1px solid rgba(93, 78, 55, 0.15);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s ease;
+    z-index: 100;
+  }
+
+  .character-item .tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #f5f0e8;
+  }
+
+  .character-item:hover .tooltip {
+    opacity: 1;
+  }
+
+  /* ========== SCENARIO CARDS (Sticky Notes / Index Cards) ========== */
+  .scenarios-section {
+    margin-bottom: 28px;
+  }
+
+  .scenario-card {
+    background: #f5f0e8;
+    padding: 18px 16px 16px;
+    margin-bottom: 14px;
+    position: relative;
+    box-shadow: 3px 4px 8px rgba(60, 40, 20, 0.15);
+    border-left: 4px solid;
+    transition: transform 0.2s ease;
+  }
+
+  .scenario-card:hover {
+    transform: rotate(0deg) !important;
+  }
+
+  .scenario-card:nth-child(2) {
+    transform: rotate(0.7deg);
+    border-left-color: #c0714e;
+  }
+  .scenario-card:nth-child(3) {
+    transform: rotate(-0.5deg);
+    border-left-color: #8fae7e;
+  }
+  .scenario-card:nth-child(4) {
+    transform: rotate(0.3deg);
+    border-left-color: #d4a843;
+  }
+
+  /* Stamp seal for scenario number */
+  .scenario-stamp {
+    position: absolute;
+    top: -8px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 3px solid #c0714e;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Caveat', cursive;
+    font-size: 18px;
+    font-weight: 700;
+    color: #c0714e;
+    background: #f5f0e8;
+    transform: rotate(-8deg);
+    box-shadow: 1px 2px 4px rgba(60, 40, 20, 0.15);
+  }
+
+  /* Double ring stamp effect */
+  .scenario-stamp::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 50%;
+    border: 1px solid #c0714e;
+  }
+
+  .scenario-title {
+    font-family: 'Caveat', cursive;
+    font-size: 17px;
+    font-weight: 600;
+    color: #5d4e37;
+    margin-bottom: 8px;
+    padding-right: 30px;
+    line-height: 1.3;
+  }
+
+  .scenario-result {
+    display: inline-block;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 2px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    position: relative;
+  }
+
+  .result-approved {
+    background: rgba(143, 174, 126, 0.3);
+    color: #5a7a4e;
+    border: 1px solid rgba(143, 174, 126, 0.5);
+  }
+
+  .result-conditional {
+    background: rgba(212, 168, 67, 0.3);
+    color: #8a6d20;
+    border: 1px solid rgba(212, 168, 67, 0.5);
+  }
+
+  .result-denied {
+    background: rgba(192, 113, 78, 0.3);
+    color: #8a4a2e;
+    border: 1px solid rgba(192, 113, 78, 0.5);
+  }
+
+  .scenario-summary {
+    font-size: 12px;
+    color: #7a6b55;
+    margin-top: 8px;
+    line-height: 1.5;
+  }
+
+  /* Pin / pushpin effect */
+  .pin {
+    position: absolute;
+    top: -6px;
+    left: 20px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, #e8d0a0, #c0714e);
+    box-shadow: 1px 2px 3px rgba(60, 40, 20, 0.3);
+    z-index: 10;
+  }
+
+  .pin::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transform: translate(-60%, -60%);
+  }
+
+  /* ========== FOOTER ========== */
+  .footer {
+    text-align: center;
+    padding: 16px 0 8px;
+    position: relative;
+  }
+
+  .footer-line {
+    width: 60%;
+    height: 2px;
+    background: rgba(93, 78, 55, 0.15);
+    margin: 0 auto 12px;
+    transform: rotate(-0.5deg);
+  }
+
+  .footer-text {
+    font-family: 'Caveat', cursive;
+    font-size: 14px;
+    color: #8a7a64;
+    letter-spacing: 2px;
+  }
+
+  .footer-stamp {
+    display: inline-block;
+    border: 2px solid rgba(192, 113, 78, 0.4);
+    border-radius: 4px;
+    padding: 4px 14px;
+    margin-top: 8px;
+    transform: rotate(-3deg);
+    font-family: 'Caveat', cursive;
+    font-size: 12px;
+    color: rgba(192, 113, 78, 0.6);
+    letter-spacing: 3px;
+  }
+
+  /* ========== DECORATIVE ELEMENTS ========== */
+  .deco-tape {
+    position: absolute;
+    z-index: 5;
+    border-top: 1px dashed rgba(93, 78, 55, 0.1);
+    border-bottom: 1px dashed rgba(93, 78, 55, 0.1);
+  }
+
+  .deco-tape-1 {
+    top: 200px;
+    right: -10px;
+    width: 60px;
+    height: 18px;
+    background: rgba(255, 143, 171, 0.3);
+    transform: rotate(45deg);
+  }
+
+  .deco-tape-2 {
+    top: 450px;
+    left: -10px;
+    width: 50px;
+    height: 16px;
+    background: rgba(100, 181, 246, 0.3);
+    transform: rotate(-30deg);
+  }
+
+  .deco-tape-3 {
+    bottom: 120px;
+    right: -8px;
+    width: 55px;
+    height: 16px;
+    background: rgba(143, 174, 126, 0.3);
+    transform: rotate(25deg);
+  }
+
+  /* Doodle stars */
+  .doodle {
+    position: absolute;
+    font-family: 'Caveat', cursive;
+    color: rgba(93, 78, 55, 0.12);
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  .doodle-1 {
+    top: 380px;
+    right: 20px;
+    font-size: 28px;
+    transform: rotate(15deg);
+  }
+
+  .doodle-2 {
+    bottom: 200px;
+    left: 15px;
+    font-size: 22px;
+    transform: rotate(-10deg);
+  }
+
+  /* Scrollbar */
+  .phone-frame::-webkit-scrollbar {
+    width: 6px;
+  }
+  .phone-frame::-webkit-scrollbar-track {
+    background: rgba(93, 78, 55, 0.05);
+  }
+  .phone-frame::-webkit-scrollbar-thumb {
+    background: rgba(93, 78, 55, 0.2);
+    border-radius: 3px;
+  }
+</style>
+</head>
+<body>
+
+<!-- SVG noise filter for paper grain -->
+<svg class="noise-filter">
+  <defs>
+    <filter id="paper-noise">
+      <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="4" stitchTiles="stitch" result="noise"/>
+      <feColorMatrix type="saturate" values="0" in="noise" result="gray-noise"/>
+      <feBlend in="SourceGraphic" in2="gray-noise" mode="multiply"/>
+    </filter>
+  </defs>
+</svg>
+
+<div class="phone-frame">
+  <div class="container">
+
+    <!-- Decorative tapes -->
+    <div class="deco-tape deco-tape-1"></div>
+    <div class="deco-tape deco-tape-2"></div>
+    <div class="deco-tape deco-tape-3"></div>
+    <span class="doodle doodle-1">~ ~ ~</span>
+    <span class="doodle doodle-2">* *</span>
+
+    <!-- ========== TITLE CARD ========== -->
+    <div class="title-card">
+      <div class="washi-tape-top"></div>
+      <div class="washi-tape-bottom"></div>
+      <div class="title-area">
+        <div class="title">
+          <i class="ti ti-player-play"></i>
+          萌GI SYSTEM
+        </div>
+        <div class="subtitle">MO-GI DECISION MAKING SYSTEM</div>
+      </div>
+    </div>
+
+    <!-- ========== CATCHCOPY ========== -->
+    <div class="catchcopy-wrap">
+      <div class="catchcopy">
+        「GALが5人で会議したら<br>こうなる。」
+      </div>
+    </div>
+
+    <!-- ========== CHARACTERS ========== -->
+    <div class="section-label">Members</div>
+    <div class="characters-grid">
+      <!-- モカ -->
+      <div class="character-item">
+        <div class="tooltip">綿雲モカ / 共感翻訳</div>
+        <div class="character-circle" style="background: #FF8FAB;">
+          <i class="ti ti-heart"></i>
+        </div>
+        <span class="character-name">モカ</span>
+      </div>
+      <!-- リツ -->
+      <div class="character-item">
+        <div class="tooltip">真白リツ / ファクト検証</div>
+        <div class="character-circle" style="background: #64B5F6;">
+          <i class="ti ti-flask"></i>
+        </div>
+        <span class="character-name">リツ</span>
+      </div>
+      <!-- カノン -->
+      <div class="character-item">
+        <div class="tooltip">戒堂カノン / リスク管理</div>
+        <div class="character-circle" style="background: #81C784;">
+          <i class="ti ti-shield"></i>
+        </div>
+        <span class="character-name">カノン</span>
+      </div>
+      <!-- レイカ -->
+      <div class="character-item">
+        <div class="tooltip">黒羽レイカ / 議長</div>
+        <div class="character-circle" style="background: #FFD54F;">
+          <i class="ti ti-crown"></i>
+        </div>
+        <span class="character-name">レイカ</span>
+      </div>
+      <!-- ルナ -->
+      <div class="character-item">
+        <div class="tooltip">陽キャ神ルナ / バズ製造</div>
+        <div class="character-circle" style="background: #FF8A65;">
+          <i class="ti ti-star"></i>
+        </div>
+        <span class="character-name">ルナ</span>
+      </div>
+    </div>
+
+    <!-- ========== SCENARIOS ========== -->
+    <div class="scenarios-section">
+      <div class="section-label">Scenarios</div>
+
+      <!-- Scenario 1 -->
+      <div class="scenario-card">
+        <div class="pin"></div>
+        <div class="scenario-stamp">1</div>
+        <div class="scenario-title">副業でAIサービスを始めるべき？</div>
+        <span class="scenario-result result-conditional">CONDITIONAL</span>
+        <div class="scenario-summary">
+          条件付き承認。就業規則の確認、撤退基準の設定、法的整備の3条件をクリアしてからスタート。
+        </div>
+      </div>
+
+      <!-- Scenario 2 -->
+      <div class="scenario-card">
+        <div class="pin"></div>
+        <div class="scenario-stamp">2</div>
+        <div class="scenario-title">社内データをClaude APIに渡していい？</div>
+        <span class="scenario-result result-denied">DENIED</span>
+        <div class="scenario-summary">
+          否決。セキュリティ体制の整備が不十分。機密区分の策定とDPA締結を経て再提案を。
+        </div>
+      </div>
+
+      <!-- Scenario 3 -->
+      <div class="scenario-card">
+        <div class="pin"></div>
+        <div class="scenario-stamp">3</div>
+        <div class="scenario-title">勉強会をYouTubeで公開配信すべき？</div>
+        <span class="scenario-result result-approved">APPROVED</span>
+        <div class="scenario-summary">
+          全会一致で承認。発表者の同意確認後、限定公開テスト配信を経て公開へ。
+        </div>
+      </div>
+    </div>
+
+    <!-- ========== FOOTER ========== -->
+    <div class="footer">
+      <div class="footer-line"></div>
+      <div class="footer-text">MO-GI v1.0</div>
+      <div class="footer-stamp">PAPER CRAFT EDITION</div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>

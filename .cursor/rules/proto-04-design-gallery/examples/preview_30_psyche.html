@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>案30: PSYCHE — MO-GI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik+Glitch&family=Nabla&family=Pixelify+Sans:wght@400;700&family=Noto+Sans+JP:wght@400;900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ===== 背景：万華鏡グラデーション ===== */
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+      border-radius: 40px;
+      border: 3px solid;
+      border-image: linear-gradient(var(--angle, 0deg), #ff0080, #00ffff, #ff00ff, #ffff00, #00ff80) 1;
+      animation: borderSpin 4s linear infinite;
+    }
+
+    @property --angle {
+      syntax: '<angle>';
+      initial-value: 0deg;
+      inherits: false;
+    }
+
+    @keyframes borderSpin {
+      to { --angle: 360deg; }
+    }
+
+    /* 背景メッシュ */
+    .bg-mesh {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background:
+        radial-gradient(ellipse at 20% 20%, rgba(255, 0, 128, 0.4) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 30%, rgba(0, 255, 255, 0.3) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 80%, rgba(255, 255, 0, 0.3) 0%, transparent 50%),
+        radial-gradient(ellipse at 30% 60%, rgba(128, 0, 255, 0.3) 0%, transparent 50%),
+        #0a0014;
+      animation: meshShift 8s ease-in-out infinite alternate;
+    }
+
+    @keyframes meshShift {
+      0% { filter: hue-rotate(0deg); }
+      33% { filter: hue-rotate(60deg); }
+      66% { filter: hue-rotate(-40deg); }
+      100% { filter: hue-rotate(120deg); }
+    }
+
+    /* ノイズオーバーレイ */
+    .noise {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      opacity: 0.06;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='256' height='256'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      pointer-events: none;
+      mix-blend-mode: overlay;
+    }
+
+    .container {
+      padding: 48px 20px 40px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ===== タイトル：歪むNablaフォント ===== */
+    .title-block {
+      text-align: center;
+      margin-bottom: 10px;
+      position: relative;
+    }
+
+    .title-main {
+      font-family: 'Nabla', sans-serif;
+      font-size: 56px;
+      letter-spacing: 6px;
+      line-height: 1;
+      animation: titleWarp 3s ease-in-out infinite;
+      cursor: default;
+      display: inline-block;
+    }
+
+    @keyframes titleWarp {
+      0%, 100% { transform: perspective(500px) rotateY(0deg) scale(1); filter: hue-rotate(0deg); }
+      25% { transform: perspective(500px) rotateY(4deg) scale(1.02); filter: hue-rotate(30deg); }
+      50% { transform: perspective(500px) rotateY(-3deg) scale(0.98); filter: hue-rotate(-20deg); }
+      75% { transform: perspective(500px) rotateY(2deg) scale(1.01); filter: hue-rotate(50deg); }
+    }
+
+    .title-main:hover {
+      animation: titleGlitch 0.15s steps(2) infinite;
+    }
+
+    @keyframes titleGlitch {
+      0% { transform: translate(0) skewX(0deg); filter: hue-rotate(0deg); }
+      25% { transform: translate(-4px, 2px) skewX(-5deg); filter: hue-rotate(90deg); }
+      50% { transform: translate(3px, -1px) skewX(3deg); filter: hue-rotate(180deg); }
+      75% { transform: translate(-2px, -2px) skewX(-2deg); filter: hue-rotate(270deg); }
+      100% { transform: translate(4px, 1px) skewX(4deg); filter: hue-rotate(360deg); }
+    }
+
+    .title-sub {
+      font-family: 'Rubik Glitch', sans-serif;
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 6px;
+      margin-top: 14px;
+      text-transform: uppercase;
+      animation: subFlicker 0.1s steps(1) infinite;
+    }
+
+    @keyframes subFlicker {
+      0% { opacity: 0.5; }
+      5% { opacity: 0.1; }
+      10% { opacity: 0.6; }
+      15% { opacity: 0.3; }
+      100% { opacity: 0.5; }
+    }
+
+    /* ===== 回転する円形テキスト装飾 ===== */
+    .orbit-ring {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 200px;
+      height: 200px;
+      pointer-events: none;
+    }
+
+    .orbit-ring svg {
+      width: 100%;
+      height: 100%;
+      animation: orbitSpin 20s linear infinite;
+    }
+
+    .orbit-ring text {
+      font-family: 'Pixelify Sans', sans-serif;
+      font-size: 10px;
+      fill: rgba(255, 0, 255, 0.15);
+      letter-spacing: 3px;
+    }
+
+    @keyframes orbitSpin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ===== 脈動するディバイダー ===== */
+    .pulse-divider {
+      height: 4px;
+      margin: 24px 0;
+      background: linear-gradient(90deg, #ff0080, #00ffff, #ffff00, #ff0080);
+      background-size: 300% 100%;
+      animation: gradientSlide 2s linear infinite;
+      border-radius: 2px;
+      position: relative;
+    }
+
+    .pulse-divider::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      background: inherit;
+      border-radius: 4px;
+      filter: blur(10px);
+      opacity: 0.5;
+      z-index: -1;
+      animation: gradientSlide 2s linear infinite;
+      background-size: 300% 100%;
+    }
+
+    @keyframes gradientSlide {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 300% 50%; }
+    }
+
+    /* ===== キャッチコピー：液体テキスト ===== */
+    .catch-zone {
+      text-align: center;
+      margin-bottom: 32px;
+      position: relative;
+    }
+
+    .catchcopy {
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 17px;
+      font-weight: 900;
+      color: #fff;
+      line-height: 2.4;
+      letter-spacing: 2px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .catchcopy .gal {
+      font-family: 'Rubik Glitch', sans-serif;
+      font-size: 24px;
+      background: linear-gradient(90deg, #ff0080, #ff8000, #ffff00, #00ff80, #00ffff, #8000ff, #ff0080);
+      background-size: 400% 100%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: rainbowText 3s linear infinite;
+      display: inline-block;
+      letter-spacing: 4px;
+    }
+
+    @keyframes rainbowText {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 400% 50%; }
+    }
+
+    /* キャッチ背景のブロブ */
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(40px);
+      opacity: 0.15;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .blob-1 {
+      width: 120px; height: 120px;
+      background: #ff0080;
+      top: -20px; left: 20px;
+      animation: blobFloat 5s ease-in-out infinite;
+    }
+
+    .blob-2 {
+      width: 100px; height: 100px;
+      background: #00ffff;
+      bottom: -10px; right: 20px;
+      animation: blobFloat 6s ease-in-out infinite reverse;
+    }
+
+    @keyframes blobFloat {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33% { transform: translate(15px, -10px) scale(1.1); }
+      66% { transform: translate(-10px, 8px) scale(0.9); }
+    }
+
+    /* ===== セクションラベル：ネオン点滅 ===== */
+    .section-label {
+      font-family: 'Rubik Glitch', sans-serif;
+      font-size: 13px;
+      color: #00ffff;
+      letter-spacing: 4px;
+      margin-bottom: 16px;
+      text-shadow:
+        0 0 5px #00ffff,
+        0 0 10px #00ffff,
+        0 0 20px #00ffff,
+        0 0 40px #0080ff;
+      animation: neonPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes neonPulse {
+      0%, 100% { text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 20px #00ffff, 0 0 40px #0080ff; opacity: 1; }
+      50% { text-shadow: 0 0 2px #00ffff, 0 0 4px #00ffff; opacity: 0.7; }
+    }
+
+    /* ===== キャラクター：回転＆歪みホバー ===== */
+    .char-grid {
+      display: flex;
+      justify-content: space-between;
+      gap: 6px;
+      margin-bottom: 36px;
+      perspective: 600px;
+    }
+
+    .char-cell {
+      flex: 1;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      padding: 14px 2px 10px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      overflow: hidden;
+    }
+
+    .char-cell::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: conic-gradient(from var(--angle, 0deg), #ff0080, #ffff00, #00ffff, #ff00ff, #ff0080);
+      opacity: 0;
+      transition: opacity 0.4s;
+      z-index: 0;
+      animation: borderSpin 3s linear infinite;
+    }
+
+    .char-cell::after {
+      content: '';
+      position: absolute;
+      inset: 2px;
+      background: rgba(10, 0, 20, 0.9);
+      border-radius: 14px;
+      z-index: 0;
+    }
+
+    .char-cell:hover::before { opacity: 1; }
+
+    .char-cell:hover {
+      transform: rotateY(8deg) rotateX(-4deg) scale(1.08);
+      box-shadow:
+        0 0 30px rgba(255, 0, 128, 0.3),
+        0 0 60px rgba(0, 255, 255, 0.2);
+    }
+
+    .char-cell > * { position: relative; z-index: 1; }
+
+    .char-emoji {
+      font-size: 26px;
+      display: block;
+      margin-bottom: 8px;
+      transition: transform 0.4s;
+      filter: drop-shadow(0 0 8px rgba(255, 0, 128, 0.5));
+    }
+
+    .char-cell:hover .char-emoji {
+      transform: scale(1.3) rotate(15deg);
+      animation: emojiWiggle 0.3s ease infinite;
+    }
+
+    @keyframes emojiWiggle {
+      0%, 100% { transform: scale(1.3) rotate(15deg); }
+      50% { transform: scale(1.3) rotate(-15deg); }
+    }
+
+    .char-cell .name {
+      font-family: 'Pixelify Sans', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 1px;
+    }
+
+    .char-cell .role {
+      font-family: 'Rubik Glitch', sans-serif;
+      font-size: 8px;
+      color: rgba(255, 255, 255, 0.35);
+      margin-top: 3px;
+      letter-spacing: 1px;
+    }
+
+    /* キャラ個別カラー */
+    .char-cell.moe .char-emoji { color: #ff0080; }
+    .char-cell.tech .char-emoji { color: #00ffff; }
+    .char-cell.guard .char-emoji { color: #00ff80; }
+    .char-cell.chair .char-emoji { color: #ffff00; }
+    .char-cell.gal .char-emoji { color: #ff00ff; filter: drop-shadow(0 0 12px rgba(255, 0, 255, 0.6)); }
+
+    /* ツールチップ */
+    .char-cell .tooltip {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(0, 0, 0, 0.9);
+      border: 1px solid rgba(255, 0, 255, 0.4);
+      color: #fff;
+      font-size: 10px;
+      font-family: 'Noto Sans JP', sans-serif;
+      padding: 6px 12px;
+      white-space: nowrap;
+      z-index: 10;
+      border-radius: 8px;
+      box-shadow: 0 0 20px rgba(255, 0, 255, 0.2);
+    }
+
+    .char-cell:hover .tooltip { display: block; }
+
+    /* ===== シナリオ：ホログラムカード ===== */
+    .scenario-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 36px;
+    }
+
+    .scenario-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 16px;
+      padding: 18px 20px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    /* ホログラム光沢 */
+    .scenario-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -100%;
+      width: 60%;
+      height: 100%;
+      background: linear-gradient(
+        105deg,
+        transparent 30%,
+        rgba(255, 0, 128, 0.08) 40%,
+        rgba(0, 255, 255, 0.08) 50%,
+        rgba(255, 255, 0, 0.08) 60%,
+        transparent 70%
+      );
+      transition: left 0.6s ease;
+    }
+
+    .scenario-card:hover::before {
+      left: 120%;
+    }
+
+    .scenario-card:hover {
+      transform: translateX(6px) scale(1.02);
+      border-color: rgba(255, 0, 128, 0.3);
+      box-shadow:
+        0 0 20px rgba(255, 0, 128, 0.15),
+        0 0 40px rgba(0, 255, 255, 0.1),
+        inset 0 0 30px rgba(255, 0, 255, 0.03);
+    }
+
+    .scenario-num {
+      font-family: 'Rubik Glitch', sans-serif;
+      font-size: 11px;
+      color: #ff0080;
+      letter-spacing: 3px;
+      margin-bottom: 4px;
+      text-shadow: 0 0 8px rgba(255, 0, 128, 0.4);
+    }
+
+    .scenario-text {
+      font-family: 'Noto Sans JP', sans-serif;
+      font-size: 14px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.85);
+      line-height: 1.8;
+      padding-right: 28px;
+    }
+
+    .scenario-arrow {
+      position: absolute;
+      right: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 16px;
+      color: rgba(255, 255, 255, 0.15);
+      transition: all 0.4s;
+    }
+
+    .scenario-card:hover .scenario-arrow {
+      color: #00ffff;
+      transform: translateY(-50%) translateX(6px);
+      text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+      animation: arrowPulse 0.4s ease infinite alternate;
+    }
+
+    @keyframes arrowPulse {
+      to { transform: translateY(-50%) translateX(10px); }
+    }
+
+    /* ===== フッター：歪むテキスト ===== */
+    .footer-zone {
+      text-align: center;
+      padding-top: 8px;
+    }
+
+    .footer-art {
+      font-family: 'Rubik Glitch', sans-serif;
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.2);
+      letter-spacing: 4px;
+      animation: footerWave 4s ease-in-out infinite;
+    }
+
+    @keyframes footerWave {
+      0%, 100% { transform: scaleX(1); letter-spacing: 4px; filter: hue-rotate(0deg); }
+      50% { transform: scaleX(1.1); letter-spacing: 6px; filter: hue-rotate(180deg); }
+    }
+
+    .footer-line {
+      width: 60px;
+      height: 2px;
+      margin: 10px auto 0;
+      background: linear-gradient(90deg, #ff0080, #00ffff, #ffff00);
+      background-size: 200% 100%;
+      animation: gradientSlide 2s linear infinite;
+      border-radius: 1px;
+    }
+
+    /* ===== スクロールバー ===== */
+    .phone-frame::-webkit-scrollbar { width: 5px; }
+    .phone-frame::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #ff0080, #00ffff, #ffff00, #ff00ff);
+      border-radius: 5px;
+    }
+    .phone-frame::-webkit-scrollbar-track { background: rgba(0,0,0,0.5); }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="bg-mesh"></div>
+    <div class="noise"></div>
+
+    <div class="container">
+
+      <!-- タイトル -->
+      <div class="title-block">
+        <!-- 回転する円形テキスト -->
+        <div class="orbit-ring">
+          <svg viewBox="0 0 200 200">
+            <defs>
+              <path id="circle" d="M 100,100 m -80,0 a 80,80 0 1,1 160,0 a 80,80 0 1,1 -160,0"/>
+            </defs>
+            <text>
+              <textPath href="#circle">DECISION · MAKING · SYSTEM · MO-GI · DECISION · MAKING · SYSTEM · MO-GI · </textPath>
+            </text>
+          </svg>
+        </div>
+
+        <div class="title-main">萌GI</div>
+        <div class="title-sub">PSYCHEDELIC DECISION ENGINE</div>
+      </div>
+
+      <div class="pulse-divider"></div>
+
+      <!-- キャッチコピー -->
+      <div class="catch-zone">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="catchcopy">
+          「<span class="gal">GAL</span>が5人で会議したら<br>こうなる。」
+        </div>
+      </div>
+
+      <!-- メンバー -->
+      <div class="section-label">◈ MEMBERS</div>
+      <div class="char-grid">
+        <div class="char-cell moe">
+          <div class="tooltip">共感翻訳 / 萌コア</div>
+          <span class="char-emoji">♥</span>
+          <div class="name">モカ</div>
+          <div class="role">MOE</div>
+        </div>
+        <div class="char-cell tech">
+          <div class="tooltip">ファクト警察 / 技コア</div>
+          <span class="char-emoji">⚗</span>
+          <div class="name">リツ</div>
+          <div class="role">TECH</div>
+        </div>
+        <div class="char-cell guard">
+          <div class="tooltip">炎上予防装置 / 守コア</div>
+          <span class="char-emoji">◇</span>
+          <div class="name">カノン</div>
+          <div class="role">GUARD</div>
+        </div>
+        <div class="char-cell chair">
+          <div class="tooltip">結論製造機 / 統括</div>
+          <span class="char-emoji">♛</span>
+          <div class="name">レイカ</div>
+          <div class="role">CHAIR</div>
+        </div>
+        <div class="char-cell gal">
+          <div class="tooltip">バズ製造姫 / ギャル</div>
+          <span class="char-emoji">★</span>
+          <div class="name">ルナ</div>
+          <div class="role">GAL</div>
+        </div>
+      </div>
+
+      <!-- シナリオ -->
+      <div class="section-label">◈ SCENARIOS</div>
+      <div class="scenario-list">
+        <div class="scenario-card">
+          <div class="scenario-num">CASE//01</div>
+          <div class="scenario-text">副業でAIサービスを始めるべき？</div>
+          <div class="scenario-arrow">→</div>
+        </div>
+        <div class="scenario-card">
+          <div class="scenario-num">CASE//02</div>
+          <div class="scenario-text">社内データをClaude APIに渡していい？</div>
+          <div class="scenario-arrow">→</div>
+        </div>
+        <div class="scenario-card">
+          <div class="scenario-num">CASE//03</div>
+          <div class="scenario-text">勉強会をYouTubeで公開配信すべき？</div>
+          <div class="scenario-arrow">→</div>
+        </div>
+      </div>
+
+      <!-- フッター -->
+      <div class="footer-zone">
+        <div class="footer-art">MO-GI ◈ v1.0 ◈ PSYCHE</div>
+        <div class="footer-line"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // ===== マウス追従パーティクル =====
+    const frame = document.querySelector('.phone-frame');
+
+    frame.addEventListener('mousemove', (e) => {
+      const rect = frame.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top + frame.scrollTop;
+
+      for (let i = 0; i < 2; i++) {
+        const p = document.createElement('div');
+        const size = 4 + Math.random() * 8;
+        const hue = Math.random() * 360;
+        const dx = (Math.random() - 0.5) * 30;
+        const dy = (Math.random() - 0.5) * 30;
+
+        p.style.cssText = `
+          position: absolute;
+          left: ${x + dx}px;
+          top: ${y + dy}px;
+          width: ${size}px;
+          height: ${size}px;
+          background: hsl(${hue}, 100%, 60%);
+          border-radius: 50%;
+          pointer-events: none;
+          z-index: 3;
+          mix-blend-mode: screen;
+          transition: all 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+          box-shadow: 0 0 ${size * 2}px hsl(${hue}, 100%, 60%);
+        `;
+
+        frame.appendChild(p);
+
+        requestAnimationFrame(() => {
+          p.style.transform = `translate(${(Math.random()-0.5)*60}px, ${(Math.random()-0.5)*60}px) scale(0)`;
+          p.style.opacity = '0';
+        });
+
+        setTimeout(() => p.remove(), 800);
+      }
+    });
+
+    // ===== 背景ブロブ追加生成 =====
+    function spawnBlob() {
+      const blob = document.createElement('div');
+      const size = 60 + Math.random() * 100;
+      const hue = Math.random() * 360;
+      const x = Math.random() * 335;
+      const y = Math.random() * 780 + frame.scrollTop;
+
+      blob.style.cssText = `
+        position: absolute;
+        left: ${x}px;
+        top: ${y}px;
+        width: ${size}px;
+        height: ${size}px;
+        background: hsl(${hue}, 100%, 50%);
+        border-radius: 50%;
+        filter: blur(50px);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 0;
+        mix-blend-mode: screen;
+        transition: opacity 2s ease;
+      `;
+
+      frame.appendChild(blob);
+      requestAnimationFrame(() => blob.style.opacity = '0.06');
+      setTimeout(() => {
+        blob.style.opacity = '0';
+        setTimeout(() => blob.remove(), 2000);
+      }, 3000);
+    }
+
+    setInterval(spawnBlob, 1500);
+
+    // ===== カードランダムハイライト =====
+    const cards = document.querySelectorAll('.scenario-card');
+    setInterval(() => {
+      const c = cards[Math.floor(Math.random() * cards.length)];
+      c.style.borderColor = `hsl(${Math.random()*360}, 100%, 50%)`;
+      setTimeout(() => c.style.borderColor = '', 400);
+    }, 2000);
+  </script>
+</body>
+</html>

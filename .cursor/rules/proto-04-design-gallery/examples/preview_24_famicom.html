@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>案24: ファミコン — MO-GI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      /* ファミコン実機パレット（52色から厳選） */
+      --fc-bg: #000;
+      --fc-sky: #6888fc;
+      --fc-red: #b81810;
+      --fc-gold: #f8b800;
+      --fc-white: #fcfcfc;
+      --fc-green: #00a800;
+      --fc-blue: #0058f8;
+      --fc-skin: #fca044;
+      --fc-brown: #503000;
+      --fc-gray: #7c7c7c;
+      --fc-dark: #282828;
+    }
+
+    body {
+      background: var(--fc-dark);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      image-rendering: pixelated;
+    }
+
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: var(--fc-bg);
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+      border: 4px solid var(--fc-red);
+      box-shadow: 0 0 0 4px var(--fc-skin), 0 0 40px rgba(184, 24, 16, 0.3);
+    }
+
+    .container {
+      padding: 40px 20px 32px;
+      position: relative;
+    }
+
+    /* ===== スタートスクリーン風タイトル ===== */
+    .start-screen {
+      text-align: center;
+      margin-bottom: 20px;
+      padding: 20px 0;
+    }
+
+    /* ドット絵ボーダー上 */
+    .pixel-border-top {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 20px;
+    }
+
+    .pixel-border-top span {
+      width: 8px;
+      height: 8px;
+      display: block;
+    }
+
+    .pb-red { background: var(--fc-red); }
+    .pb-gold { background: var(--fc-gold); }
+    .pb-white { background: var(--fc-white); }
+    .pb-sky { background: var(--fc-sky); }
+
+    .title-logo {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 28px;
+      color: var(--fc-gold);
+      letter-spacing: 4px;
+      text-shadow:
+        4px 4px 0 var(--fc-brown),
+        -1px -1px 0 var(--fc-skin);
+      line-height: 1.4;
+      margin-bottom: 6px;
+    }
+
+    .title-logo .gi {
+      color: var(--fc-red);
+      text-shadow:
+        4px 4px 0 #500800,
+        -1px -1px 0 var(--fc-skin);
+    }
+
+    .title-sub {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 6px;
+      color: var(--fc-gray);
+      letter-spacing: 2px;
+      margin-top: 12px;
+    }
+
+    /* © テキスト */
+    .copyright {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      color: var(--fc-gray);
+      letter-spacing: 1px;
+      margin-top: 16px;
+    }
+
+    /* PUSH START 点滅 */
+    .push-start {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 10px;
+      color: var(--fc-white);
+      letter-spacing: 3px;
+      margin-top: 24px;
+      animation: fcBlink 1s step-end infinite;
+    }
+
+    @keyframes fcBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    /* ===== キャッチコピー — 会話ウィンドウ ===== */
+    .dialog-box {
+      border: 4px solid var(--fc-white);
+      background: var(--fc-blue);
+      padding: 16px 18px;
+      margin: 24px 0;
+      position: relative;
+    }
+
+    .dialog-box .catchcopy {
+      font-family: 'DotGothic16', sans-serif;
+      font-size: 14px;
+      color: var(--fc-white);
+      line-height: 2.2;
+      letter-spacing: 1px;
+    }
+
+    .dialog-box .gal {
+      color: var(--fc-gold);
+      font-weight: 700;
+    }
+
+    /* 三角カーソル */
+    .dialog-box .cursor-tri {
+      position: absolute;
+      bottom: 8px;
+      right: 12px;
+      width: 0;
+      height: 0;
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 8px solid var(--fc-white);
+      animation: fcBlink 0.6s step-end infinite;
+    }
+
+    /* ===== セクションラベル ===== */
+    .fc-label {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 9px;
+      color: var(--fc-gold);
+      letter-spacing: 2px;
+      margin-bottom: 14px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid var(--fc-brown);
+    }
+
+    /* ===== キャラ — ステータス画面風 ===== */
+    .party-status {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 28px;
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      padding: 8px 10px;
+      background: var(--fc-dark);
+      border: 2px solid var(--fc-brown);
+      cursor: pointer;
+      transition: border-color 0.1s;
+      gap: 10px;
+    }
+
+    .status-row:hover {
+      border-color: var(--fc-gold);
+    }
+
+    /* 選択カーソル */
+    .status-row:hover::before {
+      content: '▶';
+      font-size: 8px;
+      color: var(--fc-white);
+      animation: selectSlide 0.4s step-end infinite;
+      margin-right: -4px;
+    }
+
+    @keyframes selectSlide {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.3; }
+    }
+
+    .status-icon {
+      font-size: 18px;
+      width: 28px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+
+    .status-row.moe .status-icon { color: var(--fc-red); }
+    .status-row.tech .status-icon { color: var(--fc-sky); }
+    .status-row.guard .status-icon { color: var(--fc-green); }
+    .status-row.chair .status-icon { color: var(--fc-gold); }
+    .status-row.gal .status-icon { color: var(--fc-skin); }
+
+    .status-info {
+      flex: 1;
+    }
+
+    .status-name {
+      font-family: 'DotGothic16', sans-serif;
+      font-size: 13px;
+      color: var(--fc-white);
+      letter-spacing: 2px;
+    }
+
+    .status-class {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 6px;
+      color: var(--fc-gray);
+      letter-spacing: 1px;
+      margin-top: 3px;
+    }
+
+    .status-lv {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      color: var(--fc-green);
+      flex-shrink: 0;
+    }
+
+    /* ===== シナリオ — コマンド選択 ===== */
+    .command-window {
+      border: 4px solid var(--fc-white);
+      background: var(--fc-blue);
+      margin-bottom: 28px;
+    }
+
+    .command-header {
+      background: var(--fc-red);
+      padding: 6px 12px;
+      font-family: 'DotGothic16', sans-serif;
+      font-size: 12px;
+      color: var(--fc-white);
+      letter-spacing: 2px;
+      text-align: center;
+    }
+
+    .command-list {
+      padding: 8px 0;
+    }
+
+    .command-item {
+      display: flex;
+      align-items: center;
+      padding: 10px 14px;
+      cursor: pointer;
+      transition: background 0.1s;
+      gap: 10px;
+    }
+
+    .command-item:hover {
+      background: rgba(252, 252, 252, 0.1);
+    }
+
+    .command-item:hover .cmd-cursor {
+      visibility: visible;
+    }
+
+    .cmd-cursor {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      color: var(--fc-white);
+      visibility: hidden;
+      flex-shrink: 0;
+      width: 14px;
+      animation: selectSlide 0.4s step-end infinite;
+    }
+
+    .cmd-num {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 8px;
+      color: var(--fc-gold);
+      flex-shrink: 0;
+      width: 24px;
+    }
+
+    .cmd-text {
+      font-family: 'DotGothic16', sans-serif;
+      font-size: 13px;
+      color: var(--fc-white);
+      line-height: 1.6;
+      letter-spacing: 0.5px;
+    }
+
+    /* ===== フッター ===== */
+    .fc-footer {
+      text-align: center;
+    }
+
+    .pixel-border-bottom {
+      display: flex;
+      justify-content: center;
+      gap: 0;
+      margin-bottom: 14px;
+    }
+
+    .fc-footer-text {
+      font-family: 'Press Start 2P', monospace;
+      font-size: 7px;
+      color: var(--fc-gray);
+      letter-spacing: 2px;
+    }
+
+    /* スクロールバー */
+    .phone-frame::-webkit-scrollbar { width: 4px; }
+    .phone-frame::-webkit-scrollbar-thumb { background: var(--fc-red); }
+    .phone-frame::-webkit-scrollbar-track { background: var(--fc-bg); }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="container">
+
+      <!-- ドットボーダー -->
+      <div class="pixel-border-top">
+        <span class="pb-red"></span><span class="pb-gold"></span><span class="pb-red"></span><span class="pb-gold"></span>
+        <span class="pb-white"></span><span class="pb-white"></span><span class="pb-white"></span><span class="pb-white"></span>
+        <span class="pb-red"></span><span class="pb-gold"></span><span class="pb-red"></span><span class="pb-gold"></span>
+        <span class="pb-white"></span><span class="pb-white"></span><span class="pb-white"></span><span class="pb-white"></span>
+        <span class="pb-red"></span><span class="pb-gold"></span><span class="pb-red"></span><span class="pb-gold"></span>
+        <span class="pb-white"></span><span class="pb-white"></span><span class="pb-white"></span><span class="pb-white"></span>
+        <span class="pb-red"></span><span class="pb-gold"></span><span class="pb-red"></span><span class="pb-gold"></span>
+      </div>
+
+      <!-- スタート画面 -->
+      <div class="start-screen">
+        <div class="title-logo">
+          萌<span class="gi">GI</span>
+        </div>
+        <div class="title-sub">DECISION MAKING SYSTEM</div>
+        <div class="copyright">© 2025 MO-GI PROJECT</div>
+        <div class="push-start">- PUSH START -</div>
+      </div>
+
+      <!-- 会話ウィンドウ -->
+      <div class="dialog-box">
+        <div class="catchcopy">
+          「<span class="gal">GAL</span>が5にんで かいぎしたら<br>　こうなる。」
+        </div>
+        <div class="cursor-tri"></div>
+      </div>
+
+      <!-- パーティステータス -->
+      <div class="fc-label">▼ PARTY STATUS</div>
+      <div class="party-status">
+        <div class="status-row moe">
+          <span class="status-icon">♥</span>
+          <div class="status-info">
+            <div class="status-name">モカ</div>
+            <div class="status-class">HEALER / MOE CORE</div>
+          </div>
+          <span class="status-lv">LV12</span>
+        </div>
+        <div class="status-row tech">
+          <span class="status-icon">⚗</span>
+          <div class="status-info">
+            <div class="status-name">リツ</div>
+            <div class="status-class">SAGE / TECH CORE</div>
+          </div>
+          <span class="status-lv">LV14</span>
+        </div>
+        <div class="status-row guard">
+          <span class="status-icon">◇</span>
+          <div class="status-info">
+            <div class="status-name">カノン</div>
+            <div class="status-class">KNIGHT / GUARD</div>
+          </div>
+          <span class="status-lv">LV13</span>
+        </div>
+        <div class="status-row chair">
+          <span class="status-icon">♛</span>
+          <div class="status-info">
+            <div class="status-name">レイカ</div>
+            <div class="status-class">KING / CHAIR</div>
+          </div>
+          <span class="status-lv">LV15</span>
+        </div>
+        <div class="status-row gal">
+          <span class="status-icon">★</span>
+          <div class="status-info">
+            <div class="status-name">ルナ</div>
+            <div class="status-class">BARD / GAL</div>
+          </div>
+          <span class="status-lv">LV99</span>
+        </div>
+      </div>
+
+      <!-- コマンドウィンドウ -->
+      <div class="fc-label">▼ QUEST SELECT</div>
+      <div class="command-window">
+        <div class="command-header">ぎだい を えらんでください</div>
+        <div class="command-list">
+          <div class="command-item">
+            <span class="cmd-cursor">▶</span>
+            <span class="cmd-num">01</span>
+            <span class="cmd-text">副業でAIサービスを始めるべき？</span>
+          </div>
+          <div class="command-item">
+            <span class="cmd-cursor">▶</span>
+            <span class="cmd-num">02</span>
+            <span class="cmd-text">社内データをClaude APIに渡していい？</span>
+          </div>
+          <div class="command-item">
+            <span class="cmd-cursor">▶</span>
+            <span class="cmd-num">03</span>
+            <span class="cmd-text">勉強会をYouTubeで公開配信すべき？</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- フッター -->
+      <div class="fc-footer">
+        <div class="pixel-border-bottom">
+          <span class="pb-red"></span><span class="pb-gold"></span><span class="pb-red"></span><span class="pb-gold"></span>
+          <span class="pb-white"></span><span class="pb-white"></span><span class="pb-white"></span><span class="pb-white"></span>
+          <span class="pb-red"></span><span class="pb-gold"></span><span class="pb-red"></span><span class="pb-gold"></span>
+          <span class="pb-white"></span><span class="pb-white"></span><span class="pb-white"></span><span class="pb-white"></span>
+          <span class="pb-red"></span><span class="pb-gold"></span><span class="pb-red"></span><span class="pb-gold"></span>
+          <span class="pb-white"></span><span class="pb-white"></span><span class="pb-white"></span><span class="pb-white"></span>
+          <span class="pb-red"></span><span class="pb-gold"></span><span class="pb-red"></span><span class="pb-gold"></span>
+        </div>
+        <div class="fc-footer-text">MO-GI v1.0 / SAVE COMPLETE</div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

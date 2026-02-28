@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>案27: PlayStation — MO-GI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Noto+Sans+JP:wght@300;400;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --ps-black: #0a0a12;
+      --ps-dark: #14141e;
+      --ps-blue: #003087;
+      --ps-blue-light: #2e6dba;
+      --ps-white: #e8e8f0;
+      --ps-gray: #6a6a7a;
+      --ps-gray-dark: #3a3a4a;
+      /* ○×△□ カラー */
+      --ps-circle: #e74c6f;  /* ピンク赤 */
+      --ps-cross: #5b9bd5;   /* 青 */
+      --ps-tri: #00c9a7;     /* ティール */
+      --ps-square: #c77dba;  /* パープル */
+    }
+
+    body {
+      background: #000;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Noto Sans JP', sans-serif;
+    }
+
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: var(--ps-black);
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* 浮遊パーティクル */
+    .particles {
+      position: absolute;
+      inset: 0;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .particle {
+      position: absolute;
+      width: 2px;
+      height: 2px;
+      background: var(--ps-blue-light);
+      border-radius: 50%;
+      opacity: 0;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .particle:nth-child(1) { left: 10%; top: 20%; animation-delay: 0s; animation-duration: 7s; }
+    .particle:nth-child(2) { left: 30%; top: 60%; animation-delay: 1s; animation-duration: 9s; }
+    .particle:nth-child(3) { left: 50%; top: 30%; animation-delay: 2s; animation-duration: 6s; }
+    .particle:nth-child(4) { left: 70%; top: 70%; animation-delay: 3s; animation-duration: 8s; }
+    .particle:nth-child(5) { left: 85%; top: 15%; animation-delay: 4s; animation-duration: 10s; }
+    .particle:nth-child(6) { left: 15%; top: 80%; animation-delay: 2.5s; animation-duration: 7.5s; }
+    .particle:nth-child(7) { left: 60%; top: 50%; animation-delay: 1.5s; animation-duration: 8.5s; }
+    .particle:nth-child(8) { left: 40%; top: 10%; animation-delay: 3.5s; animation-duration: 6.5s; }
+
+    @keyframes float {
+      0% { opacity: 0; transform: translateY(20px); }
+      20% { opacity: 0.6; }
+      80% { opacity: 0.6; }
+      100% { opacity: 0; transform: translateY(-40px); }
+    }
+
+    .container {
+      padding: 48px 24px 40px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* ===== PS起動風タイトル ===== */
+    .ps-boot {
+      text-align: center;
+      margin-bottom: 16px;
+      padding: 24px 0;
+    }
+
+    /* ○×△□ シンボル */
+    .ps-symbols {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      opacity: 0.3;
+    }
+
+    .sym-circle { color: var(--ps-circle); }
+    .sym-cross { color: var(--ps-cross); }
+    .sym-tri { color: var(--ps-tri); }
+    .sym-square { color: var(--ps-square); }
+
+    .ps-title {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 48px;
+      font-weight: 700;
+      color: var(--ps-white);
+      letter-spacing: 8px;
+      line-height: 1;
+      position: relative;
+    }
+
+    .ps-title .gi {
+      color: var(--ps-blue-light);
+    }
+
+    /* 下線グラデ */
+    .ps-title::after {
+      content: '';
+      display: block;
+      width: 80px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--ps-circle), var(--ps-cross), var(--ps-tri), var(--ps-square));
+      margin: 16px auto 0;
+      border-radius: 1px;
+    }
+
+    .ps-sub {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 10px;
+      font-weight: 500;
+      color: var(--ps-gray);
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      margin-top: 14px;
+    }
+
+    /* ===== キャッチコピー — メモリーカード風 ===== */
+    .memory-card {
+      background: var(--ps-dark);
+      border: 1px solid var(--ps-gray-dark);
+      border-radius: 12px;
+      padding: 20px;
+      margin: 28px 0;
+      position: relative;
+    }
+
+    .memory-card .slot-label {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--ps-gray);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .memory-card .slot-label .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--ps-blue-light);
+      box-shadow: 0 0 6px rgba(46, 109, 186, 0.5);
+    }
+
+    .memory-card .catchcopy {
+      font-size: 15px;
+      font-weight: 400;
+      color: var(--ps-white);
+      line-height: 2.2;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    .memory-card .gal {
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--ps-circle);
+      letter-spacing: 3px;
+    }
+
+    /* ===== セクションラベル ===== */
+    .ps-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .ps-label .icon {
+      font-size: 12px;
+    }
+
+    .ps-label .text {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ps-gray);
+      letter-spacing: 4px;
+      text-transform: uppercase;
+    }
+
+    .ps-label .line {
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--ps-gray-dark), transparent);
+    }
+
+    /* ===== キャラ — セーブデータ風スロット ===== */
+    .save-slots {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 32px;
+    }
+
+    .save-slot {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 16px;
+      background: var(--ps-dark);
+      border: 1px solid var(--ps-gray-dark);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .save-slot:hover {
+      border-color: var(--ps-blue-light);
+      background: rgba(46, 109, 186, 0.06);
+      box-shadow: 0 0 16px rgba(46, 109, 186, 0.1);
+    }
+
+    .slot-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+      border: 1px solid;
+    }
+
+    .save-slot.moe .slot-icon { color: var(--ps-circle); border-color: rgba(231,76,111,0.3); background: rgba(231,76,111,0.06); }
+    .save-slot.tech .slot-icon { color: var(--ps-cross); border-color: rgba(91,155,213,0.3); background: rgba(91,155,213,0.06); }
+    .save-slot.guard .slot-icon { color: var(--ps-tri); border-color: rgba(0,201,167,0.3); background: rgba(0,201,167,0.06); }
+    .save-slot.chair .slot-icon { color: var(--ps-square); border-color: rgba(199,125,186,0.3); background: rgba(199,125,186,0.06); }
+    .save-slot.gal .slot-icon { color: var(--ps-circle); border-color: rgba(231,76,111,0.3); background: rgba(231,76,111,0.08); }
+
+    .slot-info {
+      flex: 1;
+    }
+
+    .slot-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ps-white);
+      letter-spacing: 1px;
+    }
+
+    .slot-desc {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 10px;
+      color: var(--ps-gray);
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+
+    .slot-badge {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      letter-spacing: 1px;
+      flex-shrink: 0;
+    }
+
+    .save-slot.moe .slot-badge { color: var(--ps-circle); background: rgba(231,76,111,0.1); }
+    .save-slot.tech .slot-badge { color: var(--ps-cross); background: rgba(91,155,213,0.1); }
+    .save-slot.guard .slot-badge { color: var(--ps-tri); background: rgba(0,201,167,0.1); }
+    .save-slot.chair .slot-badge { color: var(--ps-square); background: rgba(199,125,186,0.1); }
+    .save-slot.gal .slot-badge { color: var(--ps-circle); background: rgba(231,76,111,0.15); }
+
+    /* ===== シナリオ — XMB風リスト ===== */
+    .xmb-list {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      margin-bottom: 32px;
+    }
+
+    .xmb-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .xmb-item:hover {
+      background: linear-gradient(90deg, rgba(46, 109, 186, 0.1), transparent);
+    }
+
+    /* 左端のライトバー */
+    .xmb-item::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 20%;
+      bottom: 20%;
+      width: 3px;
+      border-radius: 3px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .xmb-item:hover::before { opacity: 1; }
+
+    .xmb-item:nth-child(1)::before { background: var(--ps-circle); box-shadow: 0 0 8px var(--ps-circle); }
+    .xmb-item:nth-child(2)::before { background: var(--ps-cross); box-shadow: 0 0 8px var(--ps-cross); }
+    .xmb-item:nth-child(3)::before { background: var(--ps-tri); box-shadow: 0 0 8px var(--ps-tri); }
+
+    .xmb-num {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--ps-gray-dark);
+      min-width: 32px;
+      transition: color 0.3s;
+    }
+
+    .xmb-item:nth-child(1):hover .xmb-num { color: var(--ps-circle); }
+    .xmb-item:nth-child(2):hover .xmb-num { color: var(--ps-cross); }
+    .xmb-item:nth-child(3):hover .xmb-num { color: var(--ps-tri); }
+
+    .xmb-text {
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--ps-white);
+      line-height: 1.7;
+      flex: 1;
+    }
+
+    .xmb-arrow {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 16px;
+      color: var(--ps-gray-dark);
+      transition: all 0.3s;
+    }
+
+    .xmb-item:hover .xmb-arrow {
+      color: var(--ps-white);
+      transform: translateX(3px);
+    }
+
+    /* ===== フッター ===== */
+    .ps-footer {
+      text-align: center;
+    }
+
+    /* ○×△□ 装飾 */
+    .ps-footer-symbols {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      margin-bottom: 12px;
+      font-size: 10px;
+      opacity: 0.2;
+    }
+
+    .ps-footer-text {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--ps-gray-dark);
+      letter-spacing: 4px;
+    }
+
+    /* フェードイン */
+    .ps-fade {
+      opacity: 0;
+      animation: psFade 0.6s ease forwards;
+    }
+    .ps-fade:nth-child(1) { animation-delay: 0.1s; }
+    .ps-fade:nth-child(2) { animation-delay: 0.2s; }
+    .ps-fade:nth-child(3) { animation-delay: 0.3s; }
+    .ps-fade:nth-child(4) { animation-delay: 0.4s; }
+    .ps-fade:nth-child(5) { animation-delay: 0.5s; }
+
+    @keyframes psFade {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* スクロールバー */
+    .phone-frame::-webkit-scrollbar { width: 3px; }
+    .phone-frame::-webkit-scrollbar-thumb {
+      background: linear-gradient(var(--ps-circle), var(--ps-cross), var(--ps-tri), var(--ps-square));
+      border-radius: 3px;
+    }
+    .phone-frame::-webkit-scrollbar-track { background: var(--ps-black); }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <!-- パーティクル -->
+    <div class="particles">
+      <div class="particle"></div><div class="particle"></div>
+      <div class="particle"></div><div class="particle"></div>
+      <div class="particle"></div><div class="particle"></div>
+      <div class="particle"></div><div class="particle"></div>
+    </div>
+
+    <div class="container">
+
+      <!-- 起動画面 -->
+      <div class="ps-boot">
+        <div class="ps-symbols">
+          <span class="sym-circle">●</span>
+          <span class="sym-cross">✕</span>
+          <span class="sym-tri">△</span>
+          <span class="sym-square">■</span>
+        </div>
+        <div class="ps-title">萌<span class="gi">GI</span></div>
+        <div class="ps-sub">Decision Making System</div>
+      </div>
+
+      <!-- メモリーカード -->
+      <div class="memory-card">
+        <div class="slot-label">
+          <div class="dot"></div>
+          MEMORY CARD — SLOT 1
+        </div>
+        <div class="catchcopy">
+          「<span class="gal">GAL</span>が5人で会議したら<br>こうなる。」
+        </div>
+      </div>
+
+      <!-- メンバー -->
+      <div class="ps-label">
+        <span class="icon sym-circle">●</span>
+        <span class="text">Members</span>
+        <span class="line"></span>
+      </div>
+      <div class="save-slots">
+        <div class="save-slot moe ps-fade">
+          <div class="slot-icon">♥</div>
+          <div class="slot-info">
+            <div class="slot-name">モカ</div>
+            <div class="slot-desc">共感翻訳 / 萌コア</div>
+          </div>
+          <span class="slot-badge">MOE</span>
+        </div>
+        <div class="save-slot tech ps-fade">
+          <div class="slot-icon">⚗</div>
+          <div class="slot-info">
+            <div class="slot-name">リツ</div>
+            <div class="slot-desc">ファクト警察 / 技コア</div>
+          </div>
+          <span class="slot-badge">TECH</span>
+        </div>
+        <div class="save-slot guard ps-fade">
+          <div class="slot-icon">◇</div>
+          <div class="slot-info">
+            <div class="slot-name">カノン</div>
+            <div class="slot-desc">炎上予防装置 / 守コア</div>
+          </div>
+          <span class="slot-badge">GUARD</span>
+        </div>
+        <div class="save-slot chair ps-fade">
+          <div class="slot-icon">♛</div>
+          <div class="slot-info">
+            <div class="slot-name">レイカ</div>
+            <div class="slot-desc">結論製造機 / 統括</div>
+          </div>
+          <span class="slot-badge">CHAIR</span>
+        </div>
+        <div class="save-slot gal ps-fade">
+          <div class="slot-icon">★</div>
+          <div class="slot-info">
+            <div class="slot-name">ルナ</div>
+            <div class="slot-desc">バズ製造姫 / ギャル</div>
+          </div>
+          <span class="slot-badge">GAL</span>
+        </div>
+      </div>
+
+      <!-- シナリオ -->
+      <div class="ps-label">
+        <span class="icon sym-tri" style="color: var(--ps-tri);">△</span>
+        <span class="text">Scenarios</span>
+        <span class="line"></span>
+      </div>
+      <div class="xmb-list">
+        <div class="xmb-item">
+          <div class="xmb-num">01</div>
+          <div class="xmb-text">副業でAIサービスを始めるべき？</div>
+          <div class="xmb-arrow">›</div>
+        </div>
+        <div class="xmb-item">
+          <div class="xmb-num">02</div>
+          <div class="xmb-text">社内データをClaude APIに渡していい？</div>
+          <div class="xmb-arrow">›</div>
+        </div>
+        <div class="xmb-item">
+          <div class="xmb-num">03</div>
+          <div class="xmb-text">勉強会をYouTubeで公開配信すべき？</div>
+          <div class="xmb-arrow">›</div>
+        </div>
+      </div>
+
+      <!-- フッター -->
+      <div class="ps-footer">
+        <div class="ps-footer-symbols">
+          <span class="sym-circle">●</span>
+          <span class="sym-cross">✕</span>
+          <span class="sym-tri">△</span>
+          <span class="sym-square">■</span>
+        </div>
+        <div class="ps-footer-text">MO-GI v1.0</div>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>

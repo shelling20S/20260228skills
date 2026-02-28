@@ -1,0 +1,670 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>案08: エディトリアル — MO-GI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/7.4.47/css/materialdesignicons.min.css" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #e8e4de;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    font-family: 'Zen Maru Gothic', sans-serif;
+  }
+
+  .phone-frame {
+    width: 375px;
+    height: 812px;
+    background: #f7f3ee;
+    overflow-y: auto;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Scrollbar styling */
+  .phone-frame::-webkit-scrollbar { width: 0; }
+
+  /* ===== HEADER / MASTHEAD ===== */
+  .masthead {
+    padding: 32px 24px 0;
+    position: relative;
+  }
+
+  .masthead-rule {
+    height: 3px;
+    background: #2c2c2c;
+    margin-bottom: 8px;
+  }
+
+  .masthead-rule-thin {
+    height: 1px;
+    background: #2c2c2c;
+    margin-bottom: 16px;
+  }
+
+  .masthead-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 4px;
+  }
+
+  .masthead-label {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 9px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #2c2c2c;
+    opacity: 0.5;
+  }
+
+  .masthead-issue {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 9px;
+    letter-spacing: 2px;
+    color: #2c2c2c;
+    opacity: 0.5;
+  }
+
+  /* ===== COVER TITLE ===== */
+  .cover-block {
+    position: relative;
+    margin: 0 -24px;
+    padding: 0 24px;
+  }
+
+  .cover-accent-bar {
+    position: absolute;
+    top: 12px;
+    left: 0;
+    width: 140px;
+    height: 72px;
+    background: #ffc6d9;
+    z-index: 0;
+  }
+
+  .cover-title {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 52px;
+    font-weight: 900;
+    color: #2c2c2c;
+    line-height: 0.92;
+    letter-spacing: -1px;
+    position: relative;
+    z-index: 1;
+    padding-top: 4px;
+  }
+
+  .cover-title .mdi {
+    font-size: 28px;
+    color: #e63946;
+    vertical-align: middle;
+    margin-right: 4px;
+  }
+
+  .cover-title-sub {
+    display: block;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 52px;
+    font-weight: 900;
+    color: #2c2c2c;
+    line-height: 0.92;
+    letter-spacing: -1px;
+    margin-top: 2px;
+  }
+
+  .cover-subtitle {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 10px;
+    font-style: italic;
+    letter-spacing: 4px;
+    color: #2c2c2c;
+    opacity: 0.55;
+    margin-top: 12px;
+    text-transform: uppercase;
+  }
+
+  /* ===== PULL QUOTE / CATCHCOPY ===== */
+  .pullquote-section {
+    margin: 28px 0 0;
+    padding: 0 24px;
+    position: relative;
+  }
+
+  .pullquote-rule {
+    height: 1px;
+    background: #2c2c2c;
+    opacity: 0.15;
+    margin-bottom: 20px;
+  }
+
+  .pullquote {
+    position: relative;
+    padding: 0 8px 0 0;
+  }
+
+  .pullquote-mark-open {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 96px;
+    font-weight: 900;
+    color: #e63946;
+    opacity: 0.18;
+    line-height: 0.5;
+    position: absolute;
+    top: -8px;
+    left: -12px;
+    z-index: 0;
+    user-select: none;
+  }
+
+  .pullquote-mark-close {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 96px;
+    font-weight: 900;
+    color: #e63946;
+    opacity: 0.18;
+    line-height: 0.5;
+    position: absolute;
+    bottom: -32px;
+    right: 0;
+    z-index: 0;
+    user-select: none;
+  }
+
+  .pullquote-text {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #2c2c2c;
+    line-height: 1.7;
+    position: relative;
+    z-index: 1;
+    letter-spacing: 1px;
+  }
+
+  .pullquote-text em {
+    font-style: normal;
+    color: #e63946;
+    font-weight: 700;
+  }
+
+  .pullquote-credit {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 9px;
+    font-style: italic;
+    color: #2c2c2c;
+    opacity: 0.4;
+    margin-top: 16px;
+    letter-spacing: 2px;
+    text-align: right;
+  }
+
+  /* ===== CHARACTERS: EDITORIAL ASYMMETRIC LAYOUT ===== */
+  .characters-section {
+    margin-top: 32px;
+    padding: 0 24px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .section-number {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 48px;
+    font-weight: 900;
+    color: #2c2c2c;
+    line-height: 1;
+    opacity: 0.12;
+  }
+
+  .section-label {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: #2c2c2c;
+    opacity: 0.6;
+  }
+
+  .section-rule {
+    height: 1px;
+    background: #2c2c2c;
+    opacity: 0.12;
+    margin-bottom: 16px;
+  }
+
+  /* Characters grid: asymmetric 2-column + 3-column */
+  .char-grid {
+    display: grid;
+    gap: 10px;
+  }
+
+  .char-row-top {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .char-row-bottom {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+  }
+
+  .char-card {
+    position: relative;
+    padding: 16px 12px 14px;
+    background: #f7f3ee;
+    border: 1px solid rgba(44,44,44,0.08);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    overflow: hidden;
+  }
+
+  .char-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 3px;
+    height: 100%;
+    transition: width 0.25s ease;
+  }
+
+  .char-card:hover::before {
+    width: 100%;
+    opacity: 0.06;
+  }
+
+  .char-card:hover {
+    border-color: rgba(44,44,44,0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(44,44,44,0.08);
+  }
+
+  .char-card.moe::before { background: #FF8FAB; }
+  .char-card.tech::before { background: #64B5F6; }
+  .char-card.guard::before { background: #81C784; }
+  .char-card.chair::before { background: #FFD54F; }
+  .char-card.gal::before { background: #FF8A65; }
+
+  .char-card-icon {
+    font-size: 24px;
+    margin-bottom: 6px;
+    display: block;
+  }
+
+  .char-card.moe .char-card-icon { color: #FF8FAB; }
+  .char-card.tech .char-card-icon { color: #64B5F6; }
+  .char-card.guard .char-card-icon { color: #81C784; }
+  .char-card.chair .char-card-icon { color: #FFD54F; }
+  .char-card.gal .char-card-icon { color: #FF8A65; }
+
+  .char-card-name {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    color: #2c2c2c;
+    line-height: 1.2;
+  }
+
+  .char-card-role {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 9px;
+    font-style: italic;
+    color: #2c2c2c;
+    opacity: 0.45;
+    letter-spacing: 1px;
+    margin-top: 3px;
+  }
+
+  /* Tooltip */
+  .char-card .char-tooltip {
+    display: none;
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2c2c2c;
+    color: #f7f3ee;
+    font-size: 11px;
+    padding: 6px 12px;
+    white-space: nowrap;
+    z-index: 10;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+  }
+
+  .char-card .char-tooltip::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: #2c2c2c;
+  }
+
+  .char-card:hover .char-tooltip { display: block; }
+
+  /* Featured character (large card) */
+  .char-card.featured {
+    padding: 20px 16px;
+  }
+
+  .char-card.featured .char-card-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+  }
+
+  .char-card.featured .char-card-name {
+    font-size: 16px;
+  }
+
+  .char-card.featured .char-card-tagline {
+    font-size: 11px;
+    color: #2c2c2c;
+    opacity: 0.55;
+    margin-top: 6px;
+    line-height: 1.5;
+  }
+
+  /* ===== SCENARIOS: MAGAZINE ARTICLE PREVIEWS ===== */
+  .scenarios-section {
+    margin-top: 36px;
+    padding: 0 24px;
+  }
+
+  .scenario-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .scenario-article {
+    padding: 18px 0;
+    border-bottom: 1px solid rgba(44,44,44,0.1);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s ease;
+    display: grid;
+    grid-template-columns: 48px 1fr;
+    gap: 12px;
+    align-items: start;
+  }
+
+  .scenario-article:first-child {
+    border-top: 1px solid rgba(44,44,44,0.1);
+  }
+
+  .scenario-article:hover {
+    background: rgba(44,44,44,0.02);
+    padding-left: 4px;
+    padding-right: -4px;
+  }
+
+  .scenario-num {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 42px;
+    font-weight: 900;
+    color: #2c2c2c;
+    opacity: 0.1;
+    line-height: 1;
+    text-align: center;
+    padding-top: 2px;
+  }
+
+  .scenario-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .scenario-tag {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: #e63946;
+    opacity: 0.7;
+  }
+
+  .scenario-title {
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    color: #2c2c2c;
+    line-height: 1.5;
+  }
+
+  .scenario-excerpt {
+    font-size: 11px;
+    color: #2c2c2c;
+    opacity: 0.45;
+    line-height: 1.5;
+    font-style: italic;
+    font-family: 'Bodoni Moda', serif;
+    letter-spacing: 0.5px;
+  }
+
+  .scenario-result {
+    display: inline-block;
+    font-family: 'Bodoni Moda', serif;
+    font-size: 9px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    margin-top: 4px;
+    border: 1px solid;
+  }
+
+  .scenario-result.conditional {
+    color: #c97a00;
+    border-color: rgba(201,122,0,0.3);
+  }
+
+  .scenario-result.denied {
+    color: #e63946;
+    border-color: rgba(230,57,70,0.3);
+  }
+
+  .scenario-result.approved {
+    color: #2d8a4e;
+    border-color: rgba(45,138,78,0.3);
+  }
+
+  /* ===== FOOTER ===== */
+  .footer {
+    margin-top: 36px;
+    padding: 0 24px 32px;
+    text-align: center;
+  }
+
+  .footer-rule {
+    height: 1px;
+    background: #2c2c2c;
+    opacity: 0.12;
+    margin-bottom: 16px;
+  }
+
+  .footer-rule-thick {
+    height: 3px;
+    background: #2c2c2c;
+    margin-top: 4px;
+  }
+
+  .footer-text {
+    font-family: 'Bodoni Moda', serif;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: #2c2c2c;
+    opacity: 0.35;
+    text-transform: uppercase;
+  }
+
+  /* ===== FADE-IN ANIMATION ===== */
+  .fade-in {
+    opacity: 0;
+    transform: translateY(10px);
+    animation: editorialFadeIn 0.7s ease forwards;
+  }
+
+  .fade-in-d1 { animation-delay: 0.1s; }
+  .fade-in-d2 { animation-delay: 0.2s; }
+  .fade-in-d3 { animation-delay: 0.35s; }
+  .fade-in-d4 { animation-delay: 0.5s; }
+  .fade-in-d5 { animation-delay: 0.65s; }
+
+  @keyframes editorialFadeIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+  <div class="phone-frame">
+
+    <!-- ===== MASTHEAD ===== -->
+    <div class="masthead fade-in fade-in-d1">
+      <div class="masthead-rule"></div>
+      <div class="masthead-rule-thin"></div>
+      <div class="masthead-meta">
+        <span class="masthead-label">Tokyo Culture Magazine</span>
+        <span class="masthead-issue">Vol. 01 / 2026</span>
+      </div>
+    </div>
+
+    <!-- ===== COVER TITLE ===== -->
+    <div class="cover-block fade-in fade-in-d2">
+      <div class="cover-accent-bar"></div>
+      <div style="padding: 0 24px;">
+        <div class="cover-title">
+          <span class="mdi mdi-play"></span>萌GI
+        </div>
+        <span class="cover-title-sub">SYSTEM</span>
+        <div class="cover-subtitle">mo-gi decision making system</div>
+      </div>
+    </div>
+
+    <!-- ===== PULL QUOTE ===== -->
+    <div class="pullquote-section fade-in fade-in-d3">
+      <div class="pullquote-rule"></div>
+      <div class="pullquote">
+        <span class="pullquote-mark-open">&ldquo;</span>
+        <span class="pullquote-mark-close">&rdquo;</span>
+        <div class="pullquote-text">
+          <em>GAL</em>が5人で<br>会議したら<br>こうなる。
+        </div>
+      </div>
+      <div class="pullquote-credit">&mdash; 5 AI characters, 1 decision</div>
+    </div>
+
+    <!-- ===== CHARACTERS ===== -->
+    <div class="characters-section fade-in fade-in-d4">
+      <div class="section-header">
+        <span class="section-number">01</span>
+        <span class="section-label">The Cast</span>
+      </div>
+      <div class="section-rule"></div>
+
+      <div class="char-grid">
+        <div class="char-row-top">
+          <div class="char-card chair featured">
+            <span class="char-tooltip">結論製造機 / 統括</span>
+            <span class="char-card-icon mdi mdi-crown"></span>
+            <div class="char-card-name">黒羽レイカ</div>
+            <div class="char-card-role">Chair / Conclusion Maker</div>
+            <div class="char-card-tagline">結論から言うね。</div>
+          </div>
+          <div class="char-card gal featured">
+            <span class="char-tooltip">バズ製造姫 / ギャル</span>
+            <span class="char-card-icon mdi mdi-star"></span>
+            <div class="char-card-name">陽キャ神ルナ</div>
+            <div class="char-card-role">Gal / Buzz Maker</div>
+            <div class="char-card-tagline">それ、伸びる！</div>
+          </div>
+        </div>
+        <div class="char-row-bottom">
+          <div class="char-card moe">
+            <span class="char-tooltip">共感翻訳 / 萌コア</span>
+            <span class="char-card-icon mdi mdi-heart"></span>
+            <div class="char-card-name">綿雲モカ</div>
+            <div class="char-card-role">Empathy</div>
+          </div>
+          <div class="char-card tech">
+            <span class="char-tooltip">ファクト警察 / 技コア</span>
+            <span class="char-card-icon mdi mdi-flask"></span>
+            <div class="char-card-name">真白リツ</div>
+            <div class="char-card-role">Fact</div>
+          </div>
+          <div class="char-card guard">
+            <span class="char-tooltip">炎上予防装置 / 守コア</span>
+            <span class="char-card-icon mdi mdi-shield"></span>
+            <div class="char-card-name">戒堂カノン</div>
+            <div class="char-card-role">Guard</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== SCENARIOS ===== -->
+    <div class="scenarios-section fade-in fade-in-d5">
+      <div class="section-header">
+        <span class="section-number">02</span>
+        <span class="section-label">Features</span>
+      </div>
+      <div class="section-rule"></div>
+
+      <div class="scenario-list">
+        <div class="scenario-article">
+          <div class="scenario-num">01</div>
+          <div class="scenario-content">
+            <div class="scenario-tag">Scenario</div>
+            <div class="scenario-title">副業でAIサービスを始めるべき？</div>
+            <div class="scenario-excerpt">"Rule first, then start dash."</div>
+            <span class="scenario-result conditional">Conditional</span>
+          </div>
+        </div>
+
+        <div class="scenario-article">
+          <div class="scenario-num">02</div>
+          <div class="scenario-content">
+            <div class="scenario-tag">Scenario</div>
+            <div class="scenario-title">社内データをClaude APIに渡していい？</div>
+            <div class="scenario-excerpt">"Not now, but there is a way."</div>
+            <span class="scenario-result denied">Denied</span>
+          </div>
+        </div>
+
+        <div class="scenario-article">
+          <div class="scenario-num">03</div>
+          <div class="scenario-content">
+            <div class="scenario-tag">Scenario</div>
+            <div class="scenario-title">勉強会をYouTubeで公開配信すべき？</div>
+            <div class="scenario-excerpt">"Test stream, then go!"</div>
+            <span class="scenario-result approved">Approved</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <div class="footer">
+      <div class="footer-rule"></div>
+      <div class="footer-text">MO-GI v1.0</div>
+      <div class="footer-rule-thick"></div>
+    </div>
+
+  </div>
+</body>
+</html>

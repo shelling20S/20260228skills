@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>案13: カワイイ — MO-GI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cherry+Bomb+One&family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #f8e8f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Zen Maru Gothic', sans-serif;
+    }
+
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: linear-gradient(180deg, #fff5f8 0%, #f0f8ff 50%, #fff0f5 100%);
+      overflow-y: auto;
+      overflow-x: hidden;
+      position: relative;
+      border-radius: 40px;
+      box-shadow: 0 8px 32px rgba(255, 182, 193, 0.3);
+    }
+
+    /* 星の装飾 */
+    .stars {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .stars::before,
+    .stars::after {
+      content: '';
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: #ffd1dc;
+      border-radius: 50%;
+      animation: twinkle 2s ease-in-out infinite;
+    }
+
+    .stars::before {
+      top: 60px;
+      left: 30px;
+      animation-delay: 0s;
+    }
+
+    .stars::after {
+      top: 120px;
+      right: 40px;
+      animation-delay: 1s;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.3; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.2); }
+    }
+
+    .container {
+      padding: 48px 24px 40px;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* タイトル */
+    .title-area {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .title {
+      font-family: 'Cherry Bomb One', cursive;
+      font-size: 32px;
+      color: #ff69b4;
+      letter-spacing: 2px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-shadow: 2px 2px 0 #fff, 4px 4px 0 rgba(255, 105, 180, 0.2);
+    }
+
+    .title i {
+      font-size: 26px;
+      color: #ff69b4;
+      animation: bounce 1s ease-in-out infinite;
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+
+    .title .gi {
+      color: #87ceeb;
+    }
+
+    .subtitle {
+      font-size: 10px;
+      color: #b0b0b0;
+      letter-spacing: 4px;
+      margin-top: 12px;
+      text-transform: uppercase;
+    }
+
+    /* ハート区切り */
+    .heart-divider {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      margin: 24px 0;
+      color: #ffb6c1;
+      font-size: 12px;
+    }
+
+    .heart-divider::before,
+    .heart-divider::after {
+      content: '';
+      width: 50px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #ffb6c1, transparent);
+      border-radius: 2px;
+    }
+
+    /* キャッチコピー */
+    .catchcopy {
+      text-align: center;
+      font-size: 15px;
+      color: #666;
+      margin-bottom: 32px;
+      line-height: 2;
+      letter-spacing: 1px;
+    }
+
+    .catchcopy .gal {
+      color: #ff69b4;
+      font-weight: 700;
+    }
+
+    /* セクションラベル */
+    .section-label {
+      font-size: 12px;
+      color: #ff69b4;
+      font-weight: 700;
+      letter-spacing: 2px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-label i {
+      font-size: 16px;
+    }
+
+    /* シナリオカード */
+    .scenario-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 36px;
+    }
+
+    .scenario-card {
+      background: #fff;
+      border: 2px solid #ffb6c1;
+      border-radius: 20px;
+      padding: 16px 20px;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(255, 182, 193, 0.15);
+    }
+
+    .scenario-card::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: 16px;
+      width: 12px;
+      height: 12px;
+      background: #ffb6c1;
+      border-radius: 50%;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .scenario-card:hover {
+      transform: translateY(-4px) scale(1.02);
+      box-shadow: 0 8px 24px rgba(255, 105, 180, 0.25);
+      border-color: #ff69b4;
+    }
+
+    .scenario-card:hover::before {
+      opacity: 1;
+    }
+
+    .scenario-number {
+      font-size: 10px;
+      color: #87ceeb;
+      font-weight: 700;
+      margin-bottom: 6px;
+      letter-spacing: 2px;
+    }
+
+    .scenario-title {
+      font-size: 14px;
+      color: #555;
+      line-height: 1.7;
+      letter-spacing: 0.5px;
+      padding-right: 28px;
+    }
+
+    .scenario-arrow {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 20px;
+      color: #ffb6c1;
+      transition: all 0.3s;
+    }
+
+    .scenario-card:hover .scenario-arrow {
+      color: #ff69b4;
+      transform: translateY(-50%) translateX(4px);
+    }
+
+    /* キャラクター */
+    .characters {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+    }
+
+    .char-item {
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .char-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      background: #fff;
+      border: 3px solid;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .char-icon:hover {
+      transform: scale(1.15) rotate(5deg);
+    }
+
+    .char-icon.moe {
+      border-color: #ffb6c1;
+      color: #ff69b4;
+      background: linear-gradient(135deg, #fff0f5, #fff);
+    }
+    .char-icon.tech {
+      border-color: #add8e6;
+      color: #4682b4;
+      background: linear-gradient(135deg, #f0f8ff, #fff);
+    }
+    .char-icon.guard {
+      border-color: #98fb98;
+      color: #3cb371;
+      background: linear-gradient(135deg, #f0fff0, #fff);
+    }
+    .char-icon.chair {
+      border-color: #ffe4b5;
+      color: #daa520;
+      background: linear-gradient(135deg, #fffaf0, #fff);
+    }
+    .char-icon.gal {
+      border-color: #ffa07a;
+      color: #ff6347;
+      background: linear-gradient(135deg, #fff5ee, #fff);
+    }
+
+    .char-name {
+      font-size: 12px;
+      color: #888;
+      margin-top: 8px;
+      font-weight: 500;
+    }
+
+    /* ツールチップ */
+    .char-item .tooltip {
+      display: none;
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fff;
+      border: 2px solid #ffb6c1;
+      border-radius: 12px;
+      color: #666;
+      font-size: 10px;
+      padding: 8px 14px;
+      white-space: nowrap;
+      margin-bottom: 10px;
+      z-index: 10;
+      box-shadow: 0 4px 12px rgba(255, 182, 193, 0.2);
+    }
+
+    .char-item .tooltip::after {
+      content: '';
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      border: 6px solid transparent;
+      border-top-color: #ffb6c1;
+    }
+
+    .char-item:hover .tooltip { display: block; }
+
+    /* フッター */
+    .footer {
+      text-align: center;
+      font-size: 11px;
+      color: #ccc;
+      letter-spacing: 2px;
+    }
+
+    .footer i {
+      color: #ffb6c1;
+      margin: 0 4px;
+    }
+
+    /* アニメーション */
+    .pop-in {
+      opacity: 0;
+      transform: scale(0.8);
+      animation: popIn 0.5s ease forwards;
+    }
+    .pop-in:nth-child(1) { animation-delay: 0.1s; }
+    .pop-in:nth-child(2) { animation-delay: 0.2s; }
+    .pop-in:nth-child(3) { animation-delay: 0.3s; }
+
+    @keyframes popIn {
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    /* スクロールバー */
+    .phone-frame::-webkit-scrollbar { width: 6px; }
+    .phone-frame::-webkit-scrollbar-thumb {
+      background: linear-gradient(#ffb6c1, #87ceeb);
+      border-radius: 6px;
+    }
+    .phone-frame::-webkit-scrollbar-track {
+      background: rgba(255, 182, 193, 0.1);
+      border-radius: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="stars"></div>
+    <div class="container">
+
+      <!-- タイトル -->
+      <div class="title-area">
+        <div class="title">
+          <i class="ri-play-fill"></i>
+          萌<span class="gi">GI</span> SYSTEM
+        </div>
+        <div class="subtitle">MO-GI Decision Making System</div>
+      </div>
+
+      <div class="heart-divider">
+        <i class="ri-heart-fill"></i>
+      </div>
+
+      <!-- キャッチコピー -->
+      <div class="catchcopy">
+        「<span class="gal">GAL</span>が5人で会議したら<br>こうなる。」
+      </div>
+
+      <!-- シナリオ -->
+      <div class="section-label">
+        <i class="ri-star-fill"></i> おためしシナリオ
+      </div>
+      <div class="scenario-list">
+        <div class="scenario-card pop-in">
+          <div class="scenario-number">SCENARIO 01</div>
+          <div class="scenario-title">副業でAIサービスを始めるべき？</div>
+          <div class="scenario-arrow"><i class="ri-arrow-right-s-line"></i></div>
+        </div>
+        <div class="scenario-card pop-in">
+          <div class="scenario-number">SCENARIO 02</div>
+          <div class="scenario-title">社内データをClaude APIに渡していい？</div>
+          <div class="scenario-arrow"><i class="ri-arrow-right-s-line"></i></div>
+        </div>
+        <div class="scenario-card pop-in">
+          <div class="scenario-number">SCENARIO 03</div>
+          <div class="scenario-title">勉強会をYouTubeで公開配信すべき？</div>
+          <div class="scenario-arrow"><i class="ri-arrow-right-s-line"></i></div>
+        </div>
+      </div>
+
+      <!-- キャラクター -->
+      <div class="section-label">
+        <i class="ri-group-fill"></i> メンバー
+      </div>
+      <div class="characters">
+        <div class="char-item">
+          <div class="tooltip">共感翻訳 / 萌コア</div>
+          <div class="char-icon moe"><i class="ri-heart-fill"></i></div>
+          <div class="char-name">モカ</div>
+        </div>
+        <div class="char-item">
+          <div class="tooltip">ファクト警察 / 技コア</div>
+          <div class="char-icon tech"><i class="ri-flask-fill"></i></div>
+          <div class="char-name">リツ</div>
+        </div>
+        <div class="char-item">
+          <div class="tooltip">炎上予防装置 / 守コア</div>
+          <div class="char-icon guard"><i class="ri-shield-fill"></i></div>
+          <div class="char-name">カノン</div>
+        </div>
+        <div class="char-item">
+          <div class="tooltip">結論製造機 / 統括</div>
+          <div class="char-icon chair"><i class="ri-vip-crown-fill"></i></div>
+          <div class="char-name">レイカ</div>
+        </div>
+        <div class="char-item">
+          <div class="tooltip">バズ製造姫 / ギャル</div>
+          <div class="char-icon gal"><i class="ri-star-fill"></i></div>
+          <div class="char-name">ルナ</div>
+        </div>
+      </div>
+
+      <!-- フッター -->
+      <div class="footer">
+        MO-GI v1.0 <i class="ri-heart-fill"></i>
+      </div>
+
+    </div>
+  </div>
+</body>
+</html>
